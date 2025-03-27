@@ -1,7 +1,7 @@
 site_name: Compiladores | Grupo 1
 
 repo_name: "compiladores-equipe-1"
-repo_url: https://github.com/2025.1-T01-G01-Compiladores
+repo_url: https://github.com/brunna-martins/compiladores-equipe-1
 
 nav:
   - Início: index.md

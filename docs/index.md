@@ -12,7 +12,6 @@ Em suma o projeto desenvolvido busca compreender o funcionamento de um compilado
 ## 3. Equipe
 A equipe de desenvolvedores é composta por 6 membros do curso de Engenharia de Software da Universidade de Brasília.
 
-## Equipe
 | Imagem | Nome | 
 | --- | --- | 
 | <img src="https://avatars.githubusercontent.com/u/121466324?v=4" alt="Imagem 1" width="100" height="100"/> | [Arthur Suares](https://github.com/arthur-suares) |
@@ -23,7 +22,7 @@ A equipe de desenvolvedores é composta por 6 membros do curso de Engenharia de 
 | <img src="https://avatars.githubusercontent.com/u/54339291?v=4" alt="Imagem 6" width="100" height="100"/> | [Taynara Marcellos](https://github.com/TaynaraCris) | 
 
 
-## Histórico de Versões
+## 4. Histórico de Versões
 
 A Tabela 1 registra o histórico de versão desse documento.
 

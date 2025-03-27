@@ -17,6 +17,7 @@ Semana de ambientação da disciplina. Formamos um grupo e optamos pelo desenvol
 - Decidir linguagens abordadas no projeto
 - Fazer cronograma
 - Definir SCRUM Master
+- Estabelecer regras e boas práticas para o projeto
 
 ## Histórico de Versões
 

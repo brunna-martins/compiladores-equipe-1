@@ -6,7 +6,7 @@ repo_url: https://github.com/2025.1-T01-G01-Compiladores
 nav:
   - Início: index.md
   - Acompanhamento Semanal:
-    - semana-01.md
+    - Semana 1: semana-01.md
 
 theme:
   name: material

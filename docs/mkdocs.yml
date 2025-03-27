@@ -1,12 +1,10 @@
 site_name: Compiladores | Grupo 1
 
-# repo_name: "2024.2-T03-CafeDoSitio"
-# repo_url: https://github.com/mdsreq-fga-unb/2024.2-T03-CafeDoSitio
+repo_name: "compiladores-equipe-1"
+repo_url: https://github.com/2025.1-T01-G01-Compiladores
 
 nav:
   - Início: index.md
-
-  
 
 theme:
   name: material
@@ -22,20 +20,17 @@ theme:
 
   palette:
     - scheme: default
-      primary: 'green'
-      accent: 'lime'
+      primary: ''
       toggle:
         icon: material/toggle-switch-off-outline
         name: Switch to dark mode
         
     - scheme: slate
-      primary: 'green'
-      accent: 'lime'
+      primary: ''
       toggle:
         icon: material/toggle-switch
         name: Switch to light mode
   
   highlightjs: true
 
-extra_css:
-  - stylesheets/styles.css
+site_dir: site

@@ -7,6 +7,7 @@ nav:
   - Início: index.md
   - Acompanhamento Semanal:
     - Semana 1: semana-01.md
+    - Semana 2: semana-02.md
 
 theme:
   name: material

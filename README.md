@@ -78,6 +78,13 @@ pip install mkdocs mkdocs-material
 ##### OPCIONAL | EM CASO DE ERRO NO COMANDO ACIMA:
 Em versões mais atuais do Ubuntu, como o 24.04, não é aceito mais o pip como instalador de pacotes e, por isso, é necessário criar um ambiente virtual para realizar as instalações do python, como o Mkdocs. Para isso, utilize os seguintes comandos:
 
+Instale o mkdocs e o mkdocs-material pelo gerenciador de pacotes apt (Advanced Package Tool)
+```shell
+sudo apt install mkdocs mkdocs-material
+```
+##### CASO O COMANDO ACIMA TENHA FALHADO TAMBÉM
+Caso a instalacao pelo comando acima tenha falhado, pode-se utilizar um ambiente virtual para instalar o mkdocs e o mkdocs-material via pip.
+
 Utilize o código abaixo para criar uma pasta para o ambiente virtual:
 ```shell
 python3 -m venv .venv

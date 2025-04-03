@@ -8,7 +8,10 @@ nav:
   - Acompanhamento Semanal:
     - Semana 1: semana-01.md
     - Semana 2: semana-02.md
-
+  - Definição do projeto: 
+    - Contexto: contexto.md
+    - Cronograma de Sprints: cronograma.md 
+    - Analisador Lexico: analisador-lexico.md
 theme:
   name: material
   language: pt-BR

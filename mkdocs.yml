@@ -6,12 +6,26 @@ repo_url: https://github.com/brunna-martins/compiladores-equipe-1
 nav:
   - Início: index.md
   - Acompanhamento Semanal:
-    - Semana 1: semana-01.md
-    - Semana 2: semana-02.md
-  - Definição do projeto: 
-    - Contexto: contexto.md
-    - Cronograma de Sprints: cronograma.md 
-    - Analisador Lexico: analisador-lexico.md
+    - Semana 1: acompanhamento/semana-01.md
+    - Semana 2: acompanhamento/semana-02.md
+  - Reuniões: 
+    - Sprint 2:
+      - Ata: reunioes/sprint2/ata.md
+      - Pautas: reunioes/sprint2/pautas.md
+    - Sprint 3:
+      - Ata: reunioes/sprint3/ata.md
+      - Pautas: reunioes/sprint3/pautas.md 
+  - Entregas: 
+    - Entrega 1:
+      - Definição do Projeto: entrega1/definicao.md
+      - Linguagem Escolhida: entrega1/linguagem.md
+      - Cronograma de Sprints: entrega1/cronograma.md 
+      - Decisões Técnicas: entrega1/decisoes.md
+      - Desafios Encontrados: entrega1/desafios.md
+      - Soluções Adotadas: entrega1/solucoes.md
+  - Analisador Léxico: analisadores/analisador-lexico.md
+  - Analisador Sintático: analisadores/analisador-sintatico.md
+  - Analisador Semântico: analisadores/analisador-semantico.md
 theme:
   name: material
   language: pt-BR
@@ -39,4 +53,3 @@ theme:
   
   highlightjs: true
 
-site_dir: site

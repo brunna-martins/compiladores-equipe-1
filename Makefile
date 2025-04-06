@@ -1,9 +1,9 @@
 # Nome do executável
-EXEC = parser
+EXEC = compilador
 
 # Arquivos de entrada renomeados
-LEX = lexer.l
-YACC = parser.y
+LEX = lexer/lexer.l
+YACC = parser/parser.y
 
 # Arquivos gerados
 LEX_C = lex.yy.c
@@ -11,7 +11,7 @@ YACC_C = parser.tab.c
 YACC_H = parser.tab.h
 
 # Arquivo principal (você pode adicionar main.c se tiver)
-MAIN = main.c
+MAIN = src/main.c
 
 # Compilador e flags
 CC = gcc

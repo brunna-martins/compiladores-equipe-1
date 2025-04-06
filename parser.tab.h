@@ -60,7 +60,8 @@ extern int yydebug;
     TIMES = 261,                   /* TIMES  */
     DIVIDE = 262,                  /* DIVIDE  */
     LPAREN = 263,                  /* LPAREN  */
-    RPAREN = 264                   /* RPAREN  */
+    RPAREN = 264,                  /* RPAREN  */
+    UMINUS = 265                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

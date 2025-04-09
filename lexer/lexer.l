@@ -11,6 +11,7 @@
 "-"             { return MINUS; }
 "*"             { return TIMES; }
 "/"             { return DIVIDE; }
+"%"             { return MODULO; }
 "("             { return LPAREN; }
 ")"             { return RPAREN; }
 \n              { return '\n'; }  // Explicitly return newline as token

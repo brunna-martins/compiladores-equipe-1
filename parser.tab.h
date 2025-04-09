@@ -63,7 +63,7 @@ extern int yydebug;
     DIVIDE = 264,                  /* DIVIDE  */
     LPAREN = 265,                  /* LPAREN  */
     RPAREN = 266,                  /* RPAREN  */
-    UMINUS = 267                   /* UMINUS  */
+    MODULO = 267                   /* MODULO  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

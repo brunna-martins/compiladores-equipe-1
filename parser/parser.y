@@ -7,11 +7,10 @@ void yyerror(const char *s);
 %}
 
 %token NUM ERROR EQUAL
-%token PLUS MINUS TIMES DIVIDE LPAREN RPAREN
+%token PLUS MINUS TIMES DIVIDE LPAREN RPAREN MODULO
 
 %left PLUS MINUS
 %left TIMES DIVIDE
-%left UMINUS
 
 %%
 
@@ -27,13 +26,13 @@ line:
 ;
 
 expressao:
-    NUM                     { $$ = $1; }
+    NUM                           { $$ = $1; }
     | expressao PLUS expressao    { $$ = $1 + $3; }
     | expressao MINUS expressao   { $$ = $1 - $3; }
     | expressao TIMES expressao   { $$ = $1 * $3; }
     | expressao DIVIDE expressao  { $$ = $1 / $3; }
+    | expressao MODULO expressao  { $$ = $1 % $3; }
     | LPAREN expressao RPAREN     { $$ = $2; }
-    | MINUS expressao %prec UMINUS { $$ = -$2; }  // Unary minus
 ;
 
 %%

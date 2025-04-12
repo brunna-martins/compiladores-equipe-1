@@ -6,19 +6,32 @@ int yylex(void);
 void yyerror(const char *s);
 %}
 
-%token NUM
+%union {
+  int inteiro;
+  float real;
+  char* string;
+}
+
+%token <real> FLOAT_LITERAL
+%token <string> STRING_LITERAL
+%token <inteiro> NUM
 %token PLUS MINUS TIMES DIVIDE LPAREN RPAREN
 
-// Precedência e associatividade
 %left PLUS MINUS
 %left TIMES DIVIDE
-%left UMINUS  // pra quando formos implementar -x como negação
+%left UMINUS
 
 %%
 
 input:
-    expressao '\n'       { printf("Expressão válida!\n"); }
-  | '\n'                 { /* Linha vazia, ignora */ }
+    /* vazio */        { /* entrada vazia é válida */ }
+  | input linha        { /* acumula linhas válidas */ }
+  ;
+
+linha:
+    expressao '\n'     { printf("Expressão válida!\n"); }
+  | '\n'               { /* ignora linha vazia */ }
+  | error '\n'         { yyerrok; printf("Tente novamente.\n"); }
   ;
 
 expressao:
@@ -27,7 +40,9 @@ expressao:
     | expressao TIMES expressao
     | expressao DIVIDE expressao
     | LPAREN expressao RPAREN
-    | NUM
+    | NUM               { printf("NUM: %d\n", $1); }
+    | FLOAT_LITERAL     { printf("FLOAT: %f\n", $1); }
+    | STRING_LITERAL    { printf("STRING: %s\n", $1); free($1); }
     ;
 
 %%

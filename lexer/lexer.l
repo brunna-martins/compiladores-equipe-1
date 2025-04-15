@@ -33,7 +33,7 @@
 "#".*               { /*Ignora o conteúdo do comentário*/ }
 
 [0-9]+\.[0-9]+      { yylval.real = atof(yytext); return FLOAT_LITERAL;}
-[0-9]+              { yylval.inteiro = atoi(yytext); return NUM; }
+[0-9]+              { yylval.inteiro = atoi(yytext); return INT_LITERAL; }
 \"([^\"\\]|\\.)*\"  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 \'([^\'\\]|\\.)*\'  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 "+"                 { return PLUS; }

@@ -14,7 +14,7 @@ void yyerror(const char *s);
 
 %token <real> FLOAT_LITERAL
 %token <string> STRING_LITERAL
-%token <inteiro> NUM
+%token <inteiro> INT_LITERAL
 %token PLUS MINUS TIMES DIVIDE LPAREN RPAREN
 
 %left PLUS MINUS
@@ -40,7 +40,7 @@ expressao:
     | expressao TIMES expressao
     | expressao DIVIDE expressao
     | LPAREN expressao RPAREN
-    | NUM               { printf("NUM: %d\n", $1); }
+    | INT_LITERAL               { printf("INT: %d\n", $1); }
     | FLOAT_LITERAL     { printf("FLOAT: %f\n", $1); }
     | STRING_LITERAL    { printf("STRING: %s\n", $1); free($1); }
     ;

@@ -10,17 +10,17 @@ Segue abaixo a Tabela 1 contendo os tokens utilizados no compilador, além de su
 
 <center>
 
-| Token |Expressão regular correspondente  |Descrição|
-| --- | :--: |:--- |
-| INT_LITERAL | [0-9]+  | Designado a identificação de números inteiros.  |
-| FLOAT_LITERAL|[0-9]+\.[0-9]+| Designado a identificação de números float. |
-| STRING_LITERAL| \"([^\"\\]\|\\.)*\"    e     \'([^\'\\]\|\\.)*\' | Designado a identificação de strings. |
-|PLUS|"+"| Token usado durante operações de soma|
-|MINUS|"-"|Token usado para operações de subtração|
-|TIMES|"*"|Token usado para operações de multiplicação|
-|DIVIDE|"/"|Token usado para operações de divisão|
-|LPAREN|"("|Token usado para abrir parênteses|
-|RPAREN|")"|Token usado para fechar parênteses|
+| Token |Expressão regular correspondente | Campo yyval  | Descrição|
+| --- | :--: | :---: | :--- |
+| INT_LITERAL | [0-9]+ |ival | Designado a identificação de números inteiros.  |
+| FLOAT_LITERAL|[0-9]+\.[0-9]+|fval |Designado a identificação de números float. |
+| STRING_LITERAL| \"([^\"\\]\|\\.)*\"    e     \'([^\'\\]\|\\.)*\' |str |Designado a identificação de strings. |
+|PLUS|"+"| -- |Token usado durante operações de soma|
+|MINUS|"-"|--|Token usado para operações de subtração|
+|TIMES|"*"|--|Token usado para operações de multiplicação|
+|DIVIDE|"/"|--|Token usado para operações de divisão|
+|LPAREN|"("|--|Token usado para abrir parênteses|
+|RPAREN|")"|--|Token usado para fechar parênteses|
 
 Tabela 1: Tokens e suas respectivas expressões regulares. (Fonte: [Mariana Letícia](https://github.com/Marianannn), 2025)
 

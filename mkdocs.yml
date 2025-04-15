@@ -26,6 +26,7 @@ nav:
   - Analisador Léxico: analisadores/analisador-lexico.md
   - Analisador Sintático: analisadores/analisador-sintatico.md
   - Analisador Semântico: analisadores/analisador-semantico.md
+  - Tokens e comentários: tokens-comentarios.md
 theme:
   name: material
   language: pt-BR

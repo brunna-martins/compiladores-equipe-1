@@ -54,3 +54,9 @@ theme:
   
   highlightjs: true
 
+markdown_extensions:
+  - tables
+  - fenced_code
+  - codehilite
+  - attr_list
+  - pymdownx.tasklist

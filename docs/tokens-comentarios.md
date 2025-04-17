@@ -10,21 +10,77 @@ Segue abaixo a Tabela 1 contendo os tokens utilizados no compilador, além de su
 
 <center>
 
-| Token |Expressão regular correspondente | Campo yyval  | Descrição|
-| --- | :--: | :---: | :--- |
-| INT_LITERAL | `[0-9]+` | ival | Designado a identificação de números inteiros.  |
-| FLOAT_LITERAL| `[0-9]+\.[0-9]+` | fval |Designado a identificação de números float. |
-| STRING_LITERAL| `\"([^\"\\]\|\\.)*\"`    e     `\'([^\'\\]\|\\.)*\'` |str |Designado a identificação de strings. |
-|PLUS| `"+"` | -- |Token usado durante operações de soma|
-|MINUS| `"-"` |--|Token usado para operações de subtração|
-|TIMES| `"*"` |--|Token usado para operações de multiplicação|
-|DIVIDE| `"/"` |--|Token usado para operações de divisão|
-|LPAREN| `"("` |--|Token usado para abrir parênteses|
-|RPAREN| `")"` |--|Token usado para fechar parênteses|
+<table>
+  <thead>
+    <tr>
+      <th>Token</th>
+      <th>Expressão regular correspondente</th>
+      <th>Campo yyval</th>
+      <th>Descrição</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>INT_LITERAL</td>
+      <td><code>[0-9]+</code></td>
+      <td>ival</td>
+      <td>Designado a identificação de números inteiros.</td>
+    </tr>
+    <tr>
+      <td>FLOAT_LITERAL</td>
+      <td><code>[0-9]+\.[0-9]+</code></td>
+      <td>fval</td>
+      <td>Designado a identificação de números float.</td>
+    </tr>
+    <tr>
+      <td>STRING_LITERAL</td>
+      <td><code>&quot;([^&quot;\\]|\\.)*&quot;</code> e <code>&#39;([^&#39;\\]|\\.)*&#39;</code></td>
+      <td>str</td>
+      <td>Designado a identificação de strings.</td>
+    </tr>
+    <tr>
+      <td>PLUS</td>
+      <td><code>&quot;+&quot;</code></td>
+      <td>--</td>
+      <td>Token usado durante operações de soma</td>
+    </tr>
+    <tr>
+      <td>MINUS</td>
+      <td><code>&quot;-&quot;</code></td>
+      <td>--</td>
+      <td>Token usado para operações de subtração</td>
+    </tr>
+    <tr>
+      <td>TIMES</td>
+      <td><code>&quot;*&quot;</code></td>
+      <td>--</td>
+      <td>Token usado para operações de multiplicação</td>
+    </tr>
+    <tr>
+      <td>DIVIDE</td>
+      <td><code>&quot;/&quot;</code></td>
+      <td>--</td>
+      <td>Token usado para operações de divisão</td>
+    </tr>
+    <tr>
+      <td>LPAREN</td>
+      <td><code>&quot;(&quot;</code></td>
+      <td>--</td>
+      <td>Token usado para abrir parênteses</td>
+    </tr>
+    <tr>
+      <td>RPAREN</td>
+      <td><code>&quot;)&quot;</code></td>
+      <td>--</td>
+      <td>Token usado para fechar parênteses</td>
+    </tr>
+  </tbody>
+</table>
 
-Tabela 1: Tokens e suas respectivas expressões regulares. (Fonte: [Mariana Letícia](https://github.com/Marianannn), 2025)
+<p><em>Tabela 1: Tokens e suas respectivas expressões regulares. (Fonte: <a href="https://github.com/Marianannn">Mariana Letícia</a>, 2025)</em></p>
 
 </center>
+
 
 ## Comentários
 
@@ -32,11 +88,33 @@ Os comentários são elementos fundamentais a nível de organização e document
 
 <center>
 
-| Tipo de comentário | Expressão regular correspondente | Descrição |
-|---|:--:|:--|
-| Aspas duplas triplas | `\"\"\"([^"]|\n)*?\"\"\"` | Comentário de bloco |
-| Aspas simples triplas | `\'\'\'([^"]|\n)*?\'\'\'` | Comentário de bloco |
-| Hashtag | `"#".*` | Comentário de linha |
+<table>
+  <thead>
+    <tr>
+      <th>Tipo de comentário</th>
+      <th>Expressão regular correspondente</th>
+      <th>Descrição</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Aspas duplas triplas</td>
+      <td><code>&quot;&quot;&quot;([^&quot;]|\n)*?&quot;&quot;&quot;</code></td>
+      <td>Comentário de bloco</td>
+    </tr>
+    <tr>
+      <td>Aspas simples triplas</td>
+      <td><code>&#39;&#39;&#39;([^&#39;]|\n)*?&#39;&#39;&#39;</code></td>
+      <td>Comentário de bloco</td>
+    </tr>
+    <tr>
+      <td>Hashtag</td>
+      <td><code>&quot;#&quot;.*</code></td>
+      <td>Comentário de linha</td>
+    </tr>
+  </tbody>
+</table>
+
 
 
 Tabela 2: Comentários e suas respectivas expressões regulares. (Fonte: [Mariana Letícia](https://github.com/Marianannn), 2025)

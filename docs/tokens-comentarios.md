@@ -12,15 +12,15 @@ Segue abaixo a Tabela 1 contendo os tokens utilizados no compilador, além de su
 
 | Token |Expressão regular correspondente | Campo yyval  | Descrição|
 | --- | :--: | :---: | :--- |
-| INT_LITERAL | [0-9]+ |ival | Designado a identificação de números inteiros.  |
-| FLOAT_LITERAL|[0-9]+\.[0-9]+|fval |Designado a identificação de números float. |
-| STRING_LITERAL| \"([^\"\\]\|\\.)*\"    e     \'([^\'\\]\|\\.)*\' |str |Designado a identificação de strings. |
-|PLUS|"+"| -- |Token usado durante operações de soma|
-|MINUS|"-"|--|Token usado para operações de subtração|
-|TIMES|"*"|--|Token usado para operações de multiplicação|
-|DIVIDE|"/"|--|Token usado para operações de divisão|
-|LPAREN|"("|--|Token usado para abrir parênteses|
-|RPAREN|")"|--|Token usado para fechar parênteses|
+| INT_LITERAL | `[0-9]+` | ival | Designado a identificação de números inteiros.  |
+| FLOAT_LITERAL| `[0-9]+\.[0-9]+` | fval |Designado a identificação de números float. |
+| STRING_LITERAL| `\"([^\"\\]\|\\.)*\"`    e     `\'([^\'\\]\|\\.)*\'` |str |Designado a identificação de strings. |
+|PLUS| `"+"` | -- |Token usado durante operações de soma|
+|MINUS| `"-"` |--|Token usado para operações de subtração|
+|TIMES| `"*"` |--|Token usado para operações de multiplicação|
+|DIVIDE| `"/"` |--|Token usado para operações de divisão|
+|LPAREN| `"("` |--|Token usado para abrir parênteses|
+|RPAREN| `")"` |--|Token usado para fechar parênteses|
 
 Tabela 1: Tokens e suas respectivas expressões regulares. (Fonte: [Mariana Letícia](https://github.com/Marianannn), 2025)
 
@@ -32,11 +32,12 @@ Os comentários são elementos fundamentais a nível de organização e document
 
 <center>
 
-|Tipo de comentário|Expressão regular correspondente| Descrição|
+| Tipo de comentário | Expressão regular correspondente | Descrição |
 |---|:--:|:--|
-|Aspas duplas triplas|\"\"\"([^"]\|\n)*?\"\"\"|Comentário de bloco|
-|Aspas simples triplas |\'\'\'([^"]\|\n)*?\'\'\'|Comentário de bloco|
-|Hashtag|"#".* |Comentário de linha|
+| Aspas duplas triplas | `\"\"\"([^"]|\n)*?\"\"\"` | Comentário de bloco |
+| Aspas simples triplas | `\'\'\'([^"]|\n)*?\'\'\'` | Comentário de bloco |
+| Hashtag | `"#".*` | Comentário de linha |
+
 
 Tabela 2: Comentários e suas respectivas expressões regulares. (Fonte: [Mariana Letícia](https://github.com/Marianannn), 2025)
 

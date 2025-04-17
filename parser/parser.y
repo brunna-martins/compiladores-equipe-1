@@ -29,9 +29,9 @@ input:
   ;
 
 linha:
-    expressao '\n'     { printf("Expressão válida!\n"); }
+    expressao '\n'     { }
   | '\n'               { /* ignora linha vazia */ }
-  | error '\n'         { yyerrok; printf("Tente novamente.\n"); }
+  | error '\n'         { yyerrok; }
   ;
 
 expressao:
@@ -41,8 +41,8 @@ expressao:
     | expressao DIVIDE expressao
     | LPAREN expressao RPAREN
     | INT_LITERAL               { printf("INT: %d\n", $1); }
-    | FLOAT_LITERAL     { printf("FLOAT: %f\n", $1); }
-    | STRING_LITERAL    { printf("STRING: %s\n", $1); free($1); }
+    | FLOAT_LITERAL             { printf("FLOAT: %f\n", $1); }
+    | STRING_LITERAL            { printf("STRING: %s\n", $1); free($1); }
     ;
 
 %%

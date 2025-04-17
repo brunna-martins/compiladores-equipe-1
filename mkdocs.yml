@@ -30,6 +30,7 @@ nav:
 theme:
   name: material
   language: pt-BR
+  highlightjs: true
 
   features:
     - content.code.annotate
@@ -52,7 +53,7 @@ theme:
         icon: material/toggle-switch
         name: Switch to light mode
   
-  highlightjs: true
+  
 
 markdown_extensions:
   - tables
@@ -60,3 +61,7 @@ markdown_extensions:
   - codehilite
   - attr_list
   - pymdownx.tasklist
+  - codehilite:
+      guess_lang: false
+  - pymdownx.highlight
+  - pymdownx.superfences

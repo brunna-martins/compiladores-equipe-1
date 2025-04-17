@@ -81,7 +81,6 @@ Segue abaixo a Tabela 1 contendo os tokens utilizados no compilador, além de su
 
 </center>
 
-
 ## Comentários
 
 Os comentários são elementos fundamentais a nível de organização e documentação, provendo um bom auxílio também para estudos e afins. Sendo assim, foi incluído o reconhecimento de comentários no compilador. Porém, eles **são ignorados** através do lexer pois para o compilador em desenvolvimento, o conteúdo dentro do comentário não é relevante para alguma operação, servindo apenas como meio de documentação de código. Segue abaixo a Tabela 2 contendo os tipos de comentários e suas expressões regulares tratadas no compilador em questão:
@@ -115,16 +114,30 @@ Os comentários são elementos fundamentais a nível de organização e document
   </tbody>
 </table>
 
-
-
-Tabela 2: Comentários e suas respectivas expressões regulares. (Fonte: [Mariana Letícia](https://github.com/Marianannn), 2025)
-
+<p><em>Tabela 2: Comentários e suas respectivas expressões regulares. (Fonte: <a href="https://github.com/Marianannn">Mariana Letícia</a>, 2025)</em></p>
 </center>
 
----
+## Decisões técninas tomadas
 
+Durante a escrita da regex que identifica números inteiros e reias, foi escolhido identificar apenas os números, sem que a regex agrupasse o sinal que os números pudessem vir a ter. Deixando assim que uma regex separada se encarregasse de identifcar o sinal do número, seja ele um sinal positivo `+`, ou um sinal negativo `-`.
+
+Além disso, devido a como o python permite que strings estejam flutuando dentro do código fonte e possam servir de comentário consequentemente, foi então formada as regex `"""([^"]|\n)*?"""` e `'''([^']|\n)*?'''` que identificam uma string delimitada por 3 aspas duplas e simples, respectivamente. E nesse sentido, houve uma preocupação para que casos em que uma string dessa forma pudesse aparecer durante o funcionamento do compilador desenvolvido. Isso devido ao caso abaixo:
+
+```python    
+"""teste"""
+'''teste'''
+string = """teste"""
+x = 4 
+y = 5
+z = x + y
+
+print("Resultado:", z)
+```
+
+Onde o primeiro e segundo `"""teste"""` são ignorados, mas o terceiro é atribuído a variável `string`. Então, esses regex retornam um `STRING_LITERAL` para que possa ser analisado posteriormente no analisador sintático se essa string deva ou não ser ignorada. Diferentemente do comentário de linha `#`, que realmente não precisa retornar nada no regex.
 # Histórico de Versões
 
 |**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
 |:---: | :---: | :---: | :---: | :---: |
 | 13/04/2025 | 1.0 | Adicionando Tokens literais e de comentário | [Mariana Letícia](https://github.com/Marianannn) | [Arthur Suares](https://github.com/arthur-suares) |
+| 17/04/2025 | 1.1 | Adicionando explicação das decisões técnicas |[Arthur Suares](https://github.com/arthur-suares) | [Mariana Letícia](https://github.com/Marianannn) |

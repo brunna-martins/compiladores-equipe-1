@@ -2,36 +2,66 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void yyerror(const char *mensagem);
 int yylex(void);
-void yyerror(const char *s);
+extern int yylineno;
 %}
 
-%token NUM
-%token PLUS MINUS TIMES DIVIDE LPAREN RPAREN
+%union {
+    char *str;
+}
 
-// Precedência e associatividade
-%left PLUS MINUS
-%left TIMES DIVIDE
-%left UMINUS  // pra quando formos implementar -x como negação
+// Tokens reconhecidos
+%token <str> ID
+%token IF ELSE WHILE DEF RETURN
+%token LPAREN RPAREN LBRACE RBRACE
+%token ASSIGN
+
+%type <str> expressao opt_expressao
+%type opt_lista_comandos
 
 %%
 
-input:
-    expressao '\n'       { printf("Expressão válida!\n"); }
-  | '\n'                 { /* Linha vazia, ignora */ }
-  ;
+// lista de comandos
+programa:
+    lista_comandos
+;
+
+// pode ser um comando ou vários
+lista_comandos:
+      comando
+    | lista_comandos comando
+;
+
+// Comandos suportados pela linguagem
+comando:
+      IF LPAREN opt_expressao RPAREN bloco ELSE bloco
+    | WHILE LPAREN opt_expressao RPAREN bloco
+    | DEF ID LPAREN RPAREN bloco
+    | RETURN opt_expressao ';'
+    | opt_expressao ';'
+;
+
+bloco:
+    LBRACE opt_lista_comandos RBRACE
+;
+
+opt_expressao:
+      expressao
+    | /* vazio */ { $$ = NULL; }
+;
+
+opt_lista_comandos:
+      lista_comandos
+    | /* vazio */
+;
 
 expressao:
-      expressao PLUS expressao
-    | expressao MINUS expressao
-    | expressao TIMES expressao
-    | expressao DIVIDE expressao
-    | LPAREN expressao RPAREN
-    | NUM
-    ;
+    ID { $$ = $1; }
+;
 
 %%
 
-void yyerror(const char *s) {
-    fprintf(stderr, "Erro sintático: %s\n", s);
+void yyerror(const char *mensagem) {
+    fprintf(stderr, "Erro de sintaxe na linha %d: %s\n", yylineno, mensagem);
 }

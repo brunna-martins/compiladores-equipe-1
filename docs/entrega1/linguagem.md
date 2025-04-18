@@ -16,4 +16,4 @@ C é uma linguagem de programação de baixo nível, compilada e amplamente util
 
 |  **Data**  | **Versão** |                      **Descrição**                       |                        **Autor**                        | **Revisor** |
 | :--------: | :--------: | :------------------------------------------------------: | :-----------------------------------------------------: | :---------: |
-| 17/04/2025 |    1.0     | Definição das linguagens de programação escolhidas grupo | Laís Ramos Barbosa e Taynara Cristina Ribeiro Marcellos |      -      |
+| 17/04/2025 |    1.0     | Definição das linguagens de programação escolhidas grupo | Laís Ramos Barbosa e Taynara Cristina Ribeiro Marcellos |             |

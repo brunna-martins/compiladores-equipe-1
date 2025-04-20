@@ -8,7 +8,8 @@ void yyerror(const char *s);
 
 %token NUM ERROR EQUAL
 %token PLUS MINUS TIMES DIVIDE MODULO
-%token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COLON COMMA DOT
+%token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COLON COMMA DOT SEMICOLON
+%token EQTO NOTEQTO LESSEQ GREATEQ LESSER GREATER 
 
 %left PLUS MINUS
 %left TIMES DIVIDE
@@ -36,6 +37,14 @@ expressao:
     | LPAREN expressao RPAREN     { $$ = $2; }
     | LBRACKET expressao RBRACKET { $$ = $2; }
     | LBRACE expressao RBRACE     { $$ = $2; }
+    | expressao EQUAL expressao   { $$ = $1 = $3; }
+    | expressao SEMICOLON         { $$ = $2; }
+    | expressao EQTO expressao    { $$ = $1 == $3; } // printando resultado = 0 se mentira, = 1 se verdade
+    | expressao NOTEQTO expressao { $$ = $1 != $3; }
+    | expressao LESSEQ expressao  { $$ = $1 <= $3; }
+    | expressao GREATEQ expressao { $$ = $1 >= $3; }
+    | expressao LESSER expressao  { $$ = $1 < $3; }
+    | expressao GREATER expressao { $$ = $1 > $3; }
 ;
 
 %%

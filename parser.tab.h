@@ -70,7 +70,14 @@ extern int yydebug;
     RBRACE = 271,                  /* RBRACE  */
     COLON = 272,                   /* COLON  */
     COMMA = 273,                   /* COMMA  */
-    DOT = 274                      /* DOT  */
+    DOT = 274,                     /* DOT  */
+    SEMICOLON = 275,               /* SEMICOLON  */
+    EQTO = 276,                    /* EQTO  */
+    NOTEQTO = 277,                 /* NOTEQTO  */
+    LESSEQ = 278,                  /* LESSEQ  */
+    GREATEQ = 279,                 /* GREATEQ  */
+    LESSER = 280,                  /* LESSER  */
+    GREATER = 281                  /* GREATER  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

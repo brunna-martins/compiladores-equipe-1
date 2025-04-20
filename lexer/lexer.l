@@ -16,6 +16,14 @@
 ":"             { return COLON; }
 ","             { return COMMA; }
 "."             { return DOT; }
+";"             { return SEMICOLON; }
+
+"=="            { return EQTO; }
+"!="            { return NOTEQTO; }
+"<="            { return LESSEQ; }
+">="            { return GREATEQ; }
+"<"             { return LESSER; }
+">"             { return GREATER; }
 
 "="             { return EQUAL; }  
 "+"             { return PLUS; }
@@ -24,8 +32,10 @@
 "/"             { return DIVIDE; }
 "%"             { return MODULO; }
 
-\n              { return '\n'; }  // Explicitly return newline as token
-[ \t]+          { /* Ignore spaces/tabs */ }
+
+
+\n              { return '\n'; }  
+[ \t\r]+        { /* ignorar */ }
 .               { printf("Caractere inválido: %s\n", yytext); return ERROR; }
 
 %%

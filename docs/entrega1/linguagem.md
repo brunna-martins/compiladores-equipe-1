@@ -14,6 +14,8 @@ Python é uma linguagem de programação de alto nível, interpretada e de prop�
 
 C é uma linguagem de programação de baixo nível, compilada e amplamente utilizada para o desenvolvimento de sistemas e aplicações que exigem alto desempenho. Ela é conhecida por sua eficiência, controle direto sobre o hardware e uso otimizado de recursos. C é frequentemente empregada em sistemas operacionais, drivers, softwares embarcados e outras áreas onde o desempenho é crítico. Sua sintaxe influenciou diversas linguagens modernas, tornando-a uma base importante no aprendizado de programação.
 
+# Histórico de Versões
+
 |  **Data**  | **Versão** |                      **Descrição**                       |                        **Autor**                        | **Revisor** |
 | :--------: | :--------: | :------------------------------------------------------: | :-----------------------------------------------------: | :---------: |
 | 17/04/2025 |    1.0     | Definição das linguagens de programação escolhidas grupo | Laís Ramos Barbosa e Taynara Cristina Ribeiro Marcellos |      -      |

@@ -33,7 +33,7 @@
       <td>07/04-11/04</td>
       <td></td>
       <td>Definir e executar issues principais a serem feitas do analisador léxico e documentação necessária para o primeiro ponto de controle</td>
-      <td>x</td>
+      <td>Documentação inicial do escopo do projeto; e da definição da linguagem escolhida, além de suas justificativas</td>
       <td>Arthur</td>
     </tr>
     <tr>
@@ -41,7 +41,7 @@
       <td>14/04-18/04</td>
       <td></td>
       <td>Finalizar e ajustar analisador léxico desenvolvido além das issues de documentação do primeiro ponto de controle</td>
-      <td>x</td>
+      <td>Desenvolvimento das 3 issues relacionadas ao analisador léxico e preparação para o analisador sintático</td>
       <td>Genilson</td>
     </tr>
     <tr>
@@ -72,7 +72,7 @@
       <td>7</td>
       <td>05/05-09/05</td>
       <td></td>
-      <td>ubiuubibiub</td>
+      <td>x</td>
       <td>x</td>
       <td>Arthur</td>
     </tr>
@@ -162,8 +162,7 @@
 
 
 
-
-
+# Histórico de Versões
 
 |**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
 |:---: | :---: | :---: | :---: | :---: |

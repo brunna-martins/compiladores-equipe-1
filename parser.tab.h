@@ -61,9 +61,16 @@ extern int yydebug;
     MINUS = 262,                   /* MINUS  */
     TIMES = 263,                   /* TIMES  */
     DIVIDE = 264,                  /* DIVIDE  */
-    LPAREN = 265,                  /* LPAREN  */
-    RPAREN = 266,                  /* RPAREN  */
-    MODULO = 267                   /* MODULO  */
+    MODULO = 265,                  /* MODULO  */
+    LPAREN = 266,                  /* LPAREN  */
+    RPAREN = 267,                  /* RPAREN  */
+    LBRACKET = 268,                /* LBRACKET  */
+    RBRACKET = 269,                /* RBRACKET  */
+    LBRACE = 270,                  /* LBRACE  */
+    RBRACE = 271,                  /* RBRACE  */
+    COLON = 272,                   /* COLON  */
+    COMMA = 273,                   /* COMMA  */
+    DOT = 274                      /* DOT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

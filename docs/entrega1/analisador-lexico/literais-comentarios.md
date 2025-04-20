@@ -1,6 +1,4 @@
-
-
-# Tokens e comentários
+# Literais e Comentários
 
 ##  Tokens
 
@@ -135,9 +133,21 @@ print("Resultado:", z)
 ```
 
 Onde o primeiro e segundo `"""teste"""` são ignorados, mas o terceiro é atribuído a variável `string`. Então, esses regex retornam um `STRING_LITERAL` para que possa ser analisado posteriormente no analisador sintático se essa string deva ou não ser ignorada. Diferentemente do comentário de linha `#`, que realmente não precisa retornar nada no regex.
+
+
+## Desafios Encontrados
+Os principais desafios encontrados durante a execução dessa primeira etapa foi primeiramente entender as estruturas básicas de um compilador e de que maneira se poderia organizar o grupo para dividir o desenvolvimento dele. Durante esse período, tivemos apoio não somente das aulas como do professor para auxiliar em decisões técnicas principalmente. Portanto, conforme se foi aprendendo mais sobre a teoria e implementação do compilador juntamente com as aulas teóricas e práticas, conseguimos iniciar o desenvolvimento do léxico e sintático com sucesso.
+
+No entanto, parte pela qual foi sentida uma maior dificuldade foi em relação sobre como identificar comentários e lidar com comentários de linha, e sobre como passar tokens do léxico para o sintático.
+
+## Soluções Adotadas
+
+As soluções adotadas incluíram a construção de regex que conseguissem englobar os caracteres especias como o `\n` ou `//` dentro do corpo da própria string. Além disso, construir estruturas no arquivo `parser.y` que se integrasse com o `lexer.l` como `%union` para que fosse possível mandar através de funções como o `yylval` , tokens já identificados como inteiros, reais, strings, etc. Adicionalmente, foi utilizado testes manuais e testes com um arquivo de código fonte em python que pudessem estimar o funcionamento do que foi desenvolvido do `lexer.l` e do `parser.y`.
+
 # Histórico de Versões
 
 |**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
 |:---: | :---: | :---: | :---: | :---: |
 | 13/04/2025 | 1.0 | Adicionando Tokens literais e de comentário | [Mariana Letícia](https://github.com/Marianannn) | [Arthur Suares](https://github.com/arthur-suares) |
 | 17/04/2025 | 1.1 | Adicionando explicação das decisões técnicas |[Arthur Suares](https://github.com/arthur-suares) | [Mariana Letícia](https://github.com/Marianannn) |
+| 20/04/2025 | 1.2 | Adicionando desafios e soluções encontrados |[Arthur Suares](https://github.com/arthur-suares) e [Mariana Letícia](https://github.com/Marianannn)| [Mariana Letícia](https://github.com/Marianannn) |

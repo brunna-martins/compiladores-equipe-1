@@ -15,18 +15,16 @@ nav:
     - Sprint 3:
       - Ata: reunioes/sprint3/ata.md
       - Pautas: reunioes/sprint3/pautas.md 
-  - Entregas: 
-    - Entrega 1:
-      - Definição do Projeto: entrega1/definicao.md
-      - Linguagem Escolhida: entrega1/linguagem.md
-      - Cronograma de Sprints: entrega1/cronograma.md 
-      - Decisões Técnicas: entrega1/decisoes.md
-      - Desafios Encontrados: entrega1/desafios.md
-      - Soluções Adotadas: entrega1/solucoes.md
-  - Analisador Léxico: analisadores/analisador-lexico.md
+  - Entrega 1:
+    - Definição do Projeto: entrega1/definicao.md
+    - Linguagem Escolhida: entrega1/linguagem.md
+    - Cronograma de Sprints: entrega1/cronograma.md 
+    - Analisador Léxico:
+      - Identifidores e Palavras-chave: entrega1/analisador-lexico/identificadores-palavras-chave.md
+      - Literais e Comentários: entrega1/analisador-lexico/literais-comentarios.md
+      - Operadores, Delimitadores e erros: entrega1/analisador-lexico/operadores-delimitadores-erros.md
   - Analisador Sintático: analisadores/analisador-sintatico.md
   - Analisador Semântico: analisadores/analisador-semantico.md
-  - Tokens e comentários: tokens-comentarios.md
 theme:
   name: material
   language: pt-BR

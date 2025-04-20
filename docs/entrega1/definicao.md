@@ -18,6 +18,8 @@ O compilador a ser desenvolvido terá como escopo a conversão de programas Pyth
 
 Vale ressaltar que o compilador não tem a intenção de cobrir todos os recursos avançados da linguagem Python, como orientação a objetos, estruturas complexas (como listas, dicionários ou funções aninhadas), ou bibliotecas externas. O foco é a tradução de programas simples e lineares, o que permite uma análise e geração de código mais direta e didática.
 
+# Histórico de Versões
+
 |**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
 |:---: | :---: | :---: | :---: | :---: |
 | 11/04/2025 | 1.0 | Versão inicial da introdução e definição de escopo do projeto. | Brunna | - |

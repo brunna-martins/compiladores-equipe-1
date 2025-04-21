@@ -9,12 +9,18 @@ extern char *yytext;
 %}
 
 %union {
-    char *str;
+  char *str;
+  int inteiro;
+  float real;
+  char* string;
 }
+
+%token <real> FLOAT_LITERAL
+%token <string> STRING_LITERAL
+%token <inteiro> INT_LITERAL
 
 /* Tokens para Python */
 %token <str> ID
-%token <str> NUMBER
 %token <str> STRING
 %token IF ELSE ELIF WHILE FOR DEF RETURN IN
 %token TRUE FALSE NONE AND OR NOT
@@ -24,7 +30,34 @@ extern char *yytext;
 %token PLUS MINUS TIMES DIVIDE
 %token LPAREN RPAREN COLON COMMA
 
+%left PLUS MINUS
+%left TIMES DIVIDE
+%left UMINUS
+
 %%
+
+input:
+    /* vazio */        { /* entrada vazia é válida */ }
+  | input linha        { /* acumula linhas válidas */ }
+  ;
+
+linha:
+    expressao '\n'     { }
+  | '\n'               { /* ignora linha vazia */ }
+  | error '\n'         { yyerrok; }
+  ;
+
+expressao:
+      expressao PLUS expressao
+    | expressao MINUS expressao
+    | expressao TIMES expressao
+    | expressao DIVIDE expressao
+    | LPAREN expressao RPAREN
+    | INT_LITERAL               { printf("INT: %d\n", $1); }
+    | FLOAT_LITERAL             { printf("FLOAT: %f\n", $1); }
+    | STRING_LITERAL            { printf("STRING: %s\n", $1); free($1); }
+    ;
+
 
 program : 
         | statement_list

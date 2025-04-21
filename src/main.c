@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 // Declarações externas para usar o parser
+
 int yyparse(void);
 
 int main(void) {

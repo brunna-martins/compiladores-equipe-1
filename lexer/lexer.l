@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "parser.tab.h"
-  
 %}
 
 %option noyywrap
@@ -11,6 +10,32 @@
 %option nounput
 
 %%
+
+"#".*               { /*Ignora o conteúdo do comentário*/ }
+
+
+\"\"\"([^\"\\]|\\.|(\n))*?\"\"\"     {
+    char* raw = strdup(yytext);
+    int len = strlen(raw);
+    raw[len - 3] = '\0';
+    yylval.string = strdup(raw + 3);
+    free(raw);
+    return STRING_LITERAL;
+}
+
+\'\'\'([^\'\\]|\\.|(\n))*?\'\'\'     {
+    char* raw = strdup(yytext);
+    int len = strlen(raw);
+    raw[len - 3] = '\0';
+    yylval.string = strdup(raw + 3);
+    free(raw);
+    return STRING_LITERAL;
+}
+
+[0-9]+\.[0-9]+      { yylval.real = atof(yytext); return FLOAT_LITERAL;}
+[0-9]+              { yylval.inteiro = atoi(yytext); return INT_LITERAL; }
+\"([^\"\\]|\\.)*\"  { yylval.string = strdup(yytext); return STRING_LITERAL; }
+\'([^\'\\]|\\.)*\'  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 
 "if"        { printf("Palavra-chave: %s\n", yytext); return IF; }
 "else"      { printf("Palavra-chave: %s\n", yytext); return ELSE; }
@@ -65,25 +90,10 @@
     return ID;
 }
 
-[0-9]+      { 
-    printf("Número: %s\n", yytext); 
-    yylval.str = strdup(yytext);
-    return NUMBER; 
-}
+[ \t]+              { /* Ignorar espaços em branco */ }
+\n                  { return '\n'; }
 
-\"[^\"]*\"  { 
-    printf("String: %s\n", yytext); 
-    yylval.str = strdup(yytext);
-    return STRING; 
-}
-\'[^\']*\'  { 
-    printf("String: %s\n", yytext); 
-    yylval.str = strdup(yytext);
-    return STRING; 
-}
-
-[ \t\r\n]+  ;  
-.           { printf("Caractere desconhecido: %c\n", yytext[0]); }
+.                   { printf("Caractere inválido: %s\n", yytext); }
 
 %%
 

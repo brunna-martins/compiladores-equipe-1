@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+extern int linha;
+
 int yylex(void);
 void yyerror(const char *s);
 %}
@@ -50,6 +52,6 @@ expressao:
 %%
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Erro sintático: %s\n", s);
+    fprintf(stderr, "Erro sintático na linha: %d: %s\n", linha, s);
 }
 

@@ -1,6 +1,8 @@
 %{
 #include "parser.tab.h"
 #include <stdio.h>
+
+int linha = 1;
 %}
 
 %%
@@ -34,8 +36,8 @@
 
 
 
-\n              { return '\n'; }  
+\n              { linha++; return '\n'; }  
 [ \t\r]+        { /* ignorar */ }
-.               { printf("Caractere inválido: %s\n", yytext); return ERROR; }
+.               { printf("Caractere inválido: %s na linha %d\n", yytext, linha); return ERROR; }
 
 %%

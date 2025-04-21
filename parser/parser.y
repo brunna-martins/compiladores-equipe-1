@@ -5,60 +5,65 @@
 void yyerror(const char *mensagem);
 int yylex(void);
 extern int yylineno;
+extern char *yytext;
 %}
 
 %union {
     char *str;
 }
 
-// Tokens reconhecidos
+/* Tokens para Python */
 %token <str> ID
-%token IF ELSE WHILE DEF RETURN
-%token LPAREN RPAREN LBRACE RBRACE
-%token ASSIGN
-
-%type <str> expressao opt_expressao
-%type opt_lista_comandos
+%token <str> NUMBER
+%token <str> STRING
+%token IF ELSE ELIF WHILE FOR DEF RETURN IN
+%token TRUE FALSE NONE AND OR NOT
+%token CLASS IMPORT FROM AS TRY EXCEPT FINALLY
+%token WITH PASS  BREAK CONTINUE GLOBAL NONLOCAL LAMBDA
+%token ASSIGN EQ NEQ LT GT LTE GTE
+%token PLUS MINUS TIMES DIVIDE
+%token LPAREN RPAREN COLON COMMA
 
 %%
 
-// lista de comandos
-programa:
-    lista_comandos
-;
+program : 
+        | statement_list
+        ;
 
-// pode ser um comando ou vários
-lista_comandos:
-      comando
-    | lista_comandos comando
-;
+statement_list : statement
+               | statement_list statement
+               ;
 
-// Comandos suportados pela linguagem
-comando:
-      IF LPAREN opt_expressao RPAREN bloco ELSE bloco
-    | WHILE LPAREN opt_expressao RPAREN bloco
-    | DEF ID LPAREN RPAREN bloco
-    | RETURN opt_expressao ';'
-    | opt_expressao ';'
-;
-
-bloco:
-    LBRACE opt_lista_comandos RBRACE
-;
-
-opt_expressao:
-      expressao
-    | /* vazio */ { $$ = NULL; }
-;
-
-opt_lista_comandos:
-      lista_comandos
-    | /* vazio */
-;
-
-expressao:
-    ID { $$ = $1; }
-;
+statement : ID    
+          | IF    
+          | ELSE
+          | WHILE
+          | FOR
+          | ELIF
+          | DEF
+          | RETURN
+          | IN
+          | TRUE
+          | FALSE
+          | NONE
+          | AND
+          | OR
+          | NOT
+          | CLASS
+          | IMPORT
+          | FROM
+          | AS
+          | TRY
+          | EXCEPT
+          | FINALLY
+          | WITH
+          | PASS
+          | BREAK
+          | CONTINUE
+          | GLOBAL
+          | NONLOCAL
+          | LAMBDA
+          ;
 
 %%
 

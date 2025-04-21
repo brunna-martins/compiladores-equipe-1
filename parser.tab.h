@@ -55,16 +55,51 @@ extern int yydebug;
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
     ID = 258,                      /* ID  */
-    IF = 259,                      /* IF  */
-    ELSE = 260,                    /* ELSE  */
-    WHILE = 261,                   /* WHILE  */
-    DEF = 262,                     /* DEF  */
-    RETURN = 263,                  /* RETURN  */
-    LPAREN = 264,                  /* LPAREN  */
-    RPAREN = 265,                  /* RPAREN  */
-    LBRACE = 266,                  /* LBRACE  */
-    RBRACE = 267,                  /* RBRACE  */
-    ASSIGN = 268                   /* ASSIGN  */
+    NUMBER = 259,                  /* NUMBER  */
+    STRING = 260,                  /* STRING  */
+    IF = 261,                      /* IF  */
+    ELSE = 262,                    /* ELSE  */
+    ELIF = 263,                    /* ELIF  */
+    WHILE = 264,                   /* WHILE  */
+    FOR = 265,                     /* FOR  */
+    DEF = 266,                     /* DEF  */
+    RETURN = 267,                  /* RETURN  */
+    IN = 268,                      /* IN  */
+    TRUE = 269,                    /* TRUE  */
+    FALSE = 270,                   /* FALSE  */
+    NONE = 271,                    /* NONE  */
+    AND = 272,                     /* AND  */
+    OR = 273,                      /* OR  */
+    NOT = 274,                     /* NOT  */
+    CLASS = 275,                   /* CLASS  */
+    IMPORT = 276,                  /* IMPORT  */
+    FROM = 277,                    /* FROM  */
+    AS = 278,                      /* AS  */
+    TRY = 279,                     /* TRY  */
+    EXCEPT = 280,                  /* EXCEPT  */
+    FINALLY = 281,                 /* FINALLY  */
+    WITH = 282,                    /* WITH  */
+    PASS = 283,                    /* PASS  */
+    BREAK = 284,                   /* BREAK  */
+    CONTINUE = 285,                /* CONTINUE  */
+    GLOBAL = 286,                  /* GLOBAL  */
+    NONLOCAL = 287,                /* NONLOCAL  */
+    LAMBDA = 288,                  /* LAMBDA  */
+    ASSIGN = 289,                  /* ASSIGN  */
+    EQ = 290,                      /* EQ  */
+    NEQ = 291,                     /* NEQ  */
+    LT = 292,                      /* LT  */
+    GT = 293,                      /* GT  */
+    LTE = 294,                     /* LTE  */
+    GTE = 295,                     /* GTE  */
+    PLUS = 296,                    /* PLUS  */
+    MINUS = 297,                   /* MINUS  */
+    TIMES = 298,                   /* TIMES  */
+    DIVIDE = 299,                  /* DIVIDE  */
+    LPAREN = 300,                  /* LPAREN  */
+    RPAREN = 301,                  /* RPAREN  */
+    COLON = 302,                   /* COLON  */
+    COMMA = 303                    /* COMMA  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -73,11 +108,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 10 "parser/parser.y"
+#line 11 "parser/parser.y"
 
     char *str;
 
-#line 81 "parser.tab.h"
+#line 116 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

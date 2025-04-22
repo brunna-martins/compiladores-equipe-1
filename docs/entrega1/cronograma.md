@@ -41,7 +41,7 @@
       <td>14/04-18/04</td>
       <td></td>
       <td>Finalizar e ajustar analisador léxico desenvolvido além das issues de documentação do primeiro ponto de controle</td>
-      <td>Desenvolvimento das 3 issues relacionadas ao analisador léxico e preparação para o analisador sintático</td>
+      <td>Desenvolvimento das 3 issues relacionadas ao analisador léxico e início do desenvolvimento do analisador sintático</td>
       <td>Genilson</td>
     </tr>
     <tr>
@@ -49,7 +49,7 @@
       <td>21/04-25/04</td>
       <td></td>
       <td>Introdução ao desenvolvimento do analisador sintático</td>
-      <td>x</td>
+      <td>Continuação do desenvolvimento do analisador sintático</td>
       <td>Laís</td>
     </tr>
     <tr style="background-color: #EA4335;">
@@ -166,4 +166,4 @@
 
 |**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
 |:---: | :---: | :---: | :---: | :---: |
-| dd/mm/yyyy | 1.0 | - | - | - |
+| 10/04/2025 | 1.0 | Repassando dados  | [Arthur Suares](https://github.com/arthur-suares) | [Mariana Letícia](https://github.com/Marianannn) |

@@ -2,19 +2,42 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern int linha;
-
+void yyerror(const char *mensagem);
 int yylex(void);
-void yyerror(const char *s);
+extern int yylineno;
+extern char *yytext;
 %}
 
-%token NUM ERROR EQUAL
+%union {
+  char *str;
+  int inteiro;
+  float real;
+  char* string;
+}
+
+%token ERROR EQUAL
 %token PLUS MINUS TIMES DIVIDE MODULO
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COLON COMMA DOT SEMICOLON
-%token EQTO NOTEQTO LESSEQ GREATEQ LESSER GREATER 
+%token ASSIGN EQTO NOTEQTO LESSEQ GREATEQ LESSER GREATER 
+
+%token <real> FLOAT_LITERAL
+%token <string> STRING_LITERAL
+%token <inteiro> INT_LITERAL
+
+/* Tokens para Python */
+%token <str> ID
+%token <str> STRING
+%token IF ELSE ELIF WHILE FOR DEF RETURN IN
+%token TRUE FALSE NONE AND OR NOT
+%token CLASS IMPORT FROM AS TRY EXCEPT FINALLY
+%token WITH PASS BREAK CONTINUE GLOBAL NONLOCAL LAMBDA
+
+%type <inteiro> expressao
 
 %left PLUS MINUS
 %left TIMES DIVIDE
+%left UMINUS
+
 
 %%
 
@@ -25,12 +48,13 @@ input:
 
 line:
     expressao '\n'   { printf("Resultado: %d\n", $1); }
+    | program '\n'   { }
     | '\n'           { /* Empty line */ }
     | error '\n'     { yyerrok; }
 ;
 
 expressao:
-    NUM                           { $$ = $1; }
+    INT_LITERAL                   { $$ = $1; }
     | expressao PLUS expressao    { $$ = $1 + $3; }
     | expressao MINUS expressao   { $$ = $1 - $3; }
     | expressao TIMES expressao   { $$ = $1 * $3; }
@@ -40,18 +64,60 @@ expressao:
     | LBRACKET expressao RBRACKET { $$ = $2; }
     | LBRACE expressao RBRACE     { $$ = $2; }
     | expressao EQUAL expressao   { $$ = $1 = $3; }
-    | expressao SEMICOLON         { $$ = $2; }
+    | expressao SEMICOLON         { $$ = $1; }
     | expressao EQTO expressao    { $$ = $1 == $3; } // printando resultado = 0 se mentira, = 1 se verdade
     | expressao NOTEQTO expressao { $$ = $1 != $3; }
     | expressao LESSEQ expressao  { $$ = $1 <= $3; }
     | expressao GREATEQ expressao { $$ = $1 >= $3; }
     | expressao LESSER expressao  { $$ = $1 < $3; }
     | expressao GREATER expressao { $$ = $1 > $3; }
+    | INT_LITERAL                 { printf("INT: %d\n", $1); }
+    | FLOAT_LITERAL               { printf("FLOAT: %f\n", $1); }
+    | STRING_LITERAL              { printf("STRING: %s\n", $1); free($1); }
 ;
+
+
+program : 
+        | statement_list
+        ;
+
+statement_list : statement
+               | statement_list statement
+               ;
+
+statement : ID    
+          | IF    
+          | ELSE
+          | WHILE
+          | FOR
+          | ELIF
+          | DEF
+          | RETURN
+          | IN
+          | TRUE
+          | FALSE
+          | NONE
+          | AND
+          | OR
+          | NOT
+          | CLASS
+          | IMPORT
+          | FROM
+          | AS
+          | TRY
+          | EXCEPT
+          | FINALLY
+          | WITH
+          | PASS
+          | BREAK
+          | CONTINUE
+          | GLOBAL
+          | NONLOCAL
+          | LAMBDA
+          ;
 
 %%
 
-void yyerror(const char *s) {
-    fprintf(stderr, "Erro sintático na linha: %d: %s\n", linha, s);
+void yyerror(const char *mensagem) {
+    fprintf(stderr, "Erro de sintaxe na linha %d: %s\n", yylineno, mensagem);
 }
-

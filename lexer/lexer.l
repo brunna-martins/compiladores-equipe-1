@@ -91,6 +91,8 @@
 }
 
 [ \t]+              { /* Ignorar espaços em branco */ }
+\r                  { /* ignora carriage return */ }
+\uFEFF              { /* ignora BOM */ }
 \n                  { return '\n'; }
 
 .                   { printf("Caractere inválido: %s\n", yytext); }

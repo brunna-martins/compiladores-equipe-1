@@ -43,6 +43,7 @@ input:
 
 linha:
     expressao '\n'     { }
+  | program '\n'       { }
   | '\n'               { /* ignora linha vazia */ }
   | error '\n'         { yyerrok; }
   ;

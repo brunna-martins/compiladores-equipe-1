@@ -1,6 +1,5 @@
 #include <stdio.h>
-
-// Declarações externas para usar o parser
+#include <stdlib.h>
 
 int yyparse(void);
 

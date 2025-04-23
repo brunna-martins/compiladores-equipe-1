@@ -3,14 +3,13 @@
 ## Descrição
 <!--- Decreva suas alterações detalhadamente -->
 
-
 ## _Issue_ Relacionada
 <!--- Este projeto apenas aceita _pull requests_ relacionadas à _issues_ abertas. -->
 <!--- Se está sugerindo uma nova _feature_ ou mudança, por favor discuta em uma _issue_ antes. -->
 <!--- Se está corrigindo um _bug_, deve haver uma _issue_ descrevendo-o com passos para reproduzir. -->
 <!--- Por favor, adicione o link para a _issue_ aqui: -->
 <!--- #nome_da_issue: -->
-closes #
+closes #<APAGUE E COLOQUE A # DA ISSUE DA FUNCIONALIDADE>
 
 ## Como Isso Foi Testado?
 <!--- Por favor, descreva detalhadamente como você testou suas mudanças. -->
@@ -18,7 +17,6 @@ closes #
 <!--- para ver como a sua alteração afeta outras áreas do código, etc. -->
 
 ## Capturas de Tela (se apropriado):
-### Código fonte em python usado para testes
 
 ## Tipos de Mudanças
 <!--- Quais os tipos de alterações introduzidos pelo seu código? Coloque um `x` em todas as caixas que se aplicam: -->

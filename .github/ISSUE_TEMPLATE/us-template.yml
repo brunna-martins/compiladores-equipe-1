@@ -1,0 +1,53 @@
+name: Nova História de Usuário
+description: Registre uma nova história de usuário no projeto do Café do Sítio.
+title: "[US<Código da US>]: <Título da US no verbo Infinitivo>"
+labels: ["user story"]
+projects: ["mdsreq-fga-unb/46"]
+body:
+  - type: textarea
+    id: text-zone1
+    attributes:
+      label: Descreva a História de Usuário
+      description: siga o modelo - Quem deve operar o sistema? O que deve sistema deve fazer? Para qual objetivo o ator deve fazer isso?
+      value: O || Eu como [Ator da Ação], deve ser capaz de [o que deve fazer], para que [Objetivo].
+    validations:
+      required: true
+  - type: textarea
+    id: text-zone2
+    attributes:
+      label: Quais são as Definition's of Ready (DoR) da atividade?
+      description: O que deve ser verificado e feito pelo time para que a funcionalidade inicie sua fase de codificação?
+      value: |
+        - [ ] Constuir a História de Usuário no formato _"Eu como [Ator], devo ser capaz de [o que fazer], para que [objetivo]"_;
+        - [ ] Os stakeholders passaram as atividades de Definition of Done (Ou seja, as ações e comportamentos que eles testarão e esperam que deverá ocorrer no software);
+        - [ ] O protótipo foi validado pelos stakeholders.
+        - [ ] O protótipo foi validado pela Coordenadora @manuvaladares e, portanto, corresponde com o Manual de Marca da Família do Sítio.
+        - [ ] A Issue foi validada pela Coordenadora @anawcarol e, portanto, segue padrões de qualidade plausíveis e claros na documentação completa do requisito.
+    validations:
+      required: true
+  - type: textarea
+    id: text-zone3
+    attributes:
+      label: Quais são as Definition's of Done (DoD) da atividade?
+      description: O que deve ser testado e estar funcionando para que a User Story esteja concluída?
+      value: |
+        - [ ] Os critérios de aceitação com os stakeholders foram supridos;
+        - [ ] O backend foi integrado ao frontend (Caso necessário);
+        - [ ] Todo o código passou por revisão de pares para garantir qualidade e aderência aos padrões do projeto, isto é, 2 revisores aprovaram o código.
+        - [ ] O backend foi validado pelo coordenador @DanielRogs e, portanto, segue níveis seguros na manipulação dos dados (Caso esta US exista backend);
+        - [ ] O código foi validado pelo Analista de Quality Assurance @JoaoODragonborn e, portanto, possui cobertura de testes de no mínimo 80%.
+        - [ ] A funcionalidade foi integrada ao branch principal sem conflitos.
+        - [ ] Está disponível em um ambiente de homologação ou produção, pronta para uso.
+      
+        ### CRITÉRIOS DE ACEITAÇÃO:
+        - [ ] Critério 1;
+        - [ ] Critério 2;
+    validations:
+      required: true
+  - type: textarea
+    id: text-zone4
+    attributes:
+      label: Detalhes adicionais?
+      description: Acrescente informações que possam ser pertinentes para o time.
+      placeholder: |
+        Escreva ou deixe em branco.

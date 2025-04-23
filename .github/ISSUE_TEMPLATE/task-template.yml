@@ -1,0 +1,32 @@
+name: Nova Task para Semana
+description: Registre uma nova Task para o projeto do Café do Sítio (Task's não relacionadas às Histórias de Usuário).
+title: "<Título da Task>"
+labels: ["requirements", "enhancement"]
+projects: ["mdsreq-fga-unb/46"]
+body:
+  - type: textarea
+    id: text-zone1
+    attributes:
+      label: Task a ser executada.
+      description: Expecifique o que os responsáveis pela atividade deverão fazer em prol do andamento do Projeto. (Esta task não poderá estar se tornar US ou representar uma nova funcionalidade no software.)
+      placeholder: Escreva aqui...
+    validations:
+      required: true
+  - type: textarea
+    id: text-zone2
+    attributes:
+      label: Quais são as Definition's of Done (DoD) da atividade?
+      description: As Definições de Pronto - DoD, definem o que deve ser entrege para que a atividade esteja completa.
+      value: |
+        - [ ] Definição 1;
+        - [ ] Definição 2;
+        - [ ] Definição 3.
+    validations:
+      required: true
+  - type: textarea
+    id: text-zone3
+    attributes:
+      label: Detalhes adicionais?
+      description: Acrescente informações que possam ser pertinentes para o time.
+      placeholder: |
+        Escreva ou deixe em branco...

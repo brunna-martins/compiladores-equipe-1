@@ -1,32 +1,53 @@
-name: Nova Task para Semana
-description: Registre uma nova Task para o projeto do Café do Sítio (Task's não relacionadas às Histórias de Usuário).
-title: "<Título da Task>"
-labels: ["requirements", "enhancement"]
-projects: ["mdsreq-fga-unb/46"]
+name: Issue
+description: Task técnica detalhada com objetivo, implementação, testes e documentação.
+title: "🛠️ <Título da Task>"
+labels: ["task", "enhancement"]
+projects: ["brunna-martins/1"]
 body:
   - type: textarea
-    id: text-zone1
+    id: objetivo
     attributes:
-      label: Task a ser executada.
-      description: Expecifique o que os responsáveis pela atividade deverão fazer em prol do andamento do Projeto. (Esta task não poderá estar se tornar US ou representar uma nova funcionalidade no software.)
-      placeholder: Escreva aqui...
-    validations:
-      required: true
-  - type: textarea
-    id: text-zone2
-    attributes:
-      label: Quais são as Definition's of Done (DoD) da atividade?
-      description: As Definições de Pronto - DoD, definem o que deve ser entrege para que a atividade esteja completa.
-      value: |
-        - [ ] Definição 1;
-        - [ ] Definição 2;
-        - [ ] Definição 3.
-    validations:
-      required: true
-  - type: textarea
-    id: text-zone3
-    attributes:
-      label: Detalhes adicionais?
-      description: Acrescente informações que possam ser pertinentes para o time.
+      label: 🎯 Objetivo da issue
+      description: Qual a finalidade desta task? O que ela resolve, habilita ou contribui para o projeto?
       placeholder: |
-        Escreva ou deixe em branco...
+        Exemplo:
+        - Reconhecer e tratar novas construções sintáticas no parser.
+        - Implementar estrutura de controle condicional no compilador.
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementar
+    attributes:
+      label: ⚙️ Implementar
+      description: Quais passos ou modificações devem ser feitas para realizar essa task?
+      value: |
+        - [ ] Modificar arquivo X
+        - [ ] Criar estrutura Y
+        - [ ] Atualizar regra no parser
+      placeholder: Liste os passos de implementação aqui.
+    validations:
+      required: true
+
+  - type: textarea
+    id: testar
+    attributes:
+      label: 🧪 Testar
+      description: Quais casos de teste devem ser verificados ou criados? Como garantir que a task está funcionando?
+      value: |
+        - [ ] Criar arquivo de teste com input válido
+        - [ ] Verificar falhas em casos inválidos
+        - [ ] Garantir cobertura de casos alternativos
+      placeholder: Liste os testes necessários aqui.
+    validations:
+      required: true
+
+  - type: textarea
+    id: documentar
+    attributes:
+      label: 📚 Documentar
+      description: Há algo que precisa ser registrado? Código, decisões, links úteis, anotações?
+      placeholder: |
+        - Adicionar comentários no código
+        - Registrar mudanças no README ou Wiki
+        - Link para documentação externa

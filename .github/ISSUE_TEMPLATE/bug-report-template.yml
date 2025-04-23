@@ -1,8 +1,8 @@
 name: Reportar Bug
-description: Reporte um Bug identificado no projeto do Café do Sítio.
+description: Reporte um Bug identificado no projeto de compiladores, grupo 1.
 title: "[BUG]: <Título BREVE do bug>"
 labels: ["bug"]
-projects: ["mdsreq-fga-unb/46"]
+projects: ["brunna-martins/1"]
 body:
   - type: textarea
     id: text-zone1

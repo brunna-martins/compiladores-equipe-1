@@ -1,0 +1,19 @@
+name: Nova Documentação
+description: Registre uma nova atividade envolvendo Documentação no projeto do Café do Sítio.
+title: "[DOC]: <Título BREVE da Atividade>"
+projects: ["mdsreq-fga-unb/46"]
+body:
+  - type: textarea
+    id: text-zone1
+    attributes:
+      label: O que deve ser feito nesta seção da documentação.
+      description: Descreva aqui os detalhes do que deverá ser escrito na documentação.
+    validations:
+      required: true
+  - type: textarea
+    id: text-zone3
+    attributes:
+      label: Detalhes adicionais?
+      description: Escreve se houver detalhes necessários de estar à conhecimento de todos.
+      placeholder: |
+        Escreva ou deixe em branco.

@@ -157,9 +157,11 @@ A Tabela 1 abaixo contém os tokens referentes a operadores aritméticos, operad
 
 </center>
 
-## Decisões técnicas
+## Decisões Técnicas
 
 ## Desafios Encontrados
+
+Aprender o que é um compilador e como desenvolvê-lo enquanto o desenvolve foi bem difícil. Acredito que a equipe ficou bem desorientada nas primeiras semanas, sem saber exatamente como começar. 
 
 ## Soluções Adotadas
 

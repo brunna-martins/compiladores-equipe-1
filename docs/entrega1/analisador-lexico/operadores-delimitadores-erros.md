@@ -254,6 +254,6 @@ Já no `parser.y`, foram definidos tokens específicos para os operadores e deli
 # Histórico de Versões
 |**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
 |:---: | :---: | :---: | :---: | :---: |
-| 24/04/2025 | 1.0 | Adiciona tabela de tokens | [Brunna Louise](https://github.com/brunna-martins) | |
-| 24/04/2025 | 1.1 | Decisões, Desafios e Soluções |[Genilson Junior](https://github.com/GenilsonJrs)| |
+| 24/04/2025 | 1.0 | Adiciona tabela de tokens | [Brunna Louise](https://github.com/brunna-martins) | [Mariana Letícia](https://github.com/Marianannn)|
+| 24/04/2025 | 1.1 | Decisões, Desafios e Soluções |[Genilson Junior](https://github.com/GenilsonJrs)| [Mariana Letícia](https://github.com/Marianannn)|
 

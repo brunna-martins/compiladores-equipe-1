@@ -2,6 +2,20 @@
 #include <stdio.h>
 #include <string.h>
 #include "parser.tab.h"
+
+
+int indent_stack[100];
+int indent_top = 0;
+int current_indent = 0;
+int inicio_de_linha = 1;
+
+void emitir_dedents() {
+    while (indent_top > 0 && current_indent < indent_stack[indent_top - 1]) {
+        indent_top--;
+        unput('~');  // Marca posição para devolver um DEDENT
+    }
+}
+
 %}
 
 %option noyywrap
@@ -92,6 +106,7 @@ int linha = 1;
 "."             { printf("Delimitador: %s\n", yytext); return DOT; }
 ";"             { printf("Delimitador: %s\n", yytext); return SEMICOLON; }
 
+"~"             {return DEDENT;}
 
 
 [a-zA-Z_][a-zA-Z0-9_]* {
@@ -100,10 +115,31 @@ int linha = 1;
     return ID;
 }
 
+^[ \t]*   {
+    if (inicio_de_linha) {
+        current_indent = 0;
+        for (int i = 0; yytext[i] != '\0'; i++) {
+            if (yytext[i] == ' ') current_indent += 1;
+            else if (yytext[i] == '\t') current_indent += 4; // tab como 4 espaços, por exemplo
+        }
+
+        if (indent_top == 0 || current_indent > indent_stack[indent_top - 1]) {
+            indent_stack[indent_top++] = current_indent;
+            return INDENT;
+        } else if (current_indent < indent_stack[indent_top - 1]) {
+            emitir_dedents();
+        }
+        inicio_de_linha = 0;
+    }
+    // ignora os espaços/tabs, já tratamos acima
+}
+
 [ \t]+              { /* Ignorar espaços em branco */ }
 \r                  { /* ignora carriage return */ }
 \uFEFF              { /* ignora BOM */ }
-\n                  { return '\n'; }
+\n                  { inicio_de_linha = 1; return '\n'; }
+.|\n                { return yytext[0]; }
+
 
 .                   { printf("Caractere inválido: %s\n", yytext); }
 

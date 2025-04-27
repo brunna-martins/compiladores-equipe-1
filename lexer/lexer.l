@@ -8,11 +8,12 @@ int indent_stack[100];
 int indent_top = 0;
 int current_indent = 0;
 int inicio_de_linha = 1;
+int dedent_pending = 0;
 
 void emitir_dedents() {
     while (indent_top > 0 && current_indent < indent_stack[indent_top - 1]) {
         indent_top--;
-        unput('~');  // Marca posição para devolver um DEDENT
+        dedent_pending++;
     }
 }
 
@@ -20,12 +21,20 @@ void emitir_dedents() {
 
 %option noyywrap
 %option yylineno
-%option noinput
-%option nounput
+
 
 int linha = 1;
+/*
 
+<INITIAL>{
+    if (dedent_pending > 0) {
+        dedent_pending--;
+        return DEDENT;
+    }
+} 
+*/
 %%
+
 
 "#".*               { /*Ignora o conteúdo do comentário*/ }
 
@@ -139,7 +148,6 @@ int linha = 1;
 \uFEFF              { /* ignora BOM */ }
 \n                  { inicio_de_linha = 1; return '\n'; }
 .|\n                { return yytext[0]; }
-
 
 .                   { printf("Caractere inválido: %s\n", yytext); }
 

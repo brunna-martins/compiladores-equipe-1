@@ -87,11 +87,11 @@ statement_list : statement
                ;
 
 statement : ID    
-          | IF    
+          | IF LPAREN expressao RPAREN COLON INDENT statement_list DEDENT    
           | ELSE
           | WHILE
           | FOR
-          | ELIF
+          | ELIF LPAREN expressao RPAREN COLON INDENT statement_list DEDENT
           | DEF
           | RETURN
           | IN
@@ -116,6 +116,8 @@ statement : ID
           | NONLOCAL
           | LAMBDA
           ;
+
+
 
 %%
 

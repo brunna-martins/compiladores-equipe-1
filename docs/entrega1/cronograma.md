@@ -1,13 +1,22 @@
-# 3. Planejamento da Equipe
+# 3. Cronograma de sprints
+
+## Introdução
+
+O objetivo do cronograma é organizar a equipe em relação as entregas durante o desenvolvimento do compilador. Sendo assim, através da metodologia Scrum, construímos um cronograma com esse objetivo.
+
+## Planejamento da Equipe
+
+Na tabela 1 abaixo, estão descritas a enumeração de sprint, suas durações, os pontos de controle(entregas), objetivos, resultados esperados e a pessoa responsável pelo acompanhamento semanal. Dessa forma, será possível visualizar de maneira mais clara as atividades que deveremos fazer na semana e como se organizar.
+
 
 <table border="1">
   <thead>
     <tr style="background-color: #13C5D0;">
-      <th><strong>Semanas</strong></th>
+      <th><strong>Sprints</strong></th>
       <th><strong>Duração</strong></th>
       <th><strong>Pontos de controle</strong></th>
       <th><strong>Objetivos</strong></th>
-      <th><strong>Resultado</strong></th>
+      <th><strong>Resultado esperado</strong></th>
       <th><strong>Responsável pelo acompanhamento semanal</strong></th>
     </tr>
   </thead>
@@ -122,7 +131,7 @@
       <td></td>
       <td>Testes finais e adição de exemplos mais complexos</td>
       <td>Compilador testado com diversos programas</td>
-      <td></td>
+      <td>Arthur</td>
     </tr>
     <tr>
       <td>13</td>
@@ -130,7 +139,7 @@
       <td></td>
       <td>Finalização do projeto e ajustes finos</td>
       <td>Versão final do compilador pronta</td>
-      <td></td>
+      <td>Brunna</td>
     </tr>
     <tr>
       <td>14</td>
@@ -138,7 +147,7 @@
       <td></td>
       <td>Preparação dos materiais de entrega final (documentação + código)</td>
       <td>Projeto preparado para submissão</td>
-      <td></td>
+      <td>Genilson</td>
     </tr>
     <tr style="background-color: #EA4335;">
       <td><strong>dia</strong></td>
@@ -146,7 +155,7 @@
       <td><strong>Entrega final</strong></td>
       <td><strong>Submissão oficial do projeto</strong></td>
       <td><strong>Entrega realizada</strong></td>
-      <td><strong></strong></td>
+      <td><strong>Laís</strong></td>
     </tr>
     <tr>
       <td>15</td>
@@ -154,14 +163,18 @@
       <td></td>
       <td>Feedback pós-entrega e encerramento</td>
       <td>Projeto concluído</td>
-      <td></td>
+      <td>Mariana</td>
     </tr>
   </tbody>
 </table>
 
+<p><em>Tabela 1: Cronograma de planejamento da equipe. (Fonte: <a href="https://github.com/arthur-suares">Arthur Suares</a><a href="https://github.com/Marianannn">Mariana Letícia</a>, 2025)</em></p>
+
+<br>
 
 # Histórico de Versões
 
 |**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
 |:---: | :---: | :---: | :---: | :---: |
 | 10/04/2025 | 1.0 | Repassando dados  | [Arthur Suares](https://github.com/arthur-suares) | [Mariana Letícia](https://github.com/Marianannn) |
+| 10/04/2025 | 1.0 | Adicionando introdução e planejamento de equipe  | [Mariana Letícia](https://github.com/Marianannn) | [Arthur Suares](https://github.com/arthur-suares) |

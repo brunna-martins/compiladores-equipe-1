@@ -19,7 +19,7 @@ Segue abaixo a Tabela 1 contendo os tokens referentes aos identificadores e pala
   </thead>
   <tbody>
   <tr>
-      <td>IF</td>
+      <td>ID</td>
       <td><code>[a-zA-Z_][a-zA-Z0-9_]*</code></td>
       <td>str</td>
       <td>Designado a identificação de identificadores</td>

@@ -1,11 +1,14 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void yyerror(const char *mensagem);
 int yylex(void);
 extern int yylineno;
 extern char *yytext;
+char params[1024] = "";
+int func_count = 0;
 %}
 
 %union {
@@ -14,6 +17,9 @@ extern char *yytext;
   float real;
   char* string;
 }
+
+%type <str> param param_list param_geral
+
 
 %token ERROR EQUAL
 %token PLUS MINUS TIMES DIVIDE MODULO
@@ -54,7 +60,7 @@ line:
 ;
 
 expressao:
-    INT_LITERAL                   { $$ = $1; }
+    INT_LITERAL                   { $$ = $1; } // essa linha pode ser retirada
     | expressao PLUS expressao    { $$ = $1 + $3; }
     | expressao MINUS expressao   { $$ = $1 - $3; }
     | expressao TIMES expressao   { $$ = $1 * $3; }
@@ -77,9 +83,46 @@ expressao:
 ;
 
 
-program : 
-        | statement_list
+program: 
+         statement_list
+        | func_def
         ;
+
+func_def:
+    DEF ID LPAREN param_geral RPAREN COLON {
+        if (strlen($4) == 0)
+            printf("void %s() {\n // TODO: implementar %s\n}\n\n", $2, $2);
+        else
+            printf("void %s(tipoVariavel %s)  {\n   // TODO: implementar %s\n}\n\n", $2, $4, $2);
+        func_count++;
+        free($2);
+        free($4);
+    }
+;
+
+
+param_geral:
+    /*vazio*/              { strcpy(params, ""); }
+    | param_list    { /* já foi copiado para params */ }
+    ;
+
+param_list:
+    param {
+        $$ = strdup($1);
+    }
+  | param_list COMMA param {
+        int len = strlen($1) + strlen($3) + 3;
+        $$ = (char *)malloc(len);
+        snprintf($$, len, "%s, %s", $1, $3);
+    }
+;
+
+
+param:
+    ID { $$ = $1; }
+    ;
+
+
 
 statement_list : statement
                | statement_list statement

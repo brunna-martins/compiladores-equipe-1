@@ -65,6 +65,8 @@ line:
     | program NEWLINE   { }
     | NEWLINE           { /* Empty line */ }
     | error NEWLINE     { yyerrok; }
+    | INDENT
+    | DEDENT
 ;
 
 expressao:

@@ -157,7 +157,7 @@ block : NEWLINE INDENT statement_list DEDENT
     O conteúdo de dentro do pareteses é o args. E poderia 
     ser usado como no exemplo abaixo:
 
-    function_def: DEF IDENTIFIER '(' args ')' COLON block 
+    function_def: DEF IDENTIFIER LPAREM args RPAREM COLON block 
 
  */
 

@@ -147,21 +147,25 @@ INT_LITERAL [0-9]+
 }
 
 ^[ \t]+  {
-    if (indent_stack[top] < yyleng) {
+    if (indent_stack[top] < yyleng) 
+    {
         indent_stack[++top] = yyleng;
         printf("INDENT EMITIDO!\n");
         return INDENT;
-    } else if (indent_stack[top] > yyleng) {
+
+    } else if (indent_stack[top] > yyleng) 
+    {
         dedent_level=yyleng;
         unput(32);/*32 for space*/
         BEGIN(DEDENTATION);
-    }
+
+    } 
 }
 
 [ \t]+              { /* Ignorar espaços em branco */ }
 \uFEFF              { /* ignora BOM */ }
 \r?\n {
-    printf("---- nova linha identificada = ----%s---- analisando linha = %d ---------\n",yytext,yylineno);
+    printf("---- nova linha identificada  -----%s---- analisando linha = %d ---------\n",yytext,yylineno);
     return NEWLINE;
 }
 \r                  { /* ignora carriage return */ }

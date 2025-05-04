@@ -15,7 +15,7 @@ extern char *yytext;
   char* string;
 }
 
-%token INDENT DEDENT
+%token INDENT DEDENT NEWLINE
 %token ERROR EQUAL
 %token PLUS MINUS TIMES DIVIDE MODULO
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COLON COMMA DOT SEMICOLON
@@ -48,10 +48,10 @@ input:
 ;
 
 line:
-    expressao '\n'   { printf("Resultado: %d\n", $1); }
-    | program '\n'   { }
-    | '\n'           { /* Empty line */ }
-    | error '\n'     { yyerrok; }
+    expressao NEWLINE   { printf("Resultado: %d\n", $1); }
+    | program NEWLINE   { }
+    | NEWLINE           { /* Empty line */ }
+    | error NEWLINE     { yyerrok; }
 ;
 
 expressao:
@@ -72,11 +72,7 @@ expressao:
     | expressao GREATEQ expressao { $$ = $1 >= $3; }
     | expressao LESSER expressao  { $$ = $1 < $3; }
     | expressao GREATER expressao { $$ = $1 > $3; }
-    | INT_LITERAL                 { printf("INT: %d\n", $1); }
-    | FLOAT_LITERAL               { printf("FLOAT: %f\n", $1); }
-    | STRING_LITERAL              { printf("STRING: %s\n", $1); free($1); }
 ;
-
 
 program : 
         | statement_list
@@ -87,11 +83,11 @@ statement_list : statement
                ;
 
 statement : ID    
-          | IF LPAREN expressao RPAREN COLON INDENT statement_list DEDENT    
+          | IF     
           | ELSE
           | WHILE
           | FOR
-          | ELIF LPAREN expressao RPAREN COLON INDENT statement_list DEDENT
+          | ELIF 
           | DEF
           | RETURN
           | IN
@@ -117,7 +113,11 @@ statement : ID
           | LAMBDA
           ;
 
+block : NEWLINE INDENT statement_list DEDENT 
+    ;
 
+func_def: DEF ID LPAREN RPAREN COLON block
+    ;
 
 %%
 

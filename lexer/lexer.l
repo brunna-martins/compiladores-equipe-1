@@ -3,37 +3,29 @@
 #include <string.h>
 #include "parser.tab.h"
 
-
 int indent_stack[100];
-int indent_top = 0;
-int current_indent = 0;
-int inicio_de_linha = 1;
-int dedent_pending = 0;
-
-void emitir_dedents() {
-    while (indent_top > 0 && current_indent < indent_stack[indent_top - 1]) {
-        indent_top--;
-        dedent_pending++;
-    }
+int top = -1;
+int dedent_level = 0; 
+char firstChar;
+char *copyyytext; 
+void handle_dedent() {
+    top--;
 }
 
 %}
 
 %option noyywrap
 %option yylineno
+%x DEDENTATION
 
 
-int linha = 1;
-/*
-
-<INITIAL>{
-    if (dedent_pending > 0) {
-        dedent_pending--;
-        return DEDENT;
-    }
-} 
-*/
 %%
+
+%{
+    if (top == -1) {
+        indent_stack[++top] = 0;
+    }
+%}
 
 
 "#".*               { /*Ignora o conteúdo do comentário*/ }
@@ -57,8 +49,8 @@ int linha = 1;
     return STRING_LITERAL;
 }
 
-[0-9]+\.[0-9]+      { yylval.real = atof(yytext); return FLOAT_LITERAL;}
-[0-9]+              { yylval.inteiro = atoi(yytext); return INT_LITERAL; }
+[0-9]+\.[0-9]+      { printf("FLOAT: %s\n", yytext); yylval.real = atof(yytext); return FLOAT_LITERAL;}
+[0-9]+              { printf("INT: %s\n", yytext); yylval.inteiro = atoi(yytext); return INT_LITERAL; }
 \"([^\"\\]|\\.)*\"  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 \'([^\'\\]|\\.)*\'  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 
@@ -124,32 +116,91 @@ int linha = 1;
     return ID;
 }
 
-^[ \t]*   {
-    if (inicio_de_linha) {
-        current_indent = 0;
-        for (int i = 0; yytext[i] != '\0'; i++) {
-            if (yytext[i] == ' ') current_indent += 1;
-            else if (yytext[i] == '\t') current_indent += 4; // tab como 4 espaços, por exemplo
-        }
-
-        if (indent_top == 0 || current_indent > indent_stack[indent_top - 1]) {
-            indent_stack[indent_top++] = current_indent;
-            return INDENT;
-        } else if (current_indent < indent_stack[indent_top - 1]) {
-            emitir_dedents();
-        }
-        inicio_de_linha = 0;
+^[^ \t\n]+ {
+    if (indent_stack[top]!= 0){
+        copyyytext=strdup(yytext);
+        firstChar = yytext[0];
+        unput(yytext[0]);
+        BEGIN(DEDENTATION);
     }
-    // ignora os espaços/tabs, já tratamos acima
+    else
+    {
+        REJECT;
+    }
+}
+
+^[ \t]+  {
+    if (indent_stack[top] < yyleng) {
+        indent_stack[++top] = yyleng;
+        printf("INDENT EMITIDO!\n");
+        return INDENT;
+    } else if (indent_stack[top] > yyleng) {
+        dedent_level=yyleng;
+        unput(32);/*32 for space*/
+        BEGIN(DEDENTATION);
+    }
 }
 
 [ \t]+              { /* Ignorar espaços em branco */ }
-\r                  { /* ignora carriage return */ }
 \uFEFF              { /* ignora BOM */ }
-\n                  { inicio_de_linha = 1; return '\n'; }
+\r?\n {
+    printf("---- nova linha identificada = ----%s---- analisando linha = %d ---------\n",yytext,yylineno);
+    return NEWLINE;
+}
+\r                  { /* ignora carriage return */ }
+\n                  { return NEWLINE; }
 .|\n                { return yytext[0]; }
 
+<DEDENTATION>[ ] {
+        if (top >= 0 && indent_stack[top] != dedent_level) {
+            handle_dedent();
+          
+            unput(32);
+            printf("DEDENT EMITIDO!\n");
+            return DEDENT;
+        }
+        else
+        {
+            dedent_level=0;
+            BEGIN(INITIAL);
+        }
+
+        if (top == -1) {
+            fprintf(stderr, "Error: Incorrect indentation on line %d\n", yylineno);
+            exit(1);
+        }
+}
+
+<DEDENTATION>[^ \t\n] {
+    if (indent_stack[top] != 0) {
+        top--;
+        unput(yytext[0]);
+
+        printf("DEDENT EMITIDO!\n");
+        return DEDENT;
+    }
+    else
+    {
+        for (int i = strlen(copyyytext) - 1; i >= 0; i--) {
+            unput(copyyytext[i]);
+        }
+    BEGIN(INITIAL);
+    }
+    
+}
+
+<<EOF>>    {
+    while (top >0) {
+        handle_dedent();
+            printf("dedent = %s in line = %d\n",yytext,yylineno);
+        return DEDENT;
+    }
+    
+    return 0;    
+}
+
 .                   { printf("Caractere inválido: %s\n", yytext); }
+
 
 %%
 

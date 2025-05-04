@@ -1,6 +1,7 @@
 # Comentário deve ser ignorado
-
-x = 1
-
-if(x = 1):
-    print("oi")
+def func():
+    x = 1
+    if x > 0:
+        print(x)
+    print("fim")
+print("fora")

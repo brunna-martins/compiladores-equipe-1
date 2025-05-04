@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "parser.tab.h"
+#include "numero.h" 
 
 int indent_stack[100];
 int top = -1;
@@ -12,13 +13,16 @@ void handle_dedent() {
     top--;
 }
 
+
 %}
 
 %option noyywrap
 %option yylineno
 %x DEDENTATION
 
-
+NUMBER {INT_LITERAL}|{FLOAT_LITERAL}
+FLOAT_LITERAL [0-9]+\.[0-9]+ 
+INT_LITERAL [0-9]+
 %%
 
 %{
@@ -49,8 +53,21 @@ void handle_dedent() {
     return STRING_LITERAL;
 }
 
-[0-9]+\.[0-9]+      { printf("FLOAT: %s\n", yytext); yylval.real = atof(yytext); return FLOAT_LITERAL;}
-[0-9]+              { printf("INT: %s\n", yytext); yylval.inteiro = atoi(yytext); return INT_LITERAL; }
+{FLOAT_LITERAL} {
+    Numero n;
+    n.tipo = TIPO_FLOAT;
+    n.valor.f = atof(yytext);
+    yylval.numero = n;
+    return NUMBER;
+}
+
+{INT_LITERAL} {
+    Numero n;
+    n.tipo = TIPO_INT;
+    n.valor.i = atoi(yytext);
+    yylval.numero = n;
+    return NUMBER;
+}
 \"([^\"\\]|\\.)*\"  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 \'([^\'\\]|\\.)*\'  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 

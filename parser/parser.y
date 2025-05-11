@@ -98,7 +98,7 @@ statement_list : statement
                ;
 
 statement : ID    
-          | IF     
+          | if_stmt      
           | ELSE
           | WHILE
           | FOR
@@ -127,6 +127,54 @@ statement : ID
           | NONLOCAL
           | LAMBDA
           ;
+
+if_stmt: if_clause elif_clauses else_clause
+       {
+           printf("Estrutura IF completa reconhecida\n");
+       }
+       | if_clause elif_clauses
+       {
+           printf("Estrutura IF-ELIF reconhecida (sem ELSE)\n");
+       }
+       | if_clause else_clause
+       {
+           printf("Estrutura IF-ELSE reconhecida (sem ELIF)\n");
+       }
+       | if_clause
+       {
+           printf("Estrutura IF simples reconhecida\n");
+       }
+       ;
+
+if_clause: IF expressao COLON NEWLINE INDENT statement_list DEDENT
+        {
+            printf("IF reconhecido\n");
+        }
+        ;
+
+elif_clauses: elif_clause
+            {
+                printf("Um ELIF reconhecido\n");
+            }
+            | elif_clauses elif_clause
+            {
+                printf("Múltiplos ELIFs reconhecidos\n");
+            }
+            ;
+
+elif_clause: ELIF expressao COLON NEWLINE INDENT statement_list DEDENT
+          {
+              printf("ELIF reconhecido\n");
+          }
+          ;
+
+else_clause: ELSE COLON NEWLINE INDENT statement_list DEDENT
+          {
+              printf("ELSE reconhecido\n");
+          }
+          ;
+
+
 
 /* 
     Essa regra de produção aqui é uma que 

@@ -8,7 +8,9 @@ int yylex(void);
 extern int yylineno;
 extern char *yytext;
 char params[1024] = "";
+char* param_names[50];
 int func_count = 0;
+int param_count = 0;
 %}
 
 %union {
@@ -88,49 +90,18 @@ program:
         | func_def
         ;
 
-func_def:
-    DEF ID LPAREN param_geral RPAREN COLON {
-        if (strlen($4) == 0)
-            printf("void %s() {\n // TODO: implementar %s\n}\n\n", $2, $2);
-        else
-            printf("void %s(tipoVariavel %s)  {\n   // TODO: implementar %s\n}\n\n", $2, $4, $2);
-        func_count++;
-        free($2);
-        free($4);
-    }
-;
-
-
-param_geral:
-    /*vazio*/              { strcpy(params, ""); }
-    | param_list    { /* já foi copiado para params */ }
-    ;
-
-param_list:
-    param {
-        $$ = strdup($1);
-    }
-  | param_list COMMA param {
-        int len = strlen($1) + strlen($3) + 3;
-        $$ = (char *)malloc(len);
-        snprintf($$, len, "%s, %s", $1, $3);
-    }
-;
-
-
-param:
-    ID { $$ = $1; }
-    ;
-
-
 
 statement_list : statement
                | statement_list statement
                ;
 
-statement : ID    
-          | IF    
-          | ELSE
+statement : 
+            ID ASSIGN expressao       { printf("    %s = %d\n", $1, $3); free($1); }
+          | RETURN expressao          { printf("    return %d\n", $2); }
+          | ID LPAREN RPAREN          { printf("%s()\n", $1); free($1); }
+          | ID    
+          | IF                        { printf("    if");}
+          | ELSE                        { printf("    else");}
           | WHILE
           | FOR
           | ELIF
@@ -158,6 +129,60 @@ statement : ID
           | NONLOCAL
           | LAMBDA
           ;
+
+func_def:
+    DEF ID LPAREN param_geral RPAREN COLON {
+        printf("void %s(", $2);
+        for (int i = 0; i < param_count; i++) {
+            printf("int %s", param_names[i]);  // ou outro tipo
+            if (i < param_count - 1) {
+                printf(", ");
+            }
+        }
+        printf(") {\n    // TODO: implementar %s\n", $2);
+
+        for (int i = 0; i < param_count; i++) {
+            free(param_names[i]);
+        }
+        param_count = 0;
+        func_count++;
+    }
+;
+
+
+param_geral:
+    /*vazio*/              { strcpy(param_names, ""); printf("}\n\n"); }
+    | param_list    { /* já foi copiado para params */  }
+    ;
+
+param_list:
+    param {
+        $$ = strdup($1);
+        printf("3\n");
+    }
+  | param_list COMMA param {
+        int len = strlen($1) + strlen($3) + 3;
+        $$ = (char *)malloc(len);
+        snprintf($$, len, "%s, %s", $1, $3);
+        free($1);
+        printf("4\n");
+        
+    }
+;
+
+
+param:
+    ID {
+        // Tipo default: int
+        char buffer[100];
+        snprintf(buffer, sizeof(buffer), "int %s", $1);
+        $$ = strdup(buffer);
+
+        param_names[param_count++] = strdup($1);
+    }
+;
+
+
 
 %%
 

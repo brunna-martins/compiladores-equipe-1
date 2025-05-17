@@ -5,3 +5,4 @@ def func():
         print(x)
     print("fim")
 print("fora")
+

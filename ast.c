@@ -77,6 +77,43 @@ NoAST *criarNoParenteses(NoAST *abre, NoAST *conteudo, NoAST *fecha) {
     return no;
 }
 
+NoAST *criarNoFunDef(char *nome, NoAST *params, NoAST *body) {
+    NoAST *n = malloc(sizeof(NoAST));
+    n->tipo         = TIPO_FUNCAO;
+    n->operador     = 0;              /* não usamos */
+    n->valor        = 0;
+    n->valor_float  = 0.0f;
+    n->valor_string = NULL;
+    strncpy(n->nome, nome, 31);
+    n->nome[31]     = '\0';
+    n->delimitador  = 0;
+    n->palavra_chave= NULL;
+    n->esquerda     = params;         /* lista de params */
+    n->meio         = body;           /* corpo (stmt_list) */
+    n->direita      = NULL;           /* próximo statement no escopo */
+    return n;
+}
+
+NoAST *criarParam(char *nome) {
+    NoAST *p = malloc(sizeof(NoAST));
+    p->tipo         = TIPO_PARAM;
+    strncpy(p->nome, nome, 31);
+    p->nome[31]     = '\0';
+    p->esquerda     = p->meio = NULL;
+    p->direita      = NULL;  /* próximo parâmetro */
+    return p;
+}
+
+NoAST *appendParam(NoAST *lista, NoAST *novo) {
+    if (!lista) return novo;
+    NoAST *it = lista;
+    while (it->direita) it = it->direita;
+    it->direita = novo;
+    return lista;
+}
+
+
+
 // void imprimirAST(NoAST *no) {
 //     if (!no) return;
 //     if (no->operador) {

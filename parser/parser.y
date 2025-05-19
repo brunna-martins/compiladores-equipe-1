@@ -29,6 +29,7 @@ float get_valor(Numero n) {
   float real;
   char* string;
   NoAST* no;  
+  NoAST* param_list;
 }
 
 %token INDENT DEDENT NEWLINE
@@ -51,7 +52,7 @@ float get_valor(Numero n) {
 %token WITH PASS BREAK CONTINUE GLOBAL NONLOCAL LAMBDA
 
 %type <real> expressao
-%type <no> program stmt_list stmt expr
+%type <no> program stmt_list stmt expr def_stmt block param_list param
 
 %left PLUS MINUS
 %left TIMES DIVIDE
@@ -74,7 +75,9 @@ stmt_list:
 ;
 
 stmt:
-    IF expr COLON stmt block          
+    def_stmt
+
+    | IF expr COLON stmt block          
     {
         NoAST *cond = $2;
         NoAST *entao = $4;
@@ -109,8 +112,34 @@ expr:
     | LPAREN expr RPAREN      { $$ = $2; }
 ;
 
+def_stmt:
+    DEF ID LPAREN RPAREN COLON block
+      {
+        $$ = criarNoFunDef($2, NULL, $6);
+      }
+  | DEF ID LPAREN param_list RPAREN COLON block
+      {
+        $$ = criarNoFunDef($2, $4, $7);
+      }
+  ;
 
-block : 
+
+param_list:
+      param
+        { $$ = $1; }
+    | param_list ',' param
+        { $$ = appendParam($1, $3); }
+    ;
+
+param:
+    ID
+      { $$ = criarParam($1); }
+    ;
+
+
+
+block:
+    stmt_list 
     | NEWLINE INDENT stmt_list DEDENT
     ;
 

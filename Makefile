@@ -3,7 +3,7 @@ all: comp
 
 # Compila o executável principal | adicionar tabela.o quando houver
 comp: parser.tab.c lex.yy.c ast.o 
-	gcc -Wall -g -o comp parser.tab.c lex.yy.c ast.o -lfl
+	gcc -Wall -g -o comp parser.tab.c lex.yy.c ast.o src/main.c -lfl
 
 # Gera os arquivos do Bison (analisador sintático)
 parser.tab.c parser.tab.h: parser/parser.y

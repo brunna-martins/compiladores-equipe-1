@@ -18,7 +18,8 @@ float get_valor(Numero n) {
 %}
 
 %code requires {
-  #include "numero.h"
+    #include "numero.h"
+    #include "ast.h"
 }
 
 %union {

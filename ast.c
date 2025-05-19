@@ -81,15 +81,14 @@ void imprimirAST(NoAST *no) {
     }
 }
 
-void imprimirASTBonita(NoAST *no, int nivel) {
+void imprimirASTBonita(NoAST *no, int nivel, const char *prefixo, int ehUltimo) {
     if (!no) return;
 
-    // Imprime a indentação
-    for (int i = 0; i < nivel; i++) {
-        printf("  "); // 2 espaços por nível
-    }
+    // Imprime prefixo e conector
+    printf("%s", prefixo);
+    printf(ehUltimo ? "└── " : "├── ");
 
-    // Imprime o conteúdo do nó
+    // Imprime conteúdo do nó
     if (no->operador) {
         printf("Operador: %c\n", no->operador);
     } else if (strlen(no->nome) > 0) {
@@ -98,19 +97,26 @@ void imprimirASTBonita(NoAST *no, int nivel) {
         printf("Valor: %d\n", no->valor);
     }
 
-    // Se tiver filhos, imprime com o traço e chamada recursiva
-    if (no->esquerda) {
-        for (int i = 0; i < nivel; i++) printf("  ");
-        printf(" no->esq ");
-        imprimirASTBonita(no->esquerda, nivel + 1);
+    // Monta o novo prefixo para os filhos
+    char novoPrefixo[256];
+    snprintf(novoPrefixo, sizeof(novoPrefixo), "%s%s", prefixo, ehUltimo ? "    " : "│   ");
+
+    // Conta quantos filhos existem
+    int temEsquerda = no->esquerda != NULL;
+    int temDireita = no->direita != NULL;
+    int totalFilhos = temEsquerda + temDireita;
+    int filhoAtual = 0;
+
+    // Esquerda
+    if (temEsquerda) {
+        imprimirASTBonita(no->esquerda, nivel + 1, novoPrefixo, ++filhoAtual == totalFilhos);
     }
-    if (no->direita) {
-        for (int i = 0; i < nivel; i++) printf("  ");
-        printf(" no->dir ");
-        imprimirASTBonita(no->direita, nivel + 1);
+
+    // Direita
+    if (temDireita) {
+        imprimirASTBonita(no->direita, nivel + 1, novoPrefixo, ++filhoAtual == totalFilhos);
     }
 }
-
 
 int tiposCompativeis(Tipo t1, Tipo t2) {
     return t1 == t2;

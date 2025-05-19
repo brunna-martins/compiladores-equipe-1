@@ -59,6 +59,7 @@ INT_LITERAL [0-9]+
     n.tipo = REAL;
     n.valor.f = atof(yytext);
     yylval.numero = n;
+    printf("Numero Real: %f\n", n.valor.f);
     return NUMBER;
 }
 
@@ -67,8 +68,10 @@ INT_LITERAL [0-9]+
     n.tipo = INTEIRO;
     n.valor.i = atoi(yytext);
     yylval.numero = n;
+    printf("Numero Inteiro: %d\n", n.valor.i);
     return NUMBER;
 }
+
 \"([^\"\\]|\\.)*\"  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 \'([^\'\\]|\\.)*\'  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 

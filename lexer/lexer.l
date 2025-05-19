@@ -56,7 +56,7 @@ INT_LITERAL [0-9]+
 
 {FLOAT_LITERAL} {
     Numero n;
-    n.tipo = TIPO_FLOAT;
+    n.tipo = REAL;
     n.valor.f = atof(yytext);
     yylval.numero = n;
     return NUMBER;
@@ -64,7 +64,7 @@ INT_LITERAL [0-9]+
 
 {INT_LITERAL} {
     Numero n;
-    n.tipo = TIPO_INT;
+    n.tipo = INTEIRO;
     n.valor.i = atoi(yytext);
     yylval.numero = n;
     return NUMBER;
@@ -100,6 +100,8 @@ INT_LITERAL [0-9]+
 "global"        { printf("Palavra-chave: %s\n", yytext); return GLOBAL; }
 "nonlocal"      { printf("Palavra-chave: %s\n", yytext); return NONLOCAL; }
 "lambda"        { printf("Palavra-chave: %s\n", yytext); return LAMBDA; }
+
+"print"         { printf("Chamada de função: %s\n", yytext); return PRINT;}
 
 "="             { printf("Operador: %s\n", yytext); return ASSIGN; }
 "=="            { printf("Operador: %s\n", yytext); return EQTO; }

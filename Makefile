@@ -1,40 +1,30 @@
-# Nome do executável
-EXEC = compilador
+# Regra padrão: compila tudo
+all: comp
 
-# Arquivos de entrada renomeados
-LEX = lexer/lexer.l
-YACC = parser/parser.y
+# Compila o executável principal | adicionar tabela.o quando houver
+comp: parser.tab.c lex.yy.c ast.o 
+	gcc -Wall -g -o comp parser.tab.c lex.yy.c ast.o -lfl
 
-# Arquivos gerados
-LEX_C = lex.yy.c
-YACC_C = parser.tab.c
-YACC_H = parser.tab.h
+# Gera os arquivos do Bison (analisador sintático)
+parser.tab.c parser.tab.h: parser/parser.y
+	bison -d parser/parser.y
 
-# Arquivo principal (você pode adicionar main.c se tiver)
-MAIN = src/main.c
+# Gera o analisador léxico com Flex
+lex.yy.c: lexer/lexer.l parser.tab.h
+	flex lexer/lexer.l
 
-# Compilador e flags
-CC = gcc
-CFLAGS = -Wall -g
+# Compila o arquivo da AST
+ast.o: ast.c ast.h
+	gcc -Wall -g -c ast.c
 
-# Regra principal
-all: $(EXEC)
+# Compila o arquivo da tabela de símbolos (quando houver)
+# tabela.o: tabela.c tabela.h
+# 	gcc -Wall -g -c tabela.c
 
-# Compila tudo
-$(EXEC): $(LEX_C) $(YACC_C) $(MAIN)
-	$(CC) $(CFLAGS) -o $(EXEC) $(LEX_C) $(YACC_C) $(MAIN) -lfl
-
-# Gera lex.yy.c
-$(LEX_C): $(LEX)
-	flex -o $(LEX_C) $(LEX)
-
-# Gera parser.tab.c e parser.tab.h
-$(YACC_C) $(YACC_H): $(YACC)
-	bison -d $(YACC)
-
-# Limpa os arquivos gerados
+# Remove arquivos gerados
 clean:
-	rm -f $(EXEC) $(LEX_C) $(YACC_C) $(YACC_H) *.o
+	rm -f comp parser.tab.c parser.tab.h lex.yy.c ast.o tabela.o
 
+# Remove arquivos temporários também
 distclean: clean
 	rm -f *~

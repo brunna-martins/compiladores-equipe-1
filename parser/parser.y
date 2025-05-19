@@ -2,15 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "numero.h" 
+#include "ast.h"
 
 void yyerror(const char *mensagem);
 int yylex(void);
+NoAST *raiz = NULL;
 
 extern int yylineno;
 extern char *yytext;
 
 float get_valor(Numero n) {
-    return n.tipo == TIPO_INT ? n.valor.i : n.valor.f;
+    return n.tipo == INTEIRO ? n.valor.i : n.valor.f;
 }
 
 %}
@@ -25,13 +27,14 @@ float get_valor(Numero n) {
   int inteiro;
   float real;
   char* string;
+  NoAST* no;  
 }
 
 %token INDENT DEDENT NEWLINE
 %token ERROR EQUAL 
 %token PLUS MINUS TIMES DIVIDE MODULO
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COLON COMMA DOT SEMICOLON
-%token ASSIGN EQTO NOTEQTO LESSEQ GREATEQ LESSER GREATER 
+%token ASSIGN EQTO NOTEQTO LESSEQ GREATEQ LESSER GREATER PRINT
 
 %token <numero> NUMBER
 %token <real> FLOAT_LITERAL
@@ -47,6 +50,7 @@ float get_valor(Numero n) {
 %token WITH PASS BREAK CONTINUE GLOBAL NONLOCAL LAMBDA
 
 %type <real> expressao
+%type <no> program stmt_list stmt expr
 
 %left PLUS MINUS
 %left TIMES DIVIDE
@@ -55,12 +59,56 @@ float get_valor(Numero n) {
 
 %%
 
-input:
-    /* empty */
-    | input line
+program:
+    stmt_list                  { raiz = $1; $$ = $1; }
 ;
 
-line:
+stmt_list:
+    stmt                      { $$ = $1; }
+  | stmt_list stmt            
+    {
+        NoAST *novo = criarNoOp(';', $1, $2); // ou um nó de sequência
+        $$ = novo;
+    }
+;
+
+stmt:
+    IF expr ':' stmt          
+    {
+        NoAST *cond = $2;
+        NoAST *entao = $4;
+        $$ = criarNoPalavraChave("if");
+        $$->esquerda = cond;
+        $$->direita = entao;
+    }
+  | PRINT LPAREN expr RPAREN
+    {
+        NoAST *printNode = criarNoPalavraChave("print");
+        printNode->esquerda = $3;
+        $$ = printNode;
+    }
+;
+
+expr:
+    ID                       { $$ = criarNoId($1, TIPO_STRING); }
+    | NUMBER                  
+        {
+            if ($1.tipo == INTEIRO)
+            $$ = criarNoNumInt($1.valor.i);
+            else
+            $$ = criarNoNumFloat($1.valor.f);
+        }
+    | expr PLUS expr          { $$ = criarNoOp('+', $1, $3); }
+    | expr MINUS expr         { $$ = criarNoOp('-', $1, $3); }
+    | expr TIMES expr         { $$ = criarNoOp('*', $1, $3); }
+    | expr DIVIDE expr        { $$ = criarNoOp('/', $1, $3); }
+;
+
+
+block : NEWLINE INDENT stmt_list DEDENT;
+
+
+ine:
     expressao NEWLINE   { printf("Resultado: %f\n", $1); }
     | program NEWLINE   { }
     | NEWLINE           { /* Empty line */ }
@@ -89,45 +137,6 @@ expressao:
     | expressao GREATER expressao { $$ = $1 > $3; }
 ;
 
-program : 
-        | statement_list
-        ;
-
-statement_list : statement
-               | statement_list statement
-               ;
-
-statement : ID    
-          | IF     
-          | ELSE
-          | WHILE
-          | FOR
-          | ELIF 
-          | DEF
-          | RETURN
-          | IN
-          | TRUE
-          | FALSE
-          | NONE
-          | AND
-          | OR
-          | NOT
-          | CLASS
-          | IMPORT
-          | FROM
-          | AS
-          | TRY
-          | EXCEPT
-          | FINALLY
-          | WITH
-          | PASS
-          | BREAK
-          | CONTINUE
-          | GLOBAL
-          | NONLOCAL
-          | LAMBDA
-          ;
-
 /* 
     Essa regra de produção aqui é uma que 
     já identifica escopo. Então pode ser 
@@ -135,8 +144,7 @@ statement : ID
     de escopo como pras regras do IF, do DEF
     do WHILE e por ai vai.
  */
-block : NEWLINE INDENT statement_list DEDENT 
-    ;
+
 
 /* 
     As regras de produção abaixo podem ser lidas como:

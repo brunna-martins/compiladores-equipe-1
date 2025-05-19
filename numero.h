@@ -2,7 +2,7 @@
 #define NUMERO_H
 
 typedef struct {
-    enum { TIPO_INT, TIPO_FLOAT } tipo;
+    enum { INTEIRO, REAL } tipo;
     union {
         int i;
         float f;

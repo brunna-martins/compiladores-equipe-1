@@ -10,7 +10,7 @@ typedef struct noAST {
     char *valor_string;
     char nome[32];
     char delimitador;
-    char palavra_chave;
+    char *palavra_chave;
     Tipo tipo;
     struct noAST *esquerda;
     struct noAST *direita;

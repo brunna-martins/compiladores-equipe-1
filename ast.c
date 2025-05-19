@@ -81,6 +81,37 @@ void imprimirAST(NoAST *no) {
     }
 }
 
+void imprimirASTBonita(NoAST *no, int nivel) {
+    if (!no) return;
+
+    // Imprime a indentação
+    for (int i = 0; i < nivel; i++) {
+        printf("  "); // 2 espaços por nível
+    }
+
+    // Imprime o conteúdo do nó
+    if (no->operador) {
+        printf("Operador: %c\n", no->operador);
+    } else if (strlen(no->nome) > 0) {
+        printf("Nome: %s\n", no->nome);
+    } else {
+        printf("Valor: %d\n", no->valor);
+    }
+
+    // Se tiver filhos, imprime com o traço e chamada recursiva
+    if (no->esquerda) {
+        for (int i = 0; i < nivel; i++) printf("  ");
+        printf(" no->esq ");
+        imprimirASTBonita(no->esquerda, nivel + 1);
+    }
+    if (no->direita) {
+        for (int i = 0; i < nivel; i++) printf("  ");
+        printf(" no->dir ");
+        imprimirASTBonita(no->direita, nivel + 1);
+    }
+}
+
+
 int tiposCompativeis(Tipo t1, Tipo t2) {
     return t1 == t2;
 }

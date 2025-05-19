@@ -16,9 +16,9 @@ int main(void) {
 
     if (status == 0) 
     {
-        printf("\n---- AST gerada ----\n");
+        printf("\n---- AST gerada -------------------\n\n");
         imprimirASTBonita(raiz, 0, "", 1);
-        printf("-------------------\n");
+        printf("\n-------------------------------------\n\n");
     } 
     else 
     {

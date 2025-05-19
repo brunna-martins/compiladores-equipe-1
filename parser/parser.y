@@ -74,7 +74,7 @@ stmt_list:
 ;
 
 stmt:
-    IF expr ':' stmt          
+    IF expr COLON stmt block          
     {
         NoAST *cond = $2;
         NoAST *entao = $4;
@@ -82,16 +82,17 @@ stmt:
         $$->esquerda = cond;
         $$->direita = entao;
     }
-  | PRINT LPAREN expr RPAREN
+    | PRINT LPAREN expr RPAREN NEWLINE
     {
         NoAST *printNode = criarNoPalavraChave("print");
         printNode->esquerda = $3;
         $$ = printNode;
     }
+    | expr
 ;
 
 expr:
-    ID                       { $$ = criarNoId($1, TIPO_STRING); }
+    ID                        { $$ = criarNoId($1, TIPO_ID); }
     | NUMBER                  
         {
             if ($1.tipo == INTEIRO)
@@ -103,10 +104,15 @@ expr:
     | expr MINUS expr         { $$ = criarNoOp('-', $1, $3); }
     | expr TIMES expr         { $$ = criarNoOp('*', $1, $3); }
     | expr DIVIDE expr        { $$ = criarNoOp('/', $1, $3); }
+    | expr GREATER expr       { $$ = criarNoOp('>', $1, $3); }
+    | expr ASSIGN expr        { $$ = criarNoOp('=', $1, $3); }
+    | LPAREN expr RPAREN      { $$ = $2; }
 ;
 
 
-block : NEWLINE INDENT stmt_list DEDENT;
+block : 
+    | NEWLINE INDENT stmt_list DEDENT
+    ;
 
 
 ine:

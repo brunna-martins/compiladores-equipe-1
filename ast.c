@@ -8,6 +8,7 @@ NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir) {
     no->operador = op;
     no->esquerda = esq;
     no->direita = dir;
+    no->meio = NULL;
     no->tipo = (esq->tipo == dir->tipo) ? esq->tipo : TIPO_ERRO;
     return no;
 }
@@ -17,7 +18,7 @@ NoAST *criarNoNumInt(int val) {
     no->valor = val;
     no->operador = 0;
     no->tipo = TIPO_INT;
-    no->esquerda = no->direita = NULL;
+    no->esquerda = no->direita = no->meio = NULL;
     return no;
 }
 
@@ -26,7 +27,7 @@ NoAST *criarNoNumFloat(float valor_float) {
     no->valor_float = valor_float;
     no->operador = 0;
     no->tipo = TIPO_FLOAT;
-    no->esquerda = no->direita = NULL;
+    no->esquerda = no->direita = no->meio = NULL;
     return no;
 }
 
@@ -35,7 +36,7 @@ NoAST *criarNoString(char *valor_string) {
     no->valor_string = valor_string;
     no->operador = 0;
     no->tipo = TIPO_STRING;
-    no->esquerda = no->direita = NULL;
+    no->esquerda = no->direita = no->meio = NULL;
     return no;
 }
 
@@ -44,7 +45,7 @@ NoAST *criarNoId(char *nome, Tipo tipo) {
     strcpy(no->nome, nome);
     no->operador = 0;
     no->tipo = tipo;
-    no->esquerda = no->direita = NULL;
+    no->esquerda = no->direita = no->meio = NULL;
     return no;
 }
 
@@ -53,7 +54,7 @@ NoAST *criarNoPalavraChave(char *palavraChave) {
     no->operador = 0;
     no->palavra_chave = palavraChave;
     no->tipo = TIPO_PALAVRA_CHAVE;
-    no->esquerda = no->direita = NULL;
+    no->esquerda = no->direita = no->meio = NULL;
     return no;
 }
 
@@ -62,24 +63,34 @@ NoAST *criarNoDelimitador(char delimitador) {
     no->operador = 0;
     no->delimitador = delimitador;
     no->tipo = TIPO_DELIMITADOR;
-    no->esquerda = no->direita = NULL;
+    no->esquerda = no->direita = no->meio = NULL;
     return no;
 }
 
-void imprimirAST(NoAST *no) {
-    if (!no) return;
-    if (no->operador) {
-        printf("(");
-        imprimirAST(no->esquerda);
-        printf(" %c ", no->operador);
-        imprimirAST(no->direita);
-        printf(")");
-    } else if (strlen(no->nome) > 0) {
-        printf("%s", no->nome);
-    } else {
-        printf("%d", no->valor);
-    }
+NoAST *criarNoParenteses(NoAST *abre, NoAST *conteudo, NoAST *fecha) {
+    NoAST *no = malloc(sizeof(NoAST));
+    no->operador = 0;
+    no->tipo = TIPO_DELIMITADOR;
+    no->esquerda = abre;
+    no->meio = conteudo;
+    no->direita = fecha;
+    return no;
 }
+
+// void imprimirAST(NoAST *no) {
+//     if (!no) return;
+//     if (no->operador) {
+//         printf("(");
+//         imprimirAST(no->esquerda);
+//         printf(" %c ", no->operador);
+//         imprimirAST(no->direita);
+//         printf(")");
+//     } else if (strlen(no->nome) > 0) {
+//         printf("%s", no->nome);
+//     } else {
+//         printf("%d", no->valor);
+//     }
+// }
 
 void imprimirASTBonita(NoAST *no, int nivel, const char *prefixo, int ehUltimo) {
     if (!no) return;
@@ -107,6 +118,13 @@ void imprimirASTBonita(NoAST *no, int nivel, const char *prefixo, int ehUltimo) 
     int totalFilhos = temEsquerda + temDireita;
     int filhoAtual = 0;
 
+
+    if(no->meio)
+    {
+        printf("(");
+        imprimirASTBonita(no->meio, nivel + 1, novoPrefixo, ehUltimo);
+        printf(")");
+    }
     // Esquerda
     if (temEsquerda) {
         imprimirASTBonita(no->esquerda, nivel + 1, novoPrefixo, ++filhoAtual == totalFilhos);

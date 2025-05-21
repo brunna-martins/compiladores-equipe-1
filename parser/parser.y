@@ -52,7 +52,7 @@ float get_valor(Numero n) {
 %token WITH PASS BREAK CONTINUE GLOBAL NONLOCAL LAMBDA
 
 %type <real> expressao
-%type <no> program stmt_list stmt expr def_stmt block param_list param
+%type <no> program stmt_list stmt expr def_stmt block param_list param term factor
 
 %left PLUS MINUS
 %left TIMES DIVIDE
@@ -94,7 +94,7 @@ stmt:
     | expr
 ;
 
-expr:
+/* expr:
     ID                        { $$ = criarNoId($1, TIPO_ID); }
     | NUMBER                  
         {
@@ -110,7 +110,39 @@ expr:
     | expr GREATER expr       { $$ = criarNoOp('>', $1, $3); }
     | expr ASSIGN expr        { $$ = criarNoOp('=', $1, $3); }
     | LPAREN expr RPAREN      { $$ = $2; }
+; */
+
+expr:
+      expr PLUS term          { $$ = criarNoOp('+', $1, $3); }
+    | expr MINUS term         { $$ = criarNoOp('-', $1, $3); }
+    | expr GREATER term       { $$ = criarNoOp('>', $1, $3); }
+    | expr ASSIGN term        { $$ = criarNoOp('=', $1, $3); }
+    | term                    { $$ = $1; }
 ;
+
+term:
+    term TIMES factor { $$ = criarNoOp('*', $1, $3); }
+  | term DIVIDE factor{ $$ = criarNoOp('/', $1, $3); }
+  | factor            { $$ = $1; }
+  ;
+
+factor:
+    LPAREN expr RPAREN { $$ = $2; }
+  | NUMBER             
+    { 
+        if ($1.tipo == INTEIRO)
+        {
+            $$ = criarNoNumInt($1.valor.i);
+        }
+        else
+        {
+            $$ = criarNoNumFloat($1.valor.f); 
+        }
+    }
+  | ID                 { $$ = criarNoId($1, TIPO_ID); }
+  ; 
+
+
 
 def_stmt:
     DEF ID LPAREN RPAREN COLON block
@@ -139,8 +171,8 @@ param:
 
 
 block:
-    stmt_list 
-    | NEWLINE INDENT stmt_list DEDENT
+    stmt_list { $$ = $1; }
+    | NEWLINE INDENT stmt_list DEDENT { $$ = $3; }
     ;
 
 

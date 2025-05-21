@@ -9,7 +9,7 @@ NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir) {
     no->esquerda = esq;
     no->direita = dir;
     no->meio = NULL;
-    no->tipo = (esq->tipo == dir->tipo) ? esq->tipo : TIPO_ERRO;
+    no->tipo = TIPO_OP;
     return no;
 }
 
@@ -129,48 +129,68 @@ NoAST *appendParam(NoAST *lista, NoAST *novo) {
 //     }
 // }
 
-void imprimirASTBonita(NoAST *no, int nivel, const char *prefixo, int ehUltimo) {
+void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
     if (!no) return;
 
     // Imprime prefixo e conector
     printf("%s", prefixo);
     printf(ehUltimo ? "└── " : "├── ");
 
-    // Imprime conteúdo do nó
-    if (no->operador) {
-        printf("Operador: %c\n", no->operador);
-    } else if (strlen(no->nome) > 0) {
-        printf("Nome: %s\n", no->nome);
-    } else {
-        printf("Valor: %d\n", no->valor);
+    // Conteúdo do nó
+    switch (no->tipo) {
+        case TIPO_FUNCAO:
+            printf("Função: %s\n", no->nome);
+            break;
+        case TIPO_PARAM:
+            printf("Parâmetro: %s\n", no->nome);
+            break;
+        case TIPO_PALAVRA_CHAVE:
+            printf("Palavra-chave: %s\n", no->palavra_chave);
+            break;
+        case TIPO_INT:
+            printf("Inteiro: %d\n", no->valor);
+            break;
+        case TIPO_FLOAT:
+            printf("Float: %.2f\n", no->valor_float);
+            break;
+        case TIPO_STRING:
+            printf("String: %s\n", no->valor_string);
+            break;
+        case TIPO_ID:
+            printf("Identificador: %s\n", no->nome);
+            break;
+        case TIPO_DELIMITADOR:
+            printf("Delimitador: %c\n", no->delimitador);
+            break;
+        case TIPO_OP:
+            printf("Operador: %c\n", no->operador);
+            break;
+        case TIPO_ERRO:
+            printf("AAAAAA!\n");
+            break;
+        default:
+            if (no->operador)
+                printf("Operador: %c\n", no->operador);
+            else
+                printf("Nó desconhecido\n");
+            break;
     }
 
-    // Monta o novo prefixo para os filhos
+    // Novo prefixo para filhos
     char novoPrefixo[256];
     snprintf(novoPrefixo, sizeof(novoPrefixo), "%s%s", prefixo, ehUltimo ? "    " : "│   ");
 
-    // Conta quantos filhos existem
-    int temEsquerda = no->esquerda != NULL;
-    int temDireita = no->direita != NULL;
-    int totalFilhos = temEsquerda + temDireita;
-    int filhoAtual = 0;
+    // Lista de filhos (meio, esquerda, direita)
+    int filhosExistem[3] = { no->esquerda != NULL, no->meio != NULL, no->direita != NULL };
+    int totalFilhos = filhosExistem[0] + filhosExistem[1] + filhosExistem[2];
+    int contador = 0;
 
-
-    if(no->meio)
-    {
-        printf("(");
-        imprimirASTBonita(no->meio, nivel + 1, novoPrefixo, ehUltimo);
-        printf(")");
-    }
-    // Esquerda
-    if (temEsquerda) {
-        imprimirASTBonita(no->esquerda, nivel + 1, novoPrefixo, ++filhoAtual == totalFilhos);
-    }
-
-    // Direita
-    if (temDireita) {
-        imprimirASTBonita(no->direita, nivel + 1, novoPrefixo, ++filhoAtual == totalFilhos);
-    }
+    if (no->esquerda)
+        imprimirASTBonita(no->esquerda, novoPrefixo, ++contador == totalFilhos);
+    if (no->meio)
+        imprimirASTBonita(no->meio, novoPrefixo, ++contador == totalFilhos);
+    if (no->direita)
+        imprimirASTBonita(no->direita, novoPrefixo, ++contador == totalFilhos);
 }
 
 int tiposCompativeis(Tipo t1, Tipo t2) {

@@ -1,7 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
-typedef enum { TIPO_INT, TIPO_FLOAT, TIPO_STRING, TIPO_DELIMITADOR, TIPO_PALAVRA_CHAVE, TIPO_ERRO, TIPO_ID, TIPO_FUNCAO, TIPO_PARAM} Tipo;
+typedef enum { TIPO_INT, TIPO_FLOAT, TIPO_STRING, TIPO_DELIMITADOR, TIPO_PALAVRA_CHAVE, TIPO_ERRO, TIPO_ID, TIPO_FUNCAO, TIPO_PARAM, TIPO_OP} Tipo;
 
 typedef struct noAST {
     char operador;
@@ -28,7 +28,7 @@ NoAST *criarNoFunDef(char *nome, NoAST *params, NoAST *body);
 NoAST *criarParam(char *nome);
 NoAST *appendParam(NoAST *lista, NoAST *novo);
 NoAST *criarNoParenteses(NoAST *abre, NoAST *conteudo, NoAST *fecha);
-void imprimirAST(NoAST *no);
+void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo);
 int tiposCompativeis(Tipo t1, Tipo t2);
 
 #endif

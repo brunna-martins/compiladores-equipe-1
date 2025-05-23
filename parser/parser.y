@@ -52,7 +52,7 @@ float get_valor(Numero n) {
 %token WITH PASS BREAK CONTINUE GLOBAL NONLOCAL LAMBDA
 
 %type <real> expressao
-%type <no> program stmt_list stmt expr def_stmt block param_list param term factor
+%type <no> program stmt_list stmt expr def_stmt block param_list param term factor print_stmt
 
 %left PLUS MINUS
 %left TIMES DIVIDE
@@ -66,17 +66,21 @@ program:
 ;
 
 stmt_list:
-    stmt                      { $$ = $1; }
+    stmt                      { $$ = $1;}
   | stmt_list stmt            
-    {
-        NoAST *novo = criarNoOp(';', $1, $2); // ou um nó de sequência
-        $$ = novo;
+     {
+        if ($2 == NULL) {
+            $$ = $1; // ignora stmt vazio (NEWLINE)
+        } else if ($1 == NULL) {
+            $$ = $2; // primeira stmt válida
+        } else {
+            $$ = criarNoOp(';', $1, $2); // junta duas stmts
+        }
     }
 ;
 
 stmt:
     def_stmt
-
     | IF expr COLON stmt block          
     {
         NoAST *cond = $2;
@@ -85,13 +89,11 @@ stmt:
         $$->esquerda = cond;
         $$->direita = entao;
     }
-    | PRINT LPAREN expr RPAREN NEWLINE
-    {
-        NoAST *printNode = criarNoPalavraChave("print");
-        printNode->esquerda = $3;
-        $$ = printNode;
-    }
+    | print_stmt
     | expr
+    | RETURN {$$ = NULL;}
+    | RETURN expr
+    | NEWLINE {$$ = NULL;}
 ;
 
 /* expr:
@@ -133,6 +135,7 @@ factor:
         if ($1.tipo == INTEIRO)
         {
             $$ = criarNoNumInt($1.valor.i);
+            printf("caracter chamado %d\n\n",$1.valor.i);
         }
         else
         {
@@ -140,9 +143,15 @@ factor:
         }
     }
   | ID                 { $$ = criarNoId($1, TIPO_ID); }
+  | STRING_LITERAL     { $$ = criarNoString($1);}
   ; 
 
-
+print_stmt:
+    PRINT LPAREN expr RPAREN {
+        NoAST *printNode = criarNoPalavraChave("print");
+        printNode->esquerda = $3;
+        $$ = printNode;
+    }
 
 def_stmt:
     DEF ID LPAREN RPAREN COLON block
@@ -159,7 +168,7 @@ def_stmt:
 param_list:
       param
         { $$ = $1; }
-    | param_list ',' param
+    | param_list COMMA param
         { $$ = appendParam($1, $3); }
     ;
 
@@ -176,14 +185,15 @@ block:
     ;
 
 
-ine:
+/* line:
     expressao NEWLINE   { printf("Resultado: %f\n", $1); }
     | program NEWLINE   { }
-    | NEWLINE           { /* Empty line */ }
+    | NEWLINE           { /* Empty line  }
     | error NEWLINE     { yyerrok; }
     | INDENT
     | DEDENT
 ;
+ */
 
 expressao:
     NUMBER { $$ = get_valor($1); }

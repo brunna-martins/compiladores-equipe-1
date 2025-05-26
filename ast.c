@@ -112,7 +112,15 @@ NoAST *appendParam(NoAST *lista, NoAST *novo) {
     return lista;
 }
 
-
+NoAST* criarNoElif(NoAST *cond, NoAST *corpo) {
+    NoAST *no = (NoAST*) malloc(sizeof(NoAST));
+    no->tipo = TIPO_PALAVRA_CHAVE;
+    no->palavra_chave = strdup("elif");
+    no->esquerda = cond;
+    no->direita = corpo;
+    no->meio = NULL;
+    return no;
+}
 
 // void imprimirAST(NoAST *no) {
 //     if (!no) return;

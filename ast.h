@@ -22,6 +22,7 @@ NoAST *criarNoNumInt(int val);
 NoAST *criarNoNumFloat(float valor_float);
 NoAST *criarNoString(char *valor_string);
 NoAST *criarNoPalavraChave(char *palavraChave);
+NoAST* criarNoElif(NoAST *cond, NoAST *corpo);
 NoAST *criarNoId(char *nome, Tipo tipo);
 NoAST *criarNoDelimitador(char delimitador);
 NoAST *criarNoFunDef(char *nome, NoAST *params, NoAST *body);

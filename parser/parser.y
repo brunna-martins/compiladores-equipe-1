@@ -81,14 +81,37 @@ stmt_list:
 
 stmt:
     def_stmt
-    | IF expr COLON stmt block          
-    {
-        NoAST *cond = $2;
-        NoAST *entao = $4;
-        $$ = criarNoPalavraChave("if");
-        $$->esquerda = cond;
-        $$->direita = entao;
-    }
+    | IF expr COLON block
+        {
+            NoAST *cond = $2;
+            NoAST *entao = $4;
+            $$ = criarNoPalavraChave("if");
+            $$->esquerda = cond;
+            $$->direita = entao;
+        }
+    | IF expr COLON block ELSE COLON block
+        {
+            NoAST *cond = $2;
+            NoAST *entao = $4;
+            NoAST *senao = $7;
+            $$ = criarNoPalavraChave("ifelse");
+            $$->esquerda = cond;
+            $$->direita = criarNoOp(';', entao, senao);
+        }
+    | IF expr COLON block ELIF expr COLON block
+        {
+            NoAST *cond_if = $2;
+            NoAST *bloco_if = $4;
+            NoAST *cond_elif = $6;
+            NoAST *bloco_elif = $8;
+            NoAST *elif_node = criarNoPalavraChave("elif");
+            elif_node->esquerda = cond_elif;
+            elif_node->direita = bloco_elif;
+
+            $$ = criarNoPalavraChave("if");
+            $$->esquerda = cond_if;
+            $$->direita = criarNoOp(';', bloco_if, elif_node);
+        }
     | print_stmt
     | expr
     | RETURN {$$ = NULL;}

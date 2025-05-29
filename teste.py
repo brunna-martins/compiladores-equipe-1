@@ -1,7 +1,5 @@
 # Comentário deve ser ignorado
-def func():
-    x = 1
-    if x > 0:
-        print(x)
-    print("fim")
-print("fora")
+x = 10
+y = 20
+z = x + y
+print(z)

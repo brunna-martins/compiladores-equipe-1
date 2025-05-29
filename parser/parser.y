@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "numero.h" 
+#include "tabela_simbolos.h"
 
 void yyerror(const char *mensagem);
 int yylex(void);
@@ -12,6 +13,9 @@ extern char *yytext;
 float get_valor(Numero n) {
     return n.tipo == TIPO_INT ? n.valor.i : n.valor.f;
 }
+
+// Pilha de escopos
+TabelaSimbolos* escopo_atual = NULL;
 
 %}
 
@@ -52,6 +56,12 @@ float get_valor(Numero n) {
 %left TIMES DIVIDE
 %left UMINUS
 
+%initial-action {
+    escopo_atual = criar_tabela();  // Cria o escopo global inicial
+    printf("Escopo global criado!\n");
+    inserir_simbolo(escopo_atual, "print", "funcao"); 
+}
+
 
 %%
 
@@ -61,7 +71,8 @@ input:
 ;
 
 line:
-    expressao NEWLINE   { printf("Resultado: %f\n", $1); }
+    comando NEWLINE     { }  // Comando seguido de nova linha
+    | expressao NEWLINE { printf("Resultado: %f\n", $1); }
     | program NEWLINE   { }
     | NEWLINE           { /* Empty line */ }
     | error NEWLINE     { yyerrok; }
@@ -69,33 +80,79 @@ line:
     | DEDENT
 ;
 
+comando: 
+    declaracao_variavel
+    | chamada_funcao
+    | expressao
+    | statement
+;
+
+declaracao_variavel:
+    ID ASSIGN expressao {
+        // Inserir na tabela de simbolos
+        if (buscar_simbolo(escopo_atual, $1)) {
+            yyerror("Variável já declarada");
+        } else {
+            inserir_simbolo(escopo_atual, $1, "var");
+            printf("Variável '%s' declarada\n", $1);
+        }
+    }
+;
+
+chamada_funcao:
+    ID LPAREN argumentos RPAREN {
+        Simbolo* s = buscar_simbolo(escopo_atual, $1);
+        if (!s) {
+            yyerror("Função não declarada");
+        } else {
+            printf("Chamando função '%s'\n", $1);
+        }
+    }
+;
+
+
+argumentos:
+    /* empty */
+    | expressao
+    | argumentos COMMA expressao
+;
+
+
 expressao:
-    NUMBER { $$ = get_valor($1); }
+    NUMBER { 
+        $$ = get_valor($1); 
+        printf("Número reconhecido: %f\n", $$);
+    }
+    | ID { 
+        Simbolo* s = buscar_simbolo(escopo_atual, $1);
+        if (!s) {
+            yyerror("Variável não declarada");
+            $$ = 0;
+        } else {
+            // Aqui você precisaria do valor real da variável
+            $$ = 0; // Placeholder - precisa implementar
+            printf("Referência à variável '%s'\n", $1);
+        }
+    }
     | expressao PLUS expressao    { $$ = $1 + $3; }
     | expressao MINUS expressao   { $$ = $1 - $3; }
     | expressao TIMES expressao   { $$ = $1 * $3; }
     | expressao DIVIDE expressao  { $$ = $1 / $3; }
     | expressao MODULO expressao  { $$ = (int)$1 % (int)$3; }
     | LPAREN expressao RPAREN     { $$ = $2; }
-    | LBRACKET expressao RBRACKET { $$ = $2; }
-    | LBRACE expressao RBRACE     { $$ = $2; }
-    | expressao EQUAL expressao   { $$ = $1 = $3; }
-    | expressao SEMICOLON         { $$ = $1; }
-    | expressao EQTO expressao    { $$ = $1 == $3; } // printando resultado = 0 se mentira, = 1 se verdade
+    | expressao EQTO expressao    { $$ = $1 == $3; }
     | expressao NOTEQTO expressao { $$ = $1 != $3; }
     | expressao LESSEQ expressao  { $$ = $1 <= $3; }
     | expressao GREATEQ expressao { $$ = $1 >= $3; }
     | expressao LESSER expressao  { $$ = $1 < $3; }
     | expressao GREATER expressao { $$ = $1 > $3; }
+    | chamada_funcao              { $$ = 0; } 
 ;
 
 program : 
-        | statement_list
-        ;
-
-statement_list : statement
-               | statement_list statement
-               ;
+    /* empty */
+    | program statement
+;
 
 statement : ID    
           | IF     
@@ -135,8 +192,10 @@ statement : ID
     de escopo como pras regras do IF, do DEF
     do WHILE e por ai vai.
  */
-block : NEWLINE INDENT statement_list DEDENT 
-    ;
+
+block: 
+    NEWLINE INDENT program DEDENT 
+;
 
 /* 
     As regras de produção abaixo podem ser lidas como:
@@ -190,3 +249,4 @@ arg   : ID {}
 void yyerror(const char *mensagem) {
     fprintf(stderr, "Erro de sintaxe na linha %d: %s\n", yylineno, mensagem);
 }
+

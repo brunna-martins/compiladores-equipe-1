@@ -13,6 +13,10 @@ YACC_H = parser.tab.h
 # Arquivo principal (você pode adicionar main.c se tiver)
 MAIN = src/main.c
 
+# Tabela de símbolos
+TABELA_SIMBOLOS_C = tabela_simbolos.c
+TABELA_SIMBOLOS_H = tabela_simbolos.h
+
 # Compilador e flags
 CC = gcc
 CFLAGS = -Wall -g
@@ -21,8 +25,8 @@ CFLAGS = -Wall -g
 all: $(EXEC)
 
 # Compila tudo
-$(EXEC): $(LEX_C) $(YACC_C) $(MAIN)
-	$(CC) $(CFLAGS) -o $(EXEC) $(LEX_C) $(YACC_C) $(MAIN) -lfl
+$(EXEC): $(LEX_C) $(YACC_C) $(MAIN) $(TABELA_SIMBOLOS_C)
+	$(CC) $(CFLAGS) -o $(EXEC) $(LEX_C) $(YACC_C) $(MAIN) $(TABELA_SIMBOLOS_C) -lfl
 
 # Gera lex.yy.c
 $(LEX_C): $(LEX)

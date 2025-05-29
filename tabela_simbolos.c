@@ -43,14 +43,17 @@ int inserir_simbolo(TabelaSimbolos* tabela, const char* nome, const char* tipo) 
 }
 
 Simbolo* buscar_simbolo(TabelaSimbolos* tabela, const char* nome) {
-    for (TabelaSimbolos* atual = tabela; atual != NULL; atual = atual->anterior) {
+    TabelaSimbolos* atual = tabela;
+    while (atual != NULL) {
         unsigned int indice = hash(nome);
         Simbolo* s = atual->tabela[indice];
         while (s != NULL) {
-            if (strcmp(s->nome, nome) == 0)
+            if (strcmp(s->nome, nome) == 0) {
                 return s;
+            }
             s = s->proximo;
         }
+        atual = atual->anterior; // Subir para o escopo superior
     }
     return NULL;
 }
@@ -83,8 +86,14 @@ TabelaSimbolos* empilhar_escopo(TabelaSimbolos* atual) {
 }
 
 TabelaSimbolos* desempilhar_escopo(TabelaSimbolos* atual) {
+    if (!atual) return NULL;
+    
     TabelaSimbolos* anterior = atual->anterior;
-    destruir_tabela(atual);
+    
+    // Não destrua o escopo global!
+    if (anterior != NULL) {
+        destruir_tabela(atual);
+    }
+    
     return anterior;
 }
-

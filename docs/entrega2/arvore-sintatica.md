@@ -103,3 +103,17 @@ Esses simbolos vem do analisador léxico, e ao ser identificada um estrutura de 
 def minhaFuncao():
     print("Olá!")
 ```
+
+Estrutura criada pelo nosso compilador:
+
+```bash
+---- AST gerada -------------------
+
+└── Função: minhaFuncao
+    ├── Parâmetro: a
+    │   └── Parâmetro: b
+    └── Chamada-função: print
+        └── String: "Olá!"
+
+-------------------------------------
+```

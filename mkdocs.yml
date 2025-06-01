@@ -23,8 +23,9 @@ nav:
       - Identifidores e Palavras-chave: entrega1/analisador-lexico/identificadores-palavras-chave.md
       - Literais e Comentários: entrega1/analisador-lexico/literais-comentarios.md
       - Operadores, Delimitadores e erros: entrega1/analisador-lexico/operadores-delimitadores-erros.md
-  - Analisador Sintático: analisadores/analisador-sintatico.md
-  - Analisador Semântico: analisadores/analisador-semantico.md
+  - Entrega 2:
+    - Árvore Sintática: entrega2/arvore-sintatica.md
+    - Tabela de Símbolos: entrega2/tabela-simbolos.md    
 theme:
   name: material
   language: pt-BR

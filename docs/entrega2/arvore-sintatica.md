@@ -46,6 +46,9 @@ typedef struct noAST {
 } NoAST;
 ```
 
+<p align="center"><em><a href="https://github.com/brunna-martins/compiladores-equipe-1/blob/arvore/ast.h">Veja mais aqui!</a></em></p>
+
+
 Após isso, foram definidas funções de alocação dessa estrutra na memória conforme as regras de produção definidas no parser sentissem necessidade, ao analisar determinada cadeia de tokens, criar e preencher os campos corretos da estrutura do nó, conforme prenchiam a estrutura da árvore e faziam a análise sintática do código. Como exempo, a função abaixo cria um nó para um operador matemático com `=`, `+` ou `-`.
 
 ```C
@@ -59,6 +62,7 @@ NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir) {
     return no;
 }
 ```
+<p align="center"><em><a href="https://github.com/brunna-martins/compiladores-equipe-1/blob/arvore/ast.c">Veja mais aqui!</a></em></p>
 
 Mais das funções usadas podem ser observadas no link abaixo do código.
 
@@ -82,6 +86,7 @@ def_stmt:
       }
   ;
 ```
+<p align="center"><em><a href="https://github.com/brunna-martins/compiladores-equipe-1/blob/arvore/parser/parser.y">Veja mais aqui!</a></em></p>
 Onde:
 ```
 DEF → palavra-chave def.

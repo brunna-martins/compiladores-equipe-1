@@ -112,6 +112,16 @@ NoAST *appendParam(NoAST *lista, NoAST *novo) {
     return lista;
 }
 
+NoAST* criarNoIf(NoAST *cond, NoAST *corpo) {
+    NoAST *no = (NoAST*) malloc(sizeof(NoAST));
+    no->tipo = TIPO_PALAVRA_CHAVE;
+    no->palavra_chave = strdup("if");
+    no->esquerda = cond;
+    no->direita = corpo;
+    no->meio = NULL;
+    return no;
+}
+
 NoAST* criarNoElif(NoAST *cond, NoAST *corpo) {
     NoAST *no = (NoAST*) malloc(sizeof(NoAST));
     no->tipo = TIPO_PALAVRA_CHAVE;
@@ -121,6 +131,27 @@ NoAST* criarNoElif(NoAST *cond, NoAST *corpo) {
     no->meio = NULL;
     return no;
 }
+
+NoAST* criarNoElse(NoAST *corpo) {
+    NoAST *no = (NoAST*) malloc(sizeof(NoAST));
+    no->tipo = TIPO_PALAVRA_CHAVE;
+    no->palavra_chave = strdup("else");
+    no->esquerda = NULL;
+    no->direita = corpo;
+    no->meio = NULL;
+    return no;
+}
+
+NoAST* criarNoSeq(NoAST *primeiro, NoAST *segundo) {
+    NoAST *no = (NoAST*) malloc(sizeof(NoAST));
+    no->tipo = TIPO_OP;
+    no->operador = ';';
+    no->esquerda = primeiro;
+    no->direita = segundo;
+    no->meio = NULL;
+    return no;
+}
+
 
 // void imprimirAST(NoAST *no) {
 //     if (!no) return;

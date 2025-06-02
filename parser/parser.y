@@ -83,34 +83,27 @@ stmt:
     def_stmt
     | IF expr COLON block
         {
-            NoAST *cond = $2;
-            NoAST *entao = $4;
-            $$ = criarNoPalavraChave("if");
-            $$->esquerda = cond;
-            $$->direita = entao;
+            $$ = criarNoIf($2, $4);
         }
     | IF expr COLON block ELSE COLON block
         {
-            NoAST *cond = $2;
-            NoAST *entao = $4;
-            NoAST *senao = $7;
-            $$ = criarNoPalavraChave("ifelse");
-            $$->esquerda = cond;
-            $$->direita = criarNoOp(';', entao, senao);
+            NoAST *if_node = criarNoIf($2, $4);
+            NoAST *else_node = criarNoElse($7);
+            $$ = criarNoSeq(if_node, else_node);
         }
     | IF expr COLON block ELIF expr COLON block
         {
-            NoAST *cond_if = $2;
-            NoAST *bloco_if = $4;
-            NoAST *cond_elif = $6;
-            NoAST *bloco_elif = $8;
-            NoAST *elif_node = criarNoPalavraChave("elif");
-            elif_node->esquerda = cond_elif;
-            elif_node->direita = bloco_elif;
-
-            $$ = criarNoPalavraChave("if");
-            $$->esquerda = cond_if;
-            $$->direita = criarNoOp(';', bloco_if, elif_node);
+            NoAST *if_node = criarNoIf($2, $4);
+            NoAST *elif_node = criarNoElif($6, $8);
+            $$ = criarNoSeq(if_node, elif_node);
+        }
+    | IF expr COLON block ELIF expr COLON block ELSE COLON block
+        {
+            NoAST *if_node = criarNoIf($2, $4);
+            NoAST *elif_node = criarNoElif($6, $8);
+            NoAST *else_node = criarNoElse($11);
+            NoAST *if_elif = criarNoSeq(if_node, elif_node);
+            $$ = criarNoSeq(if_elif, else_node);
         }
     | print_stmt
     | expr
@@ -118,6 +111,7 @@ stmt:
     | RETURN expr
     | NEWLINE {$$ = NULL;}
 ;
+
 
 /* expr:
     ID                        { $$ = criarNoId($1, TIPO_ID); }

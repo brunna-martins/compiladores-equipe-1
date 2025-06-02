@@ -179,3 +179,9 @@ for_statement:
     }
 ;
 ```
+
+# Histórico de Versões
+
+|**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
+|:---: | :---: | :---: | :---: | :---: |
+| 02/06/2025 | 1.0 | Adiciona versão inicial do documento de tabela de símbolos. | [Brunna Louise](https://github.com/brunna-martins) | [Mariana Letícia](https://github.com/Marianannn) |

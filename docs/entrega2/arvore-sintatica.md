@@ -122,3 +122,11 @@ Estrutura criada pelo nosso compilador:
 
 -------------------------------------
 ```
+
+<br>
+
+# Histórico de Versões
+
+|**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
+|:---: | :---: | :---: | :---: | :---: |
+| 31/06/2025 | 1.0 | criação da página e adição de conteúdo  | [Arthur Suares](https://github.com/arthur-suares) | [Mariana Letícia](https://github.com/Marianannn) |

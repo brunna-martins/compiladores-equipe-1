@@ -2,16 +2,35 @@
 #include <stdio.h>
 #include <string.h>
 #include "parser.tab.h"
+#include "numero.h" 
+
+int indent_stack[100];
+int top = -1;
+int dedent_level = 0; 
+char firstChar;
+char *copyyytext; 
+void handle_dedent() {
+    top--;
+}
+
+
 %}
 
 %option noyywrap
 %option yylineno
-%option noinput
-%option nounput
+%x DEDENTATION
 
-int linha = 1;
-
+NUMBER {INT_LITERAL}|{FLOAT_LITERAL}
+FLOAT_LITERAL [0-9]+\.[0-9]+ 
+INT_LITERAL [0-9]+
 %%
+
+%{
+    if (top == -1) {
+        indent_stack[++top] = 0;
+    }
+%}
+
 
 "#".*               { /*Ignora o conteúdo do comentário*/ }
 
@@ -34,8 +53,24 @@ int linha = 1;
     return STRING_LITERAL;
 }
 
-[0-9]+\.[0-9]+      { yylval.real = atof(yytext); return FLOAT_LITERAL;}
-[0-9]+              { yylval.inteiro = atoi(yytext); return INT_LITERAL; }
+{FLOAT_LITERAL} {
+    Numero n;
+    n.tipo = TIPO_FLOAT;
+    n.valor.f = atof(yytext);
+    yylval.numero = n;
+    printf("Numero Real: %f\n", n.valor.f);
+    return NUMBER;
+}
+
+{INT_LITERAL} {
+    Numero n;
+    n.tipo = TIPO_INT;
+    n.valor.i = atoi(yytext);
+    yylval.numero = n;
+    printf("Numero Inteiro: %d\n", n.valor.i);
+    return NUMBER;
+}
+
 \"([^\"\\]|\\.)*\"  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 \'([^\'\\]|\\.)*\'  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 
@@ -92,6 +127,7 @@ int linha = 1;
 "."             { printf("Delimitador: %s\n", yytext); return DOT; }
 ";"             { printf("Delimitador: %s\n", yytext); return SEMICOLON; }
 
+"~"             {return DEDENT;}
 
 
 [a-zA-Z_][a-zA-Z0-9_]* {
@@ -100,12 +136,125 @@ int linha = 1;
     return ID;
 }
 
+^[^ \t\n]+ {
+    if (indent_stack[top]!= 0){
+        copyyytext=strdup(yytext);
+        firstChar = yytext[0];
+        unput(yytext[0]);
+        BEGIN(DEDENTATION);
+    }
+    else
+    {
+        REJECT;
+    }
+}
+
+^[ \t]+  {
+    if (indent_stack[top] < yyleng) 
+    {
+        indent_stack[++top] = yyleng;
+        printf("INDENT EMITIDO! (nível %d)\n", yyleng);
+        return INDENT;
+
+    } else if (indent_stack[top] > yyleng) 
+    {
+        dedent_level=yyleng;
+        unput(32);/*32 for space*/
+        BEGIN(DEDENTATION);
+
+    } 
+}
+
 [ \t]+              { /* Ignorar espaços em branco */ }
-\r                  { /* ignora carriage return */ }
 \uFEFF              { /* ignora BOM */ }
-\n                  { return '\n'; }
+
+\r?\n {
+    printf("---- nova linha (linha %d) ----\n", yylineno);
+
+    // Consumir e contar a indentação da linha seguinte
+    int c;
+    int count = 0;
+
+    while ((c = input()) == ' ' || c == '\t') {
+        count++;
+    }
+
+    if (c == '\n' || c == '\r' || c == EOF) {
+        // Linha vazia: só emite NEWLINE, não mexe na indentação.
+        unput(c);
+        return NEWLINE;
+    }
+
+    unput(c);  // devolve o caractere não espaço
+
+    if (count > indent_stack[top]) {
+        indent_stack[++top] = count;
+        printf("INDENT EMITIDO! (nível %d)\n", count);
+        return INDENT;
+    } else if (count < indent_stack[top]) {
+        dedent_level = count;
+        unput(' '); // força a entrada no modo DEDENTATION
+        BEGIN(DEDENTATION);
+    } 
+
+    return NEWLINE;
+}
+
+
+\r                  { /* ignora carriage return */ }
+
+
+<DEDENTATION>[ ] {
+        if (top >= 0 && indent_stack[top] != dedent_level) {
+            handle_dedent();
+          
+            unput(32);
+            printf("DEDENT EMITIDO!\n");
+            return DEDENT;
+        }
+        else
+        {
+            dedent_level=0;
+            BEGIN(INITIAL);
+        }
+
+        if (top == -1) {
+            fprintf(stderr, "Error: Incorrect indentation on line %d\n", yylineno);
+            exit(1);
+        }
+}
+
+<DEDENTATION>[^ \t\n] {
+    if (indent_stack[top] != 0) {
+        top--;
+        unput(yytext[0]);
+
+        printf("DEDENT EMITIDO!\n");
+        return DEDENT;
+    }
+    else
+    {
+        for (int i = strlen(copyyytext) - 1; i >= 0; i--) {
+            unput(copyyytext[i]);
+        }
+    BEGIN(INITIAL);
+    }
+    
+}
+
+<<EOF>>    {
+    while (top >0) {
+        handle_dedent();
+        // printf("dedent = %s in line = %d\n",yytext,yylineno);
+        printf("DEDENT FINAL EMITIDO!\n");
+        return DEDENT;
+    }
+    
+    return 0;    
+}
 
 .                   { printf("Caractere inválido: %s\n", yytext); }
+
 
 %%
 

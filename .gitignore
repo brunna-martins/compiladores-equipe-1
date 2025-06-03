@@ -2,3 +2,8 @@ lex.yy.c
 parser.tab.c
 parser.tab.h
 compilador
+comp
+c_cpp_properties.json
+launch.json
+settings.json
+ast.o

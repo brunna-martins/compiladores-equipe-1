@@ -1,29 +1,20 @@
-# Comentário deve ser ignorado
+def soma(a):
+    x = 1 + 2*(4+3)+5.1
+    print("""babatinha quente""")
 
-42 + 58
+def subtracao(a, b):
+    a = a - b
+    return
 
-(3 + 5) * 2
+def testeif(x):
+    x=10
+    if x > 10:
+        print("Maior que 10")
+    else:
+        print("Menor ou igual a 10")
+    return
+x = 10
 
-123 == 123
-
-'Olá, mundo!'
-
-"""Texto
-de múltiplas
-linhas"""
-
-def
-
-if
-
-while
-
-42.5 * 2
-
-"string com escape: \"teste\""
-
-# Testando delimitadores
-[1 + 2]
-{3 * 4}
-
-None
+if x > 5:
+    y = 20
+    print(x + y)

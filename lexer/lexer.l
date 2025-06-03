@@ -1,5 +1,4 @@
 %{
-#include "ast.h"
 #include <stdio.h>
 #include <string.h>
 #include "parser.tab.h"
@@ -56,7 +55,7 @@ INT_LITERAL [0-9]+
 
 {FLOAT_LITERAL} {
     Numero n;
-    n.tipo = REAL;
+    n.tipo = TIPO_FLOAT;
     n.valor.f = atof(yytext);
     yylval.numero = n;
     printf("Numero Real: %f\n", n.valor.f);
@@ -65,7 +64,7 @@ INT_LITERAL [0-9]+
 
 {INT_LITERAL} {
     Numero n;
-    n.tipo = INTEIRO;
+    n.tipo = TIPO_INT;
     n.valor.i = atoi(yytext);
     yylval.numero = n;
     printf("Numero Inteiro: %d\n", n.valor.i);
@@ -103,8 +102,6 @@ INT_LITERAL [0-9]+
 "global"        { printf("Palavra-chave: %s\n", yytext); return GLOBAL; }
 "nonlocal"      { printf("Palavra-chave: %s\n", yytext); return NONLOCAL; }
 "lambda"        { printf("Palavra-chave: %s\n", yytext); return LAMBDA; }
-
-"print"         { printf("Chamada de função: %s\n", yytext); return PRINT;}
 
 "="             { printf("Operador: %s\n", yytext); return ASSIGN; }
 "=="            { printf("Operador: %s\n", yytext); return EQTO; }
@@ -156,7 +153,7 @@ INT_LITERAL [0-9]+
     if (indent_stack[top] < yyleng) 
     {
         indent_stack[++top] = yyleng;
-        printf("INDENT EMITIDO!\n");
+        printf("INDENT EMITIDO! (nível %d)\n", yyleng);
         return INDENT;
 
     } else if (indent_stack[top] > yyleng) 
@@ -170,13 +167,42 @@ INT_LITERAL [0-9]+
 
 [ \t]+              { /* Ignorar espaços em branco */ }
 \uFEFF              { /* ignora BOM */ }
+
 \r?\n {
-    printf("---- nova linha identificada  -----%s---- analisando linha = %d ---------\n",yytext,yylineno);
+    printf("---- nova linha (linha %d) ----\n", yylineno);
+
+    // Consumir e contar a indentação da linha seguinte
+    int c;
+    int count = 0;
+
+    while ((c = input()) == ' ' || c == '\t') {
+        count++;
+    }
+
+    if (c == '\n' || c == '\r' || c == EOF) {
+        // Linha vazia: só emite NEWLINE, não mexe na indentação.
+        unput(c);
+        return NEWLINE;
+    }
+
+    unput(c);  // devolve o caractere não espaço
+
+    if (count > indent_stack[top]) {
+        indent_stack[++top] = count;
+        printf("INDENT EMITIDO! (nível %d)\n", count);
+        return INDENT;
+    } else if (count < indent_stack[top]) {
+        dedent_level = count;
+        unput(' '); // força a entrada no modo DEDENTATION
+        BEGIN(DEDENTATION);
+    } 
+
     return NEWLINE;
 }
+
+
 \r                  { /* ignora carriage return */ }
-\n                  { return NEWLINE; }
-.|\n                { return yytext[0]; }
+
 
 <DEDENTATION>[ ] {
         if (top >= 0 && indent_stack[top] != dedent_level) {
@@ -219,7 +245,8 @@ INT_LITERAL [0-9]+
 <<EOF>>    {
     while (top >0) {
         handle_dedent();
-            printf("dedent = %s in line = %d\n",yytext,yylineno);
+        // printf("dedent = %s in line = %d\n",yytext,yylineno);
+        printf("DEDENT FINAL EMITIDO!\n");
         return DEDENT;
     }
     

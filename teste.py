@@ -13,3 +13,8 @@ def testeif(x):
     else:
         print("Menor ou igual a 10")
     return
+x = 10
+
+if x > 5:
+    y = 20
+    print(x + y)

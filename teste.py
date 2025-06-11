@@ -1,6 +1,7 @@
 def soma(a):
     x = 1 + 2*(4+3)+5.1
     print("""babatinha quente""")
+    return 1
 
 def subtracao(a, b):
     a = a - b
@@ -13,8 +14,18 @@ def testeif(x):
     else:
         print("Menor ou igual a 10")
     return
+
 x = 10
 
 if x > 5:
     y = 20
     print(x + y)
+
+contador = 0
+
+while contador < 5:
+    #print("O contador é:", contador) prints com variavel bugam a árvore
+    print("O contador é:")
+    contador += 1
+
+teste = none

@@ -111,6 +111,8 @@ INT_LITERAL [0-9]+
 "<="            { printf("Operador: %s\n", yytext); return LESSEQ; }
 ">="            { printf("Operador: %s\n", yytext); return GREATEQ; }
 "+"             { printf("Operador: %s\n", yytext); return PLUS; }
+"+="            { printf("Operador: %s\n", yytext); return PLUSEQ; }
+"-="            { printf("Operador: %s\n", yytext); return MINUSEQ; }
 "-"             { printf("Operador: %s\n", yytext); return MINUS; }
 "*"             { printf("Operador: %s\n", yytext); return TIMES; }
 "/"             { printf("Operador: %s\n", yytext); return DIVIDE; }

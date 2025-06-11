@@ -178,6 +178,13 @@ NoAST* criarNoSeq(NoAST *primeiro, NoAST *segundo) {
 //     }
 // }
 
+void criarNoFuncao(char *nome, NoAST* esquerda, NoAST* direita)
+{
+    NoAST *no = (NoAST*)malloc(sizeof(NoAST));
+    no->esquerda = esquerda;
+    no->direita = 
+}
+
 void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
     if (!no) return;
 

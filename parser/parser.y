@@ -205,7 +205,6 @@ expr:
     | expr GREATEQ term       { $$ = criarNoOpComposto(">=", $1, $3); }
     | expr LESSEQ term        { $$ = criarNoOpComposto("=>", $1, $3); }
     | expr MODULO term        { $$ = criarNoOp('%', $1, $3); }
-    | expr 
     | term                    { $$ = $1; }
 ;
 
@@ -272,13 +271,17 @@ print_stmt:
         printNode->esquerda = $3;
         $$ = printNode;
     }
+;
 
+chamada_funcao_stmt:
+    ID LPAREN param_list RPAREN { }
+;
 def_stmt:
     DEF ID LPAREN RPAREN COLON block
       {
         $$ = criarNoFunDef($2, NULL, $6);
       }
-  | DEF ID LPAREN param_list RPAREN COLON block
+    | DEF ID LPAREN param_list RPAREN COLON block
       {
         $$ = criarNoFunDef($2, $4, $7);
       }

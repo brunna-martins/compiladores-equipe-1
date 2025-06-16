@@ -97,3 +97,27 @@ TabelaSimbolos* desempilhar_escopo(TabelaSimbolos* atual) {
     
     return anterior;
 }
+
+void imprimir_tabela(TabelaSimbolos* tabela) {
+    int escopo = 0;
+    TabelaSimbolos* atual = tabela;
+
+    printf("\n=== TABELA DE SÍMBOLOS ===\n");
+
+    while (atual != NULL) {
+        printf("\n--- Escopo %d ---\n", escopo);
+
+        for (int i = 0; i < TAM_TABELA; i++) {
+            Simbolo* s = atual->tabela[i];
+            while (s != NULL) {
+                printf("Nome: %-15s Tipo: %s\n", s->nome, s->tipo);
+                s = s->proximo;
+            }
+        }
+
+        atual = atual->anterior;
+        escopo++;
+    }
+
+    printf("==========================\n");
+}

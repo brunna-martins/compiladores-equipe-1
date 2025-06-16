@@ -105,6 +105,15 @@ NoAST *criarNoFunDef(char *nome, NoAST *params, NoAST *body) {
     return n;
 }
 
+NoAST *criarNoFuncPrint(NoAST *params)
+{
+    NoAST *no = malloc(sizeof(NoAST));
+    no->esquerda = params;
+    no->direita = NULL;
+    no->tipo = TIPO_PRINT;
+    return no;
+}
+
 NoAST *criarParam(char *nome) {
     NoAST *p = malloc(sizeof(NoAST));
     p->tipo         = TIPO_PARAM;
@@ -225,6 +234,9 @@ void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
         case TIPO_SEQUENCIA:
             printf("Nó sequência: 🪢\n");
             break; 
+        case TIPO_PRINT:
+            printf("PRINT\n");
+            break;
         default:
             if (no->operador)
                 printf("Operador: %c\n", no->operador);

@@ -75,6 +75,7 @@ INT_LITERAL [0-9]+
 \'([^\'\\]|\\.)*\'  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 
 "if"            { printf("Palavra-chave: %s\n", yytext); return IF; }
+"print"         { return PRINT;}
 "else"          { printf("Palavra-chave: %s\n", yytext); return ELSE; }
 "elif"          { printf("Palavra-chave: %s\n", yytext); return ELIF; }
 "while"         { printf("Palavra-chave: %s\n", yytext); return WHILE; }

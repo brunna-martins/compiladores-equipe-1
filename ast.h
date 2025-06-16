@@ -14,6 +14,7 @@ typedef enum {
     TIPO_OP,
     TIPO_OPCOMP,
     TIPO_SEQUENCIA,
+    TIPO_PRINT,
 } Tipo;
 
 typedef struct noAST {
@@ -49,5 +50,6 @@ NoAST *criarNoParenteses(NoAST *abre, NoAST *conteudo, NoAST *fecha);
 NoAST *criarNoOpComposto(char *operador, NoAST *esquerda, NoAST *direita);
 void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo);
 int tiposCompativeis(Tipo t1, Tipo t2);
+NoAST *criarNoFuncPrint(NoAST *params);
 
 #endif

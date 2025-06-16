@@ -81,8 +81,6 @@ Simbolo* buscar_simbolo_escopo_atual(TabelaSimbolos* escopo, const char* nome) {
 %initial-action {
     escopo_atual = criar_tabela();  // Cria o escopo global inicial
     printf("Escopo global criado!\n");
-    inserir_simbolo(escopo_atual, "print", "funcao");
-    inserir_simbolo(escopo_atual, "range", "funcao");
 }
 
 
@@ -112,31 +110,11 @@ stmt:
     | while_statement
     | for_statement
     | if_stmt
-    | print_stmt
     | expr
     | RETURN {$$ = NULL;}
     | RETURN expr
     | NEWLINE {$$ = NULL;}    
 ;
-
-
-/* expr:
-    ID                        { $$ = criarNoId($1, TIPO_ID); }
-    | NUMBER                  
-        {
-            if ($1.tipo == INTEIRO)
-            $$ = criarNoNumInt($1.valor.i);
-            else
-            $$ = criarNoNumFloat($1.valor.f);
-        }
-    | expr PLUS expr          { $$ = criarNoOp('+', $1, $3); }
-    | expr MINUS expr         { $$ = criarNoOp('-', $1, $3); }
-    | expr TIMES expr         { $$ = criarNoOp('*', $1, $3); }
-    | expr DIVIDE expr        { $$ = criarNoOp('/', $1, $3); }
-    | expr GREATER expr       { $$ = criarNoOp('>', $1, $3); }
-    | expr ASSIGN expr        { $$ = criarNoOp('=', $1, $3); }
-    | LPAREN expr RPAREN      { $$ = $2; }
-; */
 
 expressao:
     NUMBER { 
@@ -199,7 +177,20 @@ expr:
     | expr MINUS term         { $$ = criarNoOp('-', $1, $3); }
     | expr GREATER term       { $$ = criarNoOp('>', $1, $3); }
     | expr LESSER term        { $$ = criarNoOp('<', $1, $3); }
-    | expr ASSIGN term        { $$ = criarNoOp('=', $1, $3); }
+    | expr ASSIGN term        
+        { 
+            $$ = criarNoOp('=', $1, $3); 
+
+            if ($1->tipo == TIPO_ID) 
+            {   
+                Simbolo* s = buscar_simbolo_escopo_atual(escopo_atual, $1->nome);
+                if (!s) 
+                {
+                    inserir_simbolo(escopo_atual, $1->nome, "variavel");
+                    printf("Variável '%s' declarada com atribuição\n", $1->nome);
+                }   
+            }   
+        }
     | expr PLUSEQ term        { $$ = criarNoOpComposto("+=", $1, $3); }
     | expr MINUSEQ term       { $$ = criarNoOpComposto("-=", $1, $3); }
     | expr GREATEQ term       { $$ = criarNoOpComposto(">=", $1, $3); }
@@ -209,13 +200,14 @@ expr:
 ;
 
 term:
-    term TIMES factor { $$ = criarNoOp('*', $1, $3); }
-  | term DIVIDE factor{ $$ = criarNoOp('/', $1, $3); }
-  | factor            { $$ = $1; }
-  ;
+    term TIMES factor       { $$ = criarNoOp('*', $1, $3); }
+    | term DIVIDE factor    { $$ = criarNoOp('/', $1, $3); }
+    | PRINT factor          { $$ = criarNoFuncPrint($2);}
+    | factor                { $$ = $1; }
+;
 
 factor:
-    LPAREN expr RPAREN { $$ = $2; }
+    | LPAREN expr RPAREN { $$ = $2; }
     | NUMBER             
         { 
             if ($1.tipo == INTEIRO)
@@ -228,28 +220,7 @@ factor:
                 $$ = criarNoNumFloat($1.valor.f); 
             }
         }
-    | ID                 
-        { 
-            $$ = criarNoId($1); 
-
-            ////////////////////////////////////////////////////
-            /// Conferindo se a variável já está na tabela   ///
-            ////////////////////////////////////////////////////
-
-            // Verifica se é variável ou função sem argumentos
-            Simbolo* s = buscar_simbolo(escopo_atual, $1);
-            if (!s) {
-                yyerror("Símbolo não declarado");
-                //$$ = 0;
-            } else if (strcmp(s->tipo, "funcao") == 0) {
-                // Chamada de função sem argumentos
-                printf("Chamando função '%s' sem argumentos\n", $1);
-                //$$ = 0;
-            } else {
-                //$$ = 0;
-                printf("Referência à variável '%s'\n", $1);
-            }
-        }
+    | ID   { $$ = criarNoId($1); }
     | TRUE {
         $$ = criarNoPalavraChave("True");
         printf("Valor booleano True\n");
@@ -271,6 +242,12 @@ print_stmt:
         printNode->esquerda = $3;
         $$ = printNode;
     }
+    /* | PRINT LPAREN param_list RPAREN {
+        NoAST *printNode = criarNoPalavraChave("print");
+        printNode->esquerda = $3;
+        $$ = printNode;
+    } */
+
 ;
 
 chamada_funcao_stmt:

@@ -28,4 +28,4 @@ while contador < 5:
     print("O contador é:")
     contador += 1
 
-teste = none
+teste = None

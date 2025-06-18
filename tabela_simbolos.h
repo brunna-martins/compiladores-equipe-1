@@ -6,6 +6,7 @@
 typedef struct Simbolo {
     char* nome;
     char* tipo;
+    char* tipo_simbolo;
     struct Simbolo* proximo;
 } Simbolo;
 
@@ -16,7 +17,7 @@ typedef struct TabelaSimbolos {
 
 TabelaSimbolos* criar_tabela();
 void destruir_tabela(TabelaSimbolos* tabela);
-int inserir_simbolo(TabelaSimbolos* tabela, const char* nome, const char* tipo);
+int inserir_simbolo(TabelaSimbolos* tabela, const char* nome, const char* tipo, const char* tipo_simbolo);
 Simbolo* buscar_simbolo(TabelaSimbolos* tabela, const char* nome);
 int remover_simbolo(TabelaSimbolos* tabela, const char* nome);
 void imprimir_tabela(TabelaSimbolos* tabela);

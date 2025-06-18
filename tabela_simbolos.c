@@ -32,11 +32,12 @@ void destruir_tabela(TabelaSimbolos* tabela) {
     free(tabela);
 }
 
-int inserir_simbolo(TabelaSimbolos* tabela, const char* nome, const char* tipo) {
+int inserir_simbolo(TabelaSimbolos* tabela, const char* nome, const char* tipo, const char* tipo_simbolo) {
     unsigned int indice = hash(nome);
     Simbolo* novo = (Simbolo*)malloc(sizeof(Simbolo));
     novo->nome = strdup(nome);
     novo->tipo = strdup(tipo);
+    novo->tipo_simbolo = strdup(tipo_simbolo);
     novo->proximo = tabela->tabela[indice];
     tabela->tabela[indice] = novo;
     return 1;
@@ -110,7 +111,7 @@ void imprimir_tabela(TabelaSimbolos* tabela) {
         for (int i = 0; i < TAM_TABELA; i++) {
             Simbolo* s = atual->tabela[i];
             while (s != NULL) {
-                printf("Nome: %-15s Tipo: %s\n", s->nome, s->tipo);
+                printf("Nome: %-15s Tipo: %s Tipo de Símbolo: %s\n", s->nome, s->tipo, s->tipo_simbolo);
                 s = s->proximo;
             }
         }

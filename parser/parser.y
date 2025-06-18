@@ -106,7 +106,6 @@ stmt_list:
 
 stmt:
     def_stmt
-    /* | declaracao_variavel  ESTA TRAVANDO O TERMINAL*/
     | while_statement
     | for_statement
     | if_stmt
@@ -114,62 +113,6 @@ stmt:
     | RETURN {$$ = NULL;}
     | RETURN expr
     | NEWLINE {$$ = NULL;}    
-;
-
-expressao:
-    NUMBER { 
-        $$ = get_valor($1); 
-        printf("Número reconhecido: %f\n", $$);
-    }
-    | ID { 
-        // Verifica se é variável ou função sem argumentos
-        Simbolo* s = buscar_simbolo(escopo_atual, $1);
-        if (!s) {
-            yyerror("Símbolo não declarado");
-            $$ = 0;
-        } else if (strcmp(s->tipo, "funcao") == 0) {
-            // Chamada de função sem argumentos
-            printf("Chamando função '%s' sem argumentos\n", $1);
-            $$ = 0;
-        } else {
-            $$ = 0;
-            printf("Referência à variável '%s'\n", $1);
-        }
-    }
-    | ID LPAREN argumentos RPAREN {  // Chamada de função com argumentos
-        Simbolo* s = buscar_simbolo(escopo_atual, $1);
-        if (!s) {
-            yyerror("Função não declarada");
-            $$ = 0;
-        } else {
-            printf("Chamando função '%s' com argumentos\n", $1);
-            $$ = 0;
-        }
-    }
-    | expressao PLUS expressao    { $$ = $1 + $3; }
-    | expressao MINUS expressao   { $$ = $1 - $3; }
-    | expressao TIMES expressao   { $$ = $1 * $3; }
-    | expressao DIVIDE expressao  { $$ = $1 / $3; }
-    | expressao MODULO expressao  { $$ = (int)$1 % (int)$3; }
-    | LPAREN expressao RPAREN     { $$ = $2; }
-    | expressao EQTO expressao    { $$ = $1 == $3; }
-    | expressao NOTEQTO expressao { $$ = $1 != $3; }
-    | expressao LESSEQ expressao  { $$ = $1 <= $3; }
-    | expressao GREATEQ expressao { $$ = $1 >= $3; }
-    | expressao LESSER expressao  { $$ = $1 < $3; }
-    | expressao GREATER expressao { $$ = $1 > $3; }
-    | TRUE {
-        $$ = 1;
-        printf("Valor booleano True\n");
-    }
-    | FALSE {
-        $$ = 0;
-        printf("Valor booleano False\n");
-    }
-    | NONE {
-        $$ = 0;
-        printf("Valor None\n");
-    }
 ;
 
 expr:
@@ -186,7 +129,18 @@ expr:
                 Simbolo* s = buscar_simbolo_escopo_atual(escopo_atual, $1->nome);
                 if (!s) 
                 {
-                    inserir_simbolo(escopo_atual, $1->nome, "variavel");
+                    switch($3->tipo)
+                    {
+                        case TIPO_INT:
+                            inserir_simbolo(escopo_atual, $1->nome, "variavel", "int");
+                            break;
+                        case TIPO_FLOAT:
+                            inserir_simbolo(escopo_atual, $1->nome, "variavel", "float");
+                            break;
+                        case TIPO_STRING:
+                            inserir_simbolo(escopo_atual, $1->nome, "variavel", "string");
+                            break;                        
+                    }
                     printf("Variável '%s' inserida na tabela de símbolos!\n", $1->nome);
                 }   
             }   
@@ -263,7 +217,7 @@ def_stmt:
         // depois verificar se caso a funcão já estiver na tabela, emitir erro
         if (!s) 
         {
-            inserir_simbolo(escopo_atual, $2, "funcao");
+            inserir_simbolo(escopo_atual, $2, "funcao", "teste");
             printf("Função '%s' inserida na tabela de símbolos!\n", $2);
         }
       }
@@ -274,7 +228,7 @@ def_stmt:
         Simbolo* s = buscar_simbolo_escopo_atual(escopo_atual, $2);
         if (!s) 
         {
-            inserir_simbolo(escopo_atual, $2, "funcao");
+            inserir_simbolo(escopo_atual, $2, "funcao", "teste");
             printf("Função '%s' inserida na tabela de símbolos!\n", $2);
         }
       }
@@ -313,20 +267,8 @@ for_statement:
         if (buscar_simbolo_escopo_atual(escopo_atual, $2)) {
             yyerror("Variável de iteração já declarada");
         } else {
-            inserir_simbolo(escopo_atual, $2, "var");
+            inserir_simbolo(escopo_atual, $2, "var", "int");
             printf("Variável de iteração '%s' declarada\n", $2);
-        }
-    }
-;
-
-declaracao_variavel:
-    ID ASSIGN expr {        
-        // Verificar se variável já existe no escopo atual
-        if (buscar_simbolo_escopo_atual(escopo_atual, $1)) {
-            yyerror("Variável já declarada neste escopo");
-        } else {
-            inserir_simbolo(escopo_atual, $1, "var");
-            printf("Variável '%s' declarada no escopo %p\n", $1, escopo_atual);
         }
     }
 ;
@@ -376,6 +318,26 @@ block:
 ;
 
 
+
+%%
+
+void yyerror(const char *mensagem) {
+    fprintf(stderr, "Erro de sintaxe na linha %d: %s\n", yylineno, mensagem);
+}
+
+
+/* declaracao_variavel:
+    ID ASSIGN expr {        
+        // Verificar se variável já existe no escopo atual
+        if (buscar_simbolo_escopo_atual(escopo_atual, $1)) {
+            yyerror("Variável já declarada neste escopo");
+        } else {
+            inserir_simbolo(escopo_atual, $1, "var");
+            printf("Variável '%s' declarada no escopo %p\n", $1, escopo_atual);
+        }
+    }
+; */
+
 /* line:
     declaracao_variavel NEWLINE     { }  // Declarações de variáveis
     | expressao NEWLINE             { printf("Resultado: %f\n", $1); }  // Expressões
@@ -407,7 +369,7 @@ comando:
 ;
 
 Estrutura IF */
-
+/* 
 if_statement:
     IF expressao COLON {
         printf("Condição IF verificada. Valor: %f\n", $2);
@@ -415,23 +377,64 @@ if_statement:
 ;
 
 argumentos:
-    /* empty */
+    /* empty 
     | expressao
     | argumentos COMMA expressao
-;
+; */
 
-
-comando: 
-    declaracao_variavel
-    | expressao
-    | while_statement
-    | if_statement
-    | for_statement
-;
-
-%%
-
-void yyerror(const char *mensagem) {
-    fprintf(stderr, "Erro de sintaxe na linha %d: %s\n", yylineno, mensagem);
-}
-
+/* 
+expressao:
+    NUMBER { 
+        $$ = get_valor($1); 
+        printf("Número reconhecido: %f\n", $$);
+    }
+    | ID { 
+        // Verifica se é variável ou função sem argumentos
+        Simbolo* s = buscar_simbolo(escopo_atual, $1);
+        if (!s) {
+            yyerror("Símbolo não declarado");
+            $$ = 0;
+        } else if (strcmp(s->tipo, "funcao") == 0) {
+            // Chamada de função sem argumentos
+            printf("Chamando função '%s' sem argumentos\n", $1);
+            $$ = 0;
+        } else {
+            $$ = 0;
+            printf("Referência à variável '%s'\n", $1);
+        }
+    }
+    | ID LPAREN argumentos RPAREN {  // Chamada de função com argumentos
+        Simbolo* s = buscar_simbolo(escopo_atual, $1);
+        if (!s) {
+            yyerror("Função não declarada");
+            $$ = 0;
+        } else {
+            printf("Chamando função '%s' com argumentos\n", $1);
+            $$ = 0;
+        }
+    }
+    | expressao PLUS expressao    { $$ = $1 + $3; }
+    | expressao MINUS expressao   { $$ = $1 - $3; }
+    | expressao TIMES expressao   { $$ = $1 * $3; }
+    | expressao DIVIDE expressao  { $$ = $1 / $3; }
+    | expressao MODULO expressao  { $$ = (int)$1 % (int)$3; }
+    | LPAREN expressao RPAREN     { $$ = $2; }
+    | expressao EQTO expressao    { $$ = $1 == $3; }
+    | expressao NOTEQTO expressao { $$ = $1 != $3; }
+    | expressao LESSEQ expressao  { $$ = $1 <= $3; }
+    | expressao GREATEQ expressao { $$ = $1 >= $3; }
+    | expressao LESSER expressao  { $$ = $1 < $3; }
+    | expressao GREATER expressao { $$ = $1 > $3; }
+    | TRUE {
+        $$ = 1;
+        printf("Valor booleano True\n");
+    }
+    | FALSE {
+        $$ = 0;
+        printf("Valor booleano False\n");
+    }
+    | NONE {
+        $$ = 0;
+        printf("Valor None\n");
+    }
+; */

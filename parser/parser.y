@@ -187,7 +187,7 @@ expr:
                 if (!s) 
                 {
                     inserir_simbolo(escopo_atual, $1->nome, "variavel");
-                    printf("Variável '%s' declarada com atribuição\n", $1->nome);
+                    printf("Variável '%s' inserida na tabela de símbolos!\n", $1->nome);
                 }   
             }   
         }
@@ -202,12 +202,13 @@ expr:
 term:
     term TIMES factor       { $$ = criarNoOp('*', $1, $3); }
     | term DIVIDE factor    { $$ = criarNoOp('/', $1, $3); }
-    | PRINT factor          { $$ = criarNoFuncPrint($2);}
+    | PRINT factor          { $$ = criarNoFuncPrint($2); } 
     | factor                { $$ = $1; }
 ;
 
 factor:
-    | LPAREN expr RPAREN { $$ = $2; }
+    | LPAREN expr RPAREN  { $$ = $2; }
+    | param_list          { $$ = $1; }
     | NUMBER             
         { 
             if ($1.tipo == INTEIRO)
@@ -257,10 +258,25 @@ def_stmt:
     DEF ID LPAREN RPAREN COLON block
       {
         $$ = criarNoFunDef($2, NULL, $6);
+
+        Simbolo* s = buscar_simbolo_escopo_atual(escopo_atual, $2);
+        // depois verificar se caso a funcão já estiver na tabela, emitir erro
+        if (!s) 
+        {
+            inserir_simbolo(escopo_atual, $2, "funcao");
+            printf("Função '%s' inserida na tabela de símbolos!\n", $2);
+        }
       }
     | DEF ID LPAREN param_list RPAREN COLON block
       {
         $$ = criarNoFunDef($2, $4, $7);
+
+        Simbolo* s = buscar_simbolo_escopo_atual(escopo_atual, $2);
+        if (!s) 
+        {
+            inserir_simbolo(escopo_atual, $2, "funcao");
+            printf("Função '%s' inserida na tabela de símbolos!\n", $2);
+        }
       }
   ;
 
@@ -343,7 +359,7 @@ if_stmt:
 ;
 
 param_list:
-    param { $$ = $1; printf("paramm");}
+    param { $$ = $1;}
     | param_list COMMA param { $$ = appendParam($1, $3);}
 ;
 

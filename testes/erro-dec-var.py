@@ -1,0 +1,1 @@
+print(x + y) #variaveis x e y não foram declaradas antes. Deve dar erro, alem de não aparecerem na tabela

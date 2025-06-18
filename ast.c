@@ -13,6 +13,17 @@ NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir) {
     return no;
 }
 
+NoAST *criarNoOpComposto(char *operador, NoAST *esquerda, NoAST *direita)
+{
+    NoAST *no = malloc(sizeof(NoAST));
+    strcpy(no->operadorComp, operador);
+    no->tipo = TIPO_OPCOMP;
+    no->esquerda = esquerda;
+    no->direita = direita;
+    no->meio = NULL;
+    return no;
+}
+
 NoAST *criarNoNumInt(int val) {
     NoAST *no = malloc(sizeof(NoAST));
     no->valor = val;
@@ -40,11 +51,11 @@ NoAST *criarNoString(char *valor_string) {
     return no;
 }
 
-NoAST *criarNoId(char *nome, Tipo tipo) {
+NoAST *criarNoId(char *nome) {
     NoAST *no = malloc(sizeof(NoAST));
     strcpy(no->nome, nome);
     no->operador = 0;
-    no->tipo = tipo;
+    no->tipo = TIPO_ID;
     no->esquerda = no->direita = no->meio = NULL;
     return no;
 }
@@ -92,6 +103,15 @@ NoAST *criarNoFunDef(char *nome, NoAST *params, NoAST *body) {
     n->meio         = body;           /* corpo (stmt_list) */
     n->direita      = NULL;           /* próximo statement no escopo */
     return n;
+}
+
+NoAST *criarNoFuncPrint(NoAST *params)
+{
+    NoAST *no = malloc(sizeof(NoAST));
+    no->esquerda = params;
+    no->direita = NULL;
+    no->tipo = TIPO_PRINT;
+    return no;
 }
 
 NoAST *criarParam(char *nome) {
@@ -144,8 +164,7 @@ NoAST* criarNoElse(NoAST *corpo) {
 
 NoAST* criarNoSeq(NoAST *primeiro, NoAST *segundo) {
     NoAST *no = (NoAST*) malloc(sizeof(NoAST));
-    no->tipo = TIPO_OP;
-    no->operador = ';';
+    no->tipo = TIPO_SEQUENCIA;
     no->esquerda = primeiro;
     no->direita = segundo;
     no->meio = NULL;
@@ -167,6 +186,8 @@ NoAST* criarNoSeq(NoAST *primeiro, NoAST *segundo) {
 //         printf("%d", no->valor);
 //     }
 // }
+
+
 
 void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
     if (!no) return;
@@ -204,8 +225,17 @@ void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
         case TIPO_OP:
             printf("Operador: %c\n", no->operador);
             break;
+        case TIPO_OPCOMP:
+            printf("Operador: %s\n", no->operadorComp);
+            break;
         case TIPO_ERRO:
             printf("AAAAAA!\n");
+            break;
+        case TIPO_SEQUENCIA:
+            printf("Nó sequência: 🪢\n");
+            break; 
+        case TIPO_PRINT:
+            printf("PRINT\n");
             break;
         default:
             if (no->operador)

@@ -75,6 +75,7 @@ INT_LITERAL [0-9]+
 \'([^\'\\]|\\.)*\'  { yylval.string = strdup(yytext); return STRING_LITERAL; }
 
 "if"            { printf("Palavra-chave: %s\n", yytext); return IF; }
+"print"         { return PRINT;}
 "else"          { printf("Palavra-chave: %s\n", yytext); return ELSE; }
 "elif"          { printf("Palavra-chave: %s\n", yytext); return ELIF; }
 "while"         { printf("Palavra-chave: %s\n", yytext); return WHILE; }
@@ -111,6 +112,8 @@ INT_LITERAL [0-9]+
 "<="            { printf("Operador: %s\n", yytext); return LESSEQ; }
 ">="            { printf("Operador: %s\n", yytext); return GREATEQ; }
 "+"             { printf("Operador: %s\n", yytext); return PLUS; }
+"+="            { printf("Operador: %s\n", yytext); return PLUSEQ; }
+"-="            { printf("Operador: %s\n", yytext); return MINUSEQ; }
 "-"             { printf("Operador: %s\n", yytext); return MINUS; }
 "*"             { printf("Operador: %s\n", yytext); return TIMES; }
 "/"             { printf("Operador: %s\n", yytext); return DIVIDE; }

@@ -52,7 +52,7 @@ Simbolo* buscar_simbolo_escopo_atual(TabelaSimbolos* escopo, const char* nome) {
 
 %token INDENT DEDENT NEWLINE
 %token ERROR EQUAL 
-%token PLUS MINUS TIMES DIVIDE MODULO
+%token PLUS MINUS PLUSEQ MINUSEQ TIMES DIVIDE MODULO
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE COLON COMMA DOT SEMICOLON
 %token ASSIGN EQTO NOTEQTO LESSEQ GREATEQ LESSER GREATER PRINT
 
@@ -70,7 +70,9 @@ Simbolo* buscar_simbolo_escopo_atual(TabelaSimbolos* escopo, const char* nome) {
 %token WITH PASS BREAK CONTINUE GLOBAL NONLOCAL LAMBDA
 
 %type <real> expressao
-%type <no> program stmt_list stmt expr def_stmt block param_list param term factor print_stmt argumentos while_statement if_statement declaracao_variavel
+%type <no> program stmt_list stmt expr def_stmt block param_list param 
+%type <no> term factor print_stmt argumentos while_statement if_statement 
+%type <no> for_statement declaracao_variavel if_stmt
 
 %left PLUS MINUS
 %left TIMES DIVIDE
@@ -79,8 +81,6 @@ Simbolo* buscar_simbolo_escopo_atual(TabelaSimbolos* escopo, const char* nome) {
 %initial-action {
     escopo_atual = criar_tabela();  // Cria o escopo global inicial
     printf("Escopo global criado!\n");
-    inserir_simbolo(escopo_atual, "print", "funcao");
-    inserir_simbolo(escopo_atual, "range", "funcao");
 }
 
 
@@ -99,223 +99,21 @@ stmt_list:
         } else if ($1 == NULL) {
             $$ = $2; // primeira stmt válida
         } else {
-            $$ = criarNoOp(';', $1, $2); // junta duas stmts
+            $$ = criarNoSeq($1, $2); // junta duas stmts
         }
     }
 ;
 
 stmt:
     def_stmt
-    | IF expr COLON block
-        {
-            $$ = criarNoIf($2, $4);
-        }
-    | IF expr COLON block ELSE COLON block
-        {
-            NoAST *if_node = criarNoIf($2, $4);
-            NoAST *else_node = criarNoElse($7);
-            $$ = criarNoSeq(if_node, else_node);
-        }
-    | IF expr COLON block ELIF expr COLON block
-        {
-            NoAST *if_node = criarNoIf($2, $4);
-            NoAST *elif_node = criarNoElif($6, $8);
-            $$ = criarNoSeq(if_node, elif_node);
-        }
-    | IF expr COLON block ELIF expr COLON block ELSE COLON block
-        {
-            NoAST *if_node = criarNoIf($2, $4);
-            NoAST *elif_node = criarNoElif($6, $8);
-            NoAST *else_node = criarNoElse($11);
-            NoAST *if_elif = criarNoSeq(if_node, elif_node);
-            $$ = criarNoSeq(if_elif, else_node);
-        }
-    | print_stmt
+    /* | declaracao_variavel  ESTA TRAVANDO O TERMINAL*/
+    | while_statement
+    | for_statement
+    | if_stmt
     | expr
     | RETURN {$$ = NULL;}
     | RETURN expr
-    | NEWLINE {$$ = NULL;}
-;
-
-
-/* expr:
-    ID                        { $$ = criarNoId($1, TIPO_ID); }
-    | NUMBER                  
-        {
-            if ($1.tipo == INTEIRO)
-            $$ = criarNoNumInt($1.valor.i);
-            else
-            $$ = criarNoNumFloat($1.valor.f);
-        }
-    | expr PLUS expr          { $$ = criarNoOp('+', $1, $3); }
-    | expr MINUS expr         { $$ = criarNoOp('-', $1, $3); }
-    | expr TIMES expr         { $$ = criarNoOp('*', $1, $3); }
-    | expr DIVIDE expr        { $$ = criarNoOp('/', $1, $3); }
-    | expr GREATER expr       { $$ = criarNoOp('>', $1, $3); }
-    | expr ASSIGN expr        { $$ = criarNoOp('=', $1, $3); }
-    | LPAREN expr RPAREN      { $$ = $2; }
-; */
-
-expr:
-      expr PLUS term          { $$ = criarNoOp('+', $1, $3); }
-    | expr MINUS term         { $$ = criarNoOp('-', $1, $3); }
-    | expr GREATER term       { $$ = criarNoOp('>', $1, $3); }
-    | expr ASSIGN term        { $$ = criarNoOp('=', $1, $3); }
-    | term                    { $$ = $1; }
-;
-
-term:
-    term TIMES factor { $$ = criarNoOp('*', $1, $3); }
-  | term DIVIDE factor{ $$ = criarNoOp('/', $1, $3); }
-  | factor            { $$ = $1; }
-  ;
-
-factor:
-    LPAREN expr RPAREN { $$ = $2; }
-  | NUMBER             
-    { 
-        if ($1.tipo == INTEIRO)
-        {
-            $$ = criarNoNumInt($1.valor.i);
-            printf("caracter chamado %d\n\n",$1.valor.i);
-        }
-        else
-        {
-            $$ = criarNoNumFloat($1.valor.f); 
-        }
-    }
-  | ID                 { $$ = criarNoId($1, TIPO_ID); }
-  | STRING_LITERAL     { $$ = criarNoString($1);}
-  ; 
-
-print_stmt:
-    PRINT LPAREN expr RPAREN {
-        NoAST *printNode = criarNoPalavraChave("print");
-        printNode->esquerda = $3;
-        $$ = printNode;
-    }
-
-def_stmt:
-    DEF ID LPAREN RPAREN COLON block
-      {
-        printf("defff");
-        $$ = criarNoFunDef($2, NULL, $6);
-      }
-  | DEF ID LPAREN param_list RPAREN COLON block
-      {
-        printf("defff2");
-        $$ = criarNoFunDef($2, $4, $7);
-        printf("oiiii\n");
-      }
-  ;
-
-
-param_list:
-      param
-        { $$ = $1; printf("paramm");}
-    | param_list COMMA param
-        { $$ = appendParam($1, $3);}
-    ;
-
-param:
-    ID
-      { $$ = criarParam($1);}
-    ;
-
-block:
-    | stmt_list {$$ = $1; }
-    | INDENT stmt_list DEDENT {$$ = $2; }
-    | NEWLINE INDENT stmt_list DEDENT { $$ = $3; }
-    | INDENT NEWLINE stmt_list DEDENT { $$ = $3; }
-    ;
-
-
-/* line:
-    declaracao_variavel NEWLINE     { }  // Declarações de variáveis
-    | expressao NEWLINE             { printf("Resultado: %f\n", $1); }  // Expressões
-    | NEWLINE                       { $$ = NULL;  }
-    | error NEWLINE                 {  }
-    | INDENT {
-        escopo_atual = empilhar_escopo(escopo_atual);
-        printf(">>> NOVO ESCOPO (endereço: %p)\n", escopo_atual);
-    }
-    | DEDENT {
-        TabelaSimbolos* anterior = escopo_atual->anterior;
-        if (anterior != NULL) {
-            escopo_atual = desempilhar_escopo(escopo_atual);
-            printf("<<< FIM ESCOPO (voltando para: %p)\n", escopo_atual);
-        } else {
-            printf("!!! Tentativa de dedent no escopo global\n");
-        }
-    }
-    | if_statement NEWLINE     { }  // Adicione esta linha
-    | for_statement NEWLINE    { }  // Adicione esta linha
-;
-
-comando: 
-    declaracao_variavel
-    | expressao
-    | while_statement
-    | if_statement
-    | for_statement
-;
-
-Estrutura IF */
-
-if_statement:
-    IF expressao COLON {
-        printf("Condição IF verificada. Valor: %f\n", $2);
-    }
-;
-
-/* Estrutura WHILE */
-while_statement:
-    WHILE expressao COLON {
-        printf("Condição WHILE verificada. Valor: %f\n", $2);
-        // Não criamos novo escopo aqui - o INDENT fará isso
-    }
-;
-
-/* Estrutura FOR */
-for_statement:
-    FOR ID IN expressao COLON {
-        printf("Loop FOR com variável '%s'\n", $2);
-        
-        // Inserir variável de iteração no escopo atual
-        if (buscar_simbolo_escopo_atual(escopo_atual, $2)) {
-            yyerror("Variável de iteração já declarada");
-        } else {
-            inserir_simbolo(escopo_atual, $2, "var");
-            printf("Variável de iteração '%s' declarada\n", $2);
-        }
-    }
-;
-
-declaracao_variavel:
-    ID ASSIGN expressao {
-        // Verificar se variável já existe no escopo atual
-        if (buscar_simbolo_escopo_atual(escopo_atual, $1)) {
-            yyerror("Variável já declarada neste escopo");
-        } else {
-            inserir_simbolo(escopo_atual, $1, "var");
-            printf("Variável '%s' declarada no escopo %p\n", $1, escopo_atual);
-        }
-    }
-;
-
-argumentos:
-    /* empty */
-    | expressao
-    | argumentos COMMA expressao
-;
-
-
-comando: 
-    declaracao_variavel
-    | expressao
-    | while_statement
-    | if_statement
-    | for_statement
+    | NEWLINE {$$ = NULL;}    
 ;
 
 expressao:
@@ -372,6 +170,263 @@ expressao:
         $$ = 0;
         printf("Valor None\n");
     }
+;
+
+expr:
+      expr PLUS term          { $$ = criarNoOp('+', $1, $3); }
+    | expr MINUS term         { $$ = criarNoOp('-', $1, $3); }
+    | expr GREATER term       { $$ = criarNoOp('>', $1, $3); }
+    | expr LESSER term        { $$ = criarNoOp('<', $1, $3); }
+    | expr ASSIGN term        
+        { 
+            $$ = criarNoOp('=', $1, $3); 
+
+            if ($1->tipo == TIPO_ID) 
+            {   
+                Simbolo* s = buscar_simbolo_escopo_atual(escopo_atual, $1->nome);
+                if (!s) 
+                {
+                    inserir_simbolo(escopo_atual, $1->nome, "variavel");
+                    printf("Variável '%s' inserida na tabela de símbolos!\n", $1->nome);
+                }   
+            }   
+        }
+    | expr PLUSEQ term        { $$ = criarNoOpComposto("+=", $1, $3); }
+    | expr MINUSEQ term       { $$ = criarNoOpComposto("-=", $1, $3); }
+    | expr GREATEQ term       { $$ = criarNoOpComposto(">=", $1, $3); }
+    | expr LESSEQ term        { $$ = criarNoOpComposto("=>", $1, $3); }
+    | expr MODULO term        { $$ = criarNoOp('%', $1, $3); }
+    | term                    { $$ = $1; }
+;
+
+term:
+    term TIMES factor       { $$ = criarNoOp('*', $1, $3); }
+    | term DIVIDE factor    { $$ = criarNoOp('/', $1, $3); }
+    | PRINT factor          { $$ = criarNoFuncPrint($2); } 
+    | factor                { $$ = $1; }
+;
+
+factor:
+    | LPAREN expr RPAREN  { $$ = $2; }
+    | param_list          { $$ = $1; }
+    | NUMBER             
+        { 
+            if ($1.tipo == INTEIRO)
+            {
+                $$ = criarNoNumInt($1.valor.i);
+                printf("caracter chamado %d\n\n",$1.valor.i);
+            }
+            else
+            {
+                $$ = criarNoNumFloat($1.valor.f); 
+            }
+        }
+    | ID   { $$ = criarNoId($1); }
+    | TRUE {
+        $$ = criarNoPalavraChave("True");
+        printf("Valor booleano True\n");
+    }
+    | FALSE {
+        $$ = criarNoPalavraChave("False");
+        printf("Valor booleano False\n");
+    }
+    | NONE {
+        $$ = criarNoPalavraChave("None");
+        printf("Valor None\n");
+    }
+    | STRING_LITERAL     { $$ = criarNoString($1);}
+; 
+
+print_stmt:
+    PRINT LPAREN expr RPAREN {
+        NoAST *printNode = criarNoPalavraChave("print");
+        printNode->esquerda = $3;
+        $$ = printNode;
+    }
+    /* | PRINT LPAREN param_list RPAREN {
+        NoAST *printNode = criarNoPalavraChave("print");
+        printNode->esquerda = $3;
+        $$ = printNode;
+    } */
+
+;
+
+chamada_funcao_stmt:
+    ID LPAREN param_list RPAREN { }
+;
+def_stmt:
+    DEF ID LPAREN RPAREN COLON block
+      {
+        $$ = criarNoFunDef($2, NULL, $6);
+
+        Simbolo* s = buscar_simbolo_escopo_atual(escopo_atual, $2);
+        // depois verificar se caso a funcão já estiver na tabela, emitir erro
+        if (!s) 
+        {
+            inserir_simbolo(escopo_atual, $2, "funcao");
+            printf("Função '%s' inserida na tabela de símbolos!\n", $2);
+        }
+      }
+    | DEF ID LPAREN param_list RPAREN COLON block
+      {
+        $$ = criarNoFunDef($2, $4, $7);
+
+        Simbolo* s = buscar_simbolo_escopo_atual(escopo_atual, $2);
+        if (!s) 
+        {
+            inserir_simbolo(escopo_atual, $2, "funcao");
+            printf("Função '%s' inserida na tabela de símbolos!\n", $2);
+        }
+      }
+  ;
+
+/* Estrutura WHILE */
+while_statement:
+    WHILE expr COLON block{
+        printf("Condição WHILE verificada!\n");
+        // Não criamos novo escopo aqui - o INDENT fará isso
+
+        //////////////////////////////////////////////////////////
+        /// Criando a estrutura do while para árvore sintática /// 
+        //////////////////////////////////////////////////////////
+
+        NoAST *no_while = criarNoPalavraChave("while");
+        no_while->esquerda = $2;
+        no_while->direita = $4;
+
+        $$ = no_while;
+    }
+;
+
+/* Estrutura FOR */
+for_statement:
+    FOR ID IN expr COLON block{
+        
+        NoAST *no_for = criarNoPalavraChave("for");
+        no_for->esquerda = $4;
+        no_for->direita = $6;
+        $$ = no_for;
+
+        printf("Loop FOR com variável \n");
+        
+        // Inserir variável de iteração no escopo atual
+        if (buscar_simbolo_escopo_atual(escopo_atual, $2)) {
+            yyerror("Variável de iteração já declarada");
+        } else {
+            inserir_simbolo(escopo_atual, $2, "var");
+            printf("Variável de iteração '%s' declarada\n", $2);
+        }
+    }
+;
+
+declaracao_variavel:
+    ID ASSIGN expr {        
+        // Verificar se variável já existe no escopo atual
+        if (buscar_simbolo_escopo_atual(escopo_atual, $1)) {
+            yyerror("Variável já declarada neste escopo");
+        } else {
+            inserir_simbolo(escopo_atual, $1, "var");
+            printf("Variável '%s' declarada no escopo %p\n", $1, escopo_atual);
+        }
+    }
+;
+
+if_stmt:
+    IF expr COLON block
+        {
+            $$ = criarNoIf($2, $4);
+        }
+    | IF expr COLON block ELSE COLON block
+        {
+            NoAST *if_node = criarNoIf($2, $4);
+            NoAST *else_node = criarNoElse($7);
+            $$ = criarNoSeq(if_node, else_node);
+        }
+    | IF expr COLON block ELIF expr COLON block
+        {
+            NoAST *if_node = criarNoIf($2, $4);
+            NoAST *elif_node = criarNoElif($6, $8);
+            $$ = criarNoSeq(if_node, elif_node);
+        }
+    | IF expr COLON block ELIF expr COLON block ELSE COLON block
+        {
+            NoAST *if_node = criarNoIf($2, $4);
+            NoAST *elif_node = criarNoElif($6, $8);
+            NoAST *else_node = criarNoElse($11);
+            NoAST *if_elif = criarNoSeq(if_node, elif_node);
+            $$ = criarNoSeq(if_elif, else_node);
+        }
+;
+
+param_list:
+    param { $$ = $1;}
+    | param_list COMMA param { $$ = appendParam($1, $3);}
+;
+
+param:
+    ID  { $$ = criarParam($1);}
+;
+
+block:
+    /* pode ser vazio */
+    | stmt_list {$$ = $1; }
+    | INDENT stmt_list DEDENT {$$ = $2; }
+    | NEWLINE INDENT stmt_list DEDENT { $$ = $3; }
+    | INDENT NEWLINE stmt_list DEDENT { $$ = $3; }
+;
+
+
+/* line:
+    declaracao_variavel NEWLINE     { }  // Declarações de variáveis
+    | expressao NEWLINE             { printf("Resultado: %f\n", $1); }  // Expressões
+    | NEWLINE                       { $$ = NULL;  }
+    | error NEWLINE                 {  }
+    | INDENT {
+        escopo_atual = empilhar_escopo(escopo_atual);
+        printf(">>> NOVO ESCOPO (endereço: %p)\n", escopo_atual);
+    }
+    | DEDENT {
+        TabelaSimbolos* anterior = escopo_atual->anterior;
+        if (anterior != NULL) {
+            escopo_atual = desempilhar_escopo(escopo_atual);
+            printf("<<< FIM ESCOPO (voltando para: %p)\n", escopo_atual);
+        } else {
+            printf("!!! Tentativa de dedent no escopo global\n");
+        }
+    }
+    | if_statement NEWLINE     { }  // Adicione esta linha
+    | for_statement NEWLINE    { }  // Adicione esta linha
+;
+
+comando: 
+    declaracao_variavel
+    | expressao
+    | while_statement
+    | if_statement
+    | for_statement
+;
+
+Estrutura IF */
+
+if_statement:
+    IF expressao COLON {
+        printf("Condição IF verificada. Valor: %f\n", $2);
+    }
+;
+
+argumentos:
+    /* empty */
+    | expressao
+    | argumentos COMMA expressao
+;
+
+
+comando: 
+    declaracao_variavel
+    | expressao
+    | while_statement
+    | if_statement
+    | for_statement
 ;
 
 %%

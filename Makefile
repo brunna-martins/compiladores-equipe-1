@@ -8,6 +8,14 @@ TABELA_SIMBOLOS_C = tabela_simbolos.c
 TABELA_SIMBOLOS_H = tabela_simbolos.h
 TEST_UNIT_SRC = test_tabela_simbolos.c
 TEST_UNIT_EXEC = test_tabela_simbolos
+TESTS = $(wildcard testes/*.py)
+TARGET = comp
+
+#Inicializando cores
+GREEN=\033[1;32m
+RED=\033[1;31m
+BLUE=\033[1;34m
+NC=\033[0m
 
 # Arquivos gerados
 LEX_C = lex.yy.c
@@ -46,6 +54,21 @@ $(TEST_UNIT_EXEC): $(TEST_UNIT_SRC) $(TABELA_SIMBOLOS_C) $(TABELA_SIMBOLOS_H)
 test: $(TEST_UNIT_EXEC)
 	@echo "=== Executando Testes Unitários ==="
 	./$(TEST_UNIT_EXEC)
+	@echo "\n$(RED)============================================================$(NC)"
+	@echo "$(RED)================= EXECUTANDO MAIS TESTES ===================$(NC)"
+	@echo "$(RED)============================================================$(NC)\n"
+	@for f in $(TESTS); do \
+		echo "$(BLUE)============================================================$(NC)"; \
+		echo "$(BLUE)=== ARQUIVO: $$f $(NC)"; \
+		echo "$(BLUE)============================================================$(NC)\n"; \
+		cat $$f; \
+		echo "\n\n$(GREEN)============================================================$(NC)"; \
+		echo "$(GREEN)=== bitcode $(NC)"; \
+		echo "$(GREEN)============================================================$(NC)\n"; \
+		chmod +x $(TARGET); \
+		./$(TARGET) < $$f; \
+		echo ""; \
+	done
 
 # Limpa os arquivos gerados
 clean:

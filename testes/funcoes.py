@@ -3,6 +3,8 @@ def soma(a):
     print("""babatinha quente""")
     return 1
 
+soma(1)
+
 def subtracao(a, b):
     a = a - b
     return

@@ -15,6 +15,7 @@ typedef enum {
     TIPO_OPCOMP,
     TIPO_SEQUENCIA,
     TIPO_PRINT,
+    TIPO_CHAMADA_FUNCAO,
 } Tipo;
 
 typedef struct noAST {
@@ -32,6 +33,7 @@ typedef struct noAST {
     struct noAST *meio;
 } NoAST;
 
+NoAST *criarNoFuncCall(char *nome_funcao, NoAST *args);
 NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir);
 NoAST *criarNoNumInt(int val);
 NoAST *criarNoNumFloat(float valor_float);

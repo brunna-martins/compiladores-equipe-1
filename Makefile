@@ -8,6 +8,8 @@ TABELA_SIMBOLOS_C = tabela_simbolos.c
 TABELA_SIMBOLOS_H = tabela_simbolos.h
 TEST_UNIT_SRC = test_tabela_simbolos.c
 TEST_UNIT_EXEC = test_tabela_simbolos
+TEST_AST_SRC = test_ast.c
+TEST_AST_EXEC = test_ast
 TESTS = $(wildcard testes/*.py)
 TARGET = comp
 
@@ -45,15 +47,21 @@ $(LEX_C): $(LEX) $(YACC_H)
 ast.o: $(AST_C) $(AST_H)
 	$(CC) $(CFLAGS) -c $(AST_C)
 
-# Compila os testes unitários
+# Compila os testes unitários para tabela de símbolos
 $(TEST_UNIT_EXEC): $(TEST_UNIT_SRC) $(TABELA_SIMBOLOS_C) $(TABELA_SIMBOLOS_H)
 	$(CC) $(CFLAGS) -o $(TEST_UNIT_EXEC) $(TEST_UNIT_SRC) $(TABELA_SIMBOLOS_C)
 	chmod +x $(TEST_UNIT_EXEC)
+
+# Compila os testes unitários para AST
+$(TEST_AST_EXEC): $(TEST_AST_SRC) $(AST_C) $(AST_H)
+	$(CC) $(CFLAGS) -o $(TEST_AST_EXEC) $(TEST_AST_SRC) $(AST_C)
+	chmod +x $(TEST_AST_EXEC)
 
 # Executa os testes unitários
 test: $(TEST_UNIT_EXEC)
 	@echo "=== Executando Testes Unitários ==="
 	./$(TEST_UNIT_EXEC)
+	./$(TEST_AST_EXEC)
 	@echo "\n$(RED)============================================================$(NC)"
 	@echo "$(RED)================= EXECUTANDO MAIS TESTES ===================$(NC)"
 	@echo "$(RED)============================================================$(NC)\n"

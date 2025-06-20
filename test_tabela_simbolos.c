@@ -40,11 +40,11 @@ void teste_insercao_simbolos() {
     TabelaSimbolos* tabela = criar_tabela();
     
     if (tabela) {
-        int resultado = inserir_simbolo(tabela, "variavel1", "int");
+        int resultado = inserir_simbolo(tabela, "variavel1", "int", ";");
         teste_assert(resultado == 1, "Inserção de símbolo retorna sucesso");
         
-        inserir_simbolo(tabela, "variavel2", "float");
-        inserir_simbolo(tabela, "funcao1", "function");
+        inserir_simbolo(tabela, "variavel2", "float", ";");
+        inserir_simbolo(tabela, "funcao1", "function", ";");
         
         destruir_tabela(tabela);
     }
@@ -56,8 +56,8 @@ void teste_busca_simbolos() {
     TabelaSimbolos* tabela = criar_tabela();
     
     if (tabela) {
-        inserir_simbolo(tabela, "x", "int");
-        inserir_simbolo(tabela, "y", "float");
+        inserir_simbolo(tabela, "x", "int", ";");
+        inserir_simbolo(tabela, "y", "float", ";");
         
         // Teste busca existente
         Simbolo* simbolo = buscar_simbolo(tabela, "x");
@@ -82,8 +82,8 @@ void teste_remocao_simbolos() {
     TabelaSimbolos* tabela = criar_tabela();
     
     if (tabela) {
-        inserir_simbolo(tabela, "temp1", "int");
-        inserir_simbolo(tabela, "temp2", "float");
+        inserir_simbolo(tabela, "temp1", "int", ";");
+        inserir_simbolo(tabela, "temp2", "float", ";");
         
         int resultado = remover_simbolo(tabela, "temp2");
         teste_assert(resultado == 1, "Remoção de símbolo existente retorna sucesso");
@@ -102,7 +102,7 @@ void teste_escopos() {
     TabelaSimbolos* global = criar_tabela();
     
     if (global) {
-        inserir_simbolo(global, "global_var", "int");
+        inserir_simbolo(global, "global_var", "int", ";");
         
         // Criar escopo local
         TabelaSimbolos* local = empilhar_escopo(global);
@@ -111,7 +111,7 @@ void teste_escopos() {
         if (local) {
             teste_assert(local->anterior == global, "Escopo local aponta para global");
             
-            inserir_simbolo(local, "local_var", "float");
+            inserir_simbolo(local, "local_var", "float", ";");
             
             // Teste busca em escopo aninhado
             Simbolo* simbolo = buscar_simbolo(local, "global_var");
@@ -140,12 +140,12 @@ void teste_casos_basicos() {
     
     if (tabela) {
         // Teste com string vazia
-        inserir_simbolo(tabela, "", "empty");
+        inserir_simbolo(tabela, "", "empty", ";");
         Simbolo* simbolo = buscar_simbolo(tabela, "");
         teste_assert(simbolo != NULL, "Inserção e busca de string vazia funciona");
         
         // Teste com nome comum
-        inserir_simbolo(tabela, "var_test_123", "special");
+        inserir_simbolo(tabela, "var_test_123", "special", ";");
         simbolo = buscar_simbolo(tabela, "var_test_123");
         teste_assert(simbolo != NULL, "Inserção com nome comum funciona");
         

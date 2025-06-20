@@ -225,6 +225,21 @@ void teste_x_em_dois_escopos_diferentes() {
     destruir_tabela(tabela_global);
 }
 
+void teste_variavel_nao_declarada(){
+    printf(AZUL "\n=== Testando variaveis não declaráveis ===" RESET "\n");
+    TabelaSimbolos* tabela = criar_tabela();
+
+    if(tabela){
+        tabela->anterior = NULL;
+    
+        Simbolo* x = buscar_simbolo(tabela, "x");
+    
+        teste_assert(x == NULL, "Uso de variável não declarada corretamente detectada");
+        destruir_tabela(tabela);
+    }
+
+}
+
 
 void teste_redeclaracao_variavel(){
     printf(AZUL "\n=== Testando Redeclaração de variável ===" RESET "\n");
@@ -287,6 +302,7 @@ int main() {
     teste_redeclaracao_variavel();
     teste_escopos();
     teste_x_em_dois_escopos_diferentes();
+    teste_variavel_nao_declarada();
     teste_casos_basicos();
     
     printf(AZUL "\n=================================================================" RESET "\n");

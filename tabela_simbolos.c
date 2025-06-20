@@ -34,6 +34,17 @@ void destruir_tabela(TabelaSimbolos* tabela) {
 
 int inserir_simbolo(TabelaSimbolos* tabela, const char* nome, const char* tipo, const char* tipo_simbolo) {
     unsigned int indice = hash(nome);
+    Simbolo* simbolo_atual = buscar_simbolo_no_escopo_atual(tabela, nome);
+
+    if (simbolo_atual != NULL) {
+        if (strcmp(simbolo_atual->tipo, tipo) != 0) {
+            printf("Erro: variável '%s' já declarada com tipo '%s'. Tentativa de redeclaração com tipo '%s'.\n",
+                   nome, simbolo_atual->tipo, tipo);
+            return 0;
+        }
+        return 1;
+    }
+
     Simbolo* novo = (Simbolo*)malloc(sizeof(Simbolo));
     novo->nome = strdup(nome);
     novo->tipo = strdup(tipo);
@@ -58,6 +69,19 @@ Simbolo* buscar_simbolo(TabelaSimbolos* tabela, const char* nome) {
     }
     return NULL;
 }
+
+Simbolo* buscar_simbolo_no_escopo_atual(TabelaSimbolos* tabela, const char* nome) {
+    unsigned int indice = hash(nome);
+    Simbolo* s = tabela->tabela[indice];
+    while (s != NULL) {
+        if (strcmp(s->nome, nome) == 0) {
+            return s;
+        }
+        s = s->proximo;
+    }
+    return NULL;
+}
+
 
 int remover_simbolo(TabelaSimbolos* tabela, const char* nome) {
     unsigned int indice = hash(nome);

@@ -21,6 +21,7 @@ int inserir_simbolo(TabelaSimbolos* tabela, const char* nome, const char* tipo, 
 Simbolo* buscar_simbolo(TabelaSimbolos* tabela, const char* nome);
 int remover_simbolo(TabelaSimbolos* tabela, const char* nome);
 void imprimir_tabela(TabelaSimbolos* tabela);
+Simbolo* buscar_simbolo_no_escopo_atual(TabelaSimbolos* tabela, const char* nome);
 
 TabelaSimbolos* empilhar_escopo(TabelaSimbolos* atual);
 TabelaSimbolos* desempilhar_escopo(TabelaSimbolos* atual);

@@ -112,8 +112,8 @@ void teste_tipos(){
         int tipos_sao_iguais = strcmp("int", simbolo_a->tipo) == 0;
         
         teste_assert(tipos_sao_iguais, "tipo correto aferido");
+        destruir_tabela(tabela);
     }
-    destruir_tabela(tabela);
 }
 
 void teste_soma_int_str() {
@@ -121,35 +121,40 @@ void teste_soma_int_str() {
 
     TabelaSimbolos* tabela = criar_tabela();
 
-    inserir_simbolo(tabela, "g", "int", "");
-    inserir_simbolo(tabela, "h", "string", "");
-
-    Simbolo* s1 = buscar_simbolo(tabela, "g");
-    Simbolo* s2 = buscar_simbolo(tabela, "h");
-
-    int tipos_sao_iguais = strcmp(s1->tipo, s2->tipo) == 0;
-
-    teste_assert(!tipos_sao_iguais, "Erro de tipo ao somar int com string");
-
-    destruir_tabela(tabela);
+    if(tabela){
+        inserir_simbolo(tabela, "g", "int", "");
+        inserir_simbolo(tabela, "h", "string", "");
+    
+        Simbolo* s1 = buscar_simbolo(tabela, "g");
+        Simbolo* s2 = buscar_simbolo(tabela, "h");
+    
+        int tipos_sao_iguais = strcmp(s1->tipo, s2->tipo) == 0;
+    
+        teste_assert(!tipos_sao_iguais, "Erro de tipo ao somar int com string");
+    
+        destruir_tabela(tabela);
+    }
 }
 
 void teste_soma_float_str() {
      printf(AZUL "\n=== Testando soma de float com string ===" RESET "\n");
 
     TabelaSimbolos* tabela = criar_tabela();
+    if(tabela){
+        inserir_simbolo(tabela, "g", "float", "");
+        inserir_simbolo(tabela, "h", "string", "");
+    
+        Simbolo* s1 = buscar_simbolo(tabela, "g");
+        Simbolo* s2 = buscar_simbolo(tabela, "h");
+    
+        int tipos_sao_iguais = strcmp(s1->tipo, s2->tipo) == 0;
+    
+        teste_assert(!tipos_sao_iguais, "Erro de tipo ao somar int com string");
+    
+        destruir_tabela(tabela);
 
-    inserir_simbolo(tabela, "g", "float", "");
-    inserir_simbolo(tabela, "h", "string", "");
+    }
 
-    Simbolo* s1 = buscar_simbolo(tabela, "g");
-    Simbolo* s2 = buscar_simbolo(tabela, "h");
-
-    int tipos_sao_iguais = strcmp(s1->tipo, s2->tipo) == 0;
-
-    teste_assert(!tipos_sao_iguais, "Erro de tipo ao somar int com string");
-
-    destruir_tabela(tabela);
 }
 
 
@@ -190,6 +195,59 @@ void teste_escopos() {
     }
 }
 
+void teste_x_em_dois_escopos_diferentes() {
+    // Cria a tabela global
+    TabelaSimbolos* tabela_global = criar_tabela();
+
+    // Insere x = 1 no escopo global (tipo int)
+    inserir_simbolo(tabela_global, "x", "int", "variavel");
+
+    // Cria a tabela do escopo da função, ligada à global
+    TabelaSimbolos* escopo_funcao = criar_tabela();
+    escopo_funcao->anterior = tabela_global;
+
+    // Insere x = "oi" no escopo da função (tipo str)
+    inserir_simbolo(escopo_funcao, "x", "str", "variavel");
+
+    // Busca x em cada escopo separadamente
+    Simbolo* x_global = buscar_simbolo(tabela_global, "x");
+    Simbolo* x_local = buscar_simbolo_no_escopo_atual(escopo_funcao, "x");
+
+    // Validações
+    teste_assert(x_global != NULL, "x global foi encontrado");
+    teste_assert(x_local != NULL, "x local foi encontrado");
+
+    teste_assert(strcmp(x_global->tipo, "int") == 0, "x global é do tipo int");
+    teste_assert(strcmp(x_local->tipo, "str") == 0, "x local é do tipo str");
+
+    // Libera memória (opcional, se você quiser fazer certo até o fim)
+    destruir_tabela(escopo_funcao);
+    destruir_tabela(tabela_global);
+}
+
+
+void teste_redeclaracao_variavel(){
+    printf(AZUL "\n=== Testando Redeclaração de variável ===" RESET "\n");
+    TabelaSimbolos* tabela = criar_tabela();
+
+    if(tabela){
+        inserir_simbolo(tabela, "a", "string", "");
+        Simbolo* simbolo_a = buscar_simbolo(tabela, "a");
+        inserir_simbolo(tabela, "a", "int", "");
+
+        
+        simbolo_a = buscar_simbolo(tabela, "a");
+
+        int tipos_sao_iguais = strcmp(simbolo_a->tipo, "string") == 0;
+
+        teste_assert(tipos_sao_iguais, "atualização de tipo da variavel");
+
+        destruir_tabela(tabela);
+        
+    }
+
+}
+
 void teste_casos_basicos() {
     printf(AZUL "\n=== Testando Casos Básicos ===" RESET "\n");
     
@@ -226,7 +284,9 @@ int main() {
     teste_tipos();
     teste_soma_int_str();
     teste_soma_float_str();
+    teste_redeclaracao_variavel();
     teste_escopos();
+    teste_x_em_dois_escopos_diferentes();
     teste_casos_basicos();
     
     printf(AZUL "\n=================================================================" RESET "\n");

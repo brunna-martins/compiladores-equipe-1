@@ -12,3 +12,8 @@ def somaString():
     e = "ola "
     f = "mundo"
     e + f
+
+def somaIntString():
+    g = 1
+    h = "oioi"
+    g + h

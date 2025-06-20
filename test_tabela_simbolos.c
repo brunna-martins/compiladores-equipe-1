@@ -96,6 +96,63 @@ void teste_remocao_simbolos() {
     }
 }
 
+void teste_tipos(){
+    printf(AZUL "\n=== Testando Tipos ===" RESET "\n");
+
+    TabelaSimbolos* tabela = criar_tabela();
+    if(tabela){
+        inserir_simbolo(tabela, "a", "int", "int");
+        inserir_simbolo(tabela, "b", "int", "int");
+        
+        Simbolo* simbolo_a = buscar_simbolo(tabela, "a");
+        Simbolo* simbolo_b = buscar_simbolo(tabela, "b");
+
+        teste_assert(simbolo_a != NULL, "Simbolo não nulo");
+
+        int tipos_sao_iguais = strcmp("int", simbolo_a->tipo) == 0;
+        
+        teste_assert(tipos_sao_iguais, "tipo correto aferido");
+    }
+    destruir_tabela(tabela);
+}
+
+void teste_soma_int_str() {
+     printf(AZUL "\n=== Testando soma de inteiro com string ===" RESET "\n");
+
+    TabelaSimbolos* tabela = criar_tabela();
+
+    inserir_simbolo(tabela, "g", "int", "");
+    inserir_simbolo(tabela, "h", "string", "");
+
+    Simbolo* s1 = buscar_simbolo(tabela, "g");
+    Simbolo* s2 = buscar_simbolo(tabela, "h");
+
+    int tipos_sao_iguais = strcmp(s1->tipo, s2->tipo) == 0;
+
+    teste_assert(!tipos_sao_iguais, "Erro de tipo ao somar int com string");
+
+    destruir_tabela(tabela);
+}
+
+void teste_soma_float_str() {
+     printf(AZUL "\n=== Testando soma de float com string ===" RESET "\n");
+
+    TabelaSimbolos* tabela = criar_tabela();
+
+    inserir_simbolo(tabela, "g", "float", "");
+    inserir_simbolo(tabela, "h", "string", "");
+
+    Simbolo* s1 = buscar_simbolo(tabela, "g");
+    Simbolo* s2 = buscar_simbolo(tabela, "h");
+
+    int tipos_sao_iguais = strcmp(s1->tipo, s2->tipo) == 0;
+
+    teste_assert(!tipos_sao_iguais, "Erro de tipo ao somar int com string");
+
+    destruir_tabela(tabela);
+}
+
+
 void teste_escopos() {
     printf(AZUL "\n=== Testando Escopos ===" RESET "\n");
     
@@ -166,6 +223,9 @@ int main() {
     teste_insercao_simbolos();
     teste_busca_simbolos();
     teste_remocao_simbolos();
+    teste_tipos();
+    teste_soma_int_str();
+    teste_soma_float_str();
     teste_escopos();
     teste_casos_basicos();
     

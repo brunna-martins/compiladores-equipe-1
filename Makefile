@@ -58,7 +58,7 @@ $(TEST_AST_EXEC): $(TEST_AST_SRC) $(AST_C) $(AST_H)
 	chmod +x $(TEST_AST_EXEC)
 
 # Executa os testes unitários
-test: $(TEST_UNIT_EXEC)
+test: $(TEST_UNIT_EXEC) $(TEST_AST_EXEC)
 	@echo "=== Executando Testes Unitários ==="
 	./$(TEST_UNIT_EXEC)
 	./$(TEST_AST_EXEC)
@@ -80,7 +80,7 @@ test: $(TEST_UNIT_EXEC)
 
 # Limpa os arquivos gerados
 clean:
-	rm -f comp $(LEX_C) $(YACC_C) $(YACC_H) *.o $(TEST_UNIT_EXEC)
+	rm -f comp $(LEX_C) $(YACC_C) $(YACC_H) *.o $(TEST_UNIT_EXEC) $(TEST_AST_EXEC)
 
 # Remove arquivos temporários
 distclean: clean

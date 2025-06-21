@@ -119,6 +119,7 @@ NoAST *criarNoFuncPrint(NoAST *params)
 {
     NoAST *no = malloc(sizeof(NoAST));
     no->esquerda = params;
+    no->palavra_chave = strdup("print");
     no->direita = NULL;
     no->tipo = TIPO_PRINT;
     return no;

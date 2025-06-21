@@ -48,9 +48,6 @@ void teste_funcao(){
     // Função soma()
     NoAST* func_soma = criarNoFunDef("soma", NULL, corpo_completo);
 
-    // Print opcional para visualizar a árvore
-    imprimirASTBonita(func_soma, "", 1);
-
     // Verificações simples estruturais
     teste_assert(func_soma != NULL, "Função foi criada com sucesso");
     teste_assert(func_soma->tipo == TIPO_FUNCAO, "Tipo do nó é função");
@@ -91,11 +88,72 @@ void teste_chamada_de_funcao() {
     teste_assert(chamada_soma->esquerda != NULL, "Argumentos da chamada existem");
     teste_assert(chamada_soma->esquerda->valor == 1, "Primeiro argumento é 1");
     teste_assert(chamada_soma->esquerda->direita->valor == 2, "Segundo argumento é 2");
-
-    // Print (opcional)
-    imprimirASTBonita(func_soma, "", 1);
-    imprimirASTBonita(func_principal, "", 1);
 }
+
+void teste_return_varios_tipos(){
+    printf(AZUL "\n=== Testando retorno de varios tipos ===" RESET "\n");
+    NoAST* retorno1 = criarNoPalavraChave("return");
+    retorno1->direita = criarNoNumInt(1);
+    NoAST* funcao1 = criarNoFunDef("printaInt", NULL, retorno1);
+
+    teste_assert(funcao1->direita->direita->tipo == TIPO_INT, "Retorno de inteiro com sucesso");
+
+    NoAST* retorno2 = criarNoPalavraChave("return");
+    retorno2->direita = criarNoString("oioi");
+    NoAST* funcao2 = criarNoFunDef("printaString", NULL, retorno2);
+
+    teste_assert(funcao2->direita->direita->tipo == TIPO_STRING, "Retorno de string com sucesso");
+
+    NoAST* retorno3 = criarNoPalavraChave("return");
+    NoAST* somaIntString = criarNoOp('+', criarNoString("oioi"), criarNoNumInt(1));
+    retorno3->direita = somaIntString;
+    NoAST* funcao3 = criarNoFunDef("printaString", NULL, retorno3);
+
+    teste_assert(retorno3->direita->direita->tipo != retorno3->direita->esquerda->tipo, "Retorno indevido processado corretamente");
+
+}
+
+void teste_if_elif_else() {
+    printf(AZUL "\n=== Testando Condições ===" RESET "\n");
+    // Condição: x > 0
+    NoAST* cond_if = criarNoOpComposto(">", criarNoId("x"), criarNoNumInt(0));
+    NoAST* corpo_if = criarNoFuncPrint(criarNoString("positivo"));
+    NoAST* no_if = criarNoIf(cond_if, corpo_if);
+
+    // Condição: x == 0
+    NoAST* cond_elif = criarNoOpComposto("==", criarNoId("x"), criarNoNumInt(0));
+    NoAST* corpo_elif = criarNoFuncPrint(criarNoString("zero"));
+    NoAST* no_elif = criarNoElif(cond_elif, corpo_elif);
+
+    // Else: print("negativo")
+    NoAST* corpo_else = criarNoFuncPrint(criarNoString("negativo"));
+    NoAST* no_else = criarNoElse(corpo_else);
+
+    // Sequência: if -> elif -> else
+    NoAST* condicao_completa = criarNoSeq(no_if, no_elif);
+    NoAST* bloco_condicional = criarNoSeq(condicao_completa, no_else);
+
+    // Função exemplo()
+    NoAST* func_exemplo = criarNoFunDef("exemplo", NULL, bloco_condicional);
+
+    // Impressão opcional para debug
+    imprimirASTBonita(func_exemplo, "", 1);
+
+    // Verificações
+    teste_assert(func_exemplo != NULL, "Função 'exemplo' criada");
+    teste_assert(func_exemplo->direita != NULL, "Função 'exemplo' tem corpo");
+    teste_assert(func_exemplo->direita->esquerda != NULL, "Contém if");
+    teste_assert(func_exemplo->direita->esquerda->direita != NULL, "Contém elif");
+    teste_assert(func_exemplo->direita->direita != NULL, "Contém else");
+
+    // Verificar conteúdo do else
+    NoAST* else_body = func_exemplo->direita->direita->direita; // else → corpo
+
+    teste_assert(else_body != NULL && else_body->tipo == TIPO_PRINT &&
+                 strcmp(else_body->palavra_chave, "print") == 0,
+                 "Else imprime 'negativo'");
+}
+
 
 
 
@@ -108,6 +166,8 @@ int main() {
 
     teste_funcao();
     teste_chamada_de_funcao();
+    teste_return_varios_tipos();
+    teste_if_elif_else();
     
     
     printf(AZUL "\n=================================================================" RESET "\n");

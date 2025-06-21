@@ -1,3 +1,8 @@
+/*
+======================== TESTES PARA TABELA DE SÍMBOLOS ========================
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

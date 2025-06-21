@@ -1,3 +1,8 @@
+/*
+======================== TESTES PARA ÁRVORE DE DERIVAÇÃO SINTÁTICA ========================
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -154,6 +159,26 @@ void teste_if_elif_else() {
                  "Else imprime 'negativo'");
 }
 
+void teste_while(){
+    printf(AZUL "\n=== Testando Condições ===" RESET "\n");
+
+    NoAST* condicao = criarNoOpComposto(">", criarNoId("x"), criarNoNumInt(2));
+    NoAST* corpo = criarNoFuncPrint(criarNoString("x é maior que 2"));
+    NoAST* no_while = criarNoPalavraChave("while");
+
+    no_while->esquerda = corpo;
+    no_while->direita = condicao;
+    
+    teste_assert(no_while != NULL, "Nó while criado com sucesso");
+    teste_assert(strcmp(no_while->palavra_chave, "while") == 0, "Nó é palavra-chave while");
+    teste_assert(no_while->direita != NULL, "While tem condição");
+    teste_assert(no_while->direita->tipo == TIPO_OPCOMP, "Condição é operador composto");
+    teste_assert(no_while->esquerda != NULL, "While tem corpo");
+    teste_assert(no_while->esquerda->tipo == TIPO_PRINT &&
+             strcmp(no_while->esquerda->palavra_chave, "print") == 0,
+             "Corpo do while é um print");
+}
+
 
 
 
@@ -168,6 +193,7 @@ int main() {
     teste_chamada_de_funcao();
     teste_return_varios_tipos();
     teste_if_elif_else();
+    teste_while();
     
     
     printf(AZUL "\n=================================================================" RESET "\n");

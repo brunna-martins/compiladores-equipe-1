@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ast.h"
+#include "tabela_simbolos.h"
 
 NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir) {
     NoAST *no = malloc(sizeof(NoAST));
@@ -261,6 +262,125 @@ void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
     if (no->direita)
         imprimirASTBonita(no->direita, novoPrefixo, ++contador == totalFilhos);
 }
+
+int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
+    if (!node) return 0;
+    
+    switch (node->tipo) {
+        case TIPO_SEQUENCIA:
+            gerar_statement(node->esquerda, out, tabela);
+            gerar_statement(node->direita, out, tabela);
+            break;
+
+
+        case TIPO_OP:
+            if (node->operador == '=') 
+            {
+                // Atribuição (statement)
+                Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
+                if(!s->foi_traduzido)
+                {
+                    fprintf(out, "%s ", s->tipo_simbolo);
+                    s->foi_traduzido = 1;
+                }
+
+
+                gerar_codigo_c(node->esquerda, out, tabela);
+                fprintf(out, " = ");
+                gerar_codigo_c(node->direita, out, tabela);
+            } 
+            else
+            {
+                // Expressão
+                gerar_codigo_c(node->esquerda, out, tabela);
+                fprintf(out, " %c ", node->operador);
+                fprintf(out, "(");
+                gerar_codigo_c(node->direita, out, tabela);
+                fprintf(out, ")");
+            }
+            break;
+
+
+        case TIPO_ID:
+            fprintf(out, "%s", node->nome);
+            break;
+
+        case TIPO_INT:
+            fprintf(out, "%d", node->valor);
+            break;
+
+        case TIPO_FLOAT:
+            fprintf(out, "%f", node->valor_float);
+            break;
+
+        case TIPO_STRING:
+            fprintf(out, "%s", node->valor_string);
+            break;
+
+        case TIPO_PRINT:
+            fprintf(out, "printf(\"%%d\\n\", ");
+            gerar_codigo_c(node->esquerda, out, tabela); // O que está sendo printado
+            fprintf(out, ");\n");
+            break;
+
+        case TIPO_PALAVRA_CHAVE:
+            if (strcmp(node->palavra_chave, "if") == 0) {
+                fprintf(out, "if (");
+                gerar_codigo_c(node->esquerda, out, tabela); // Condição
+                fprintf(out, ") {\n");
+                gerar_codigo_c(node->direita, out, tabela);  // Corpo
+                fprintf(out, "}\n");
+            }
+
+            break;
+
+        default:
+            fprintf(out, "// [Não implementado para tipo %d]\n", node->tipo);
+            break;
+    }
+
+    return 1;
+}
+
+
+void gerar_programa_c(NoAST* raiz, const char* nome_arquivo, TabelaSimbolos* tabela) {
+    FILE* out = fopen(nome_arquivo, "w");
+    if (!out) {
+        perror("Erro ao abrir arquivo");
+        return;
+    }
+
+    fprintf(out, "#include <stdio.h>\n\nint main() {\n");
+
+    gerar_codigo_c(raiz, out, tabela);
+
+    fprintf(out, "return 0;\n}\n");
+    fclose(out);
+}
+
+void gerar_statement(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
+    if (!node) return;
+
+    switch (node->tipo) {
+        case TIPO_OP:
+            gerar_codigo_c(node, out, tabela);
+            fprintf(out, ";\n");
+            break;
+
+        case TIPO_PRINT:
+        case TIPO_PALAVRA_CHAVE:
+        case TIPO_SEQUENCIA:
+            // Já cuidam de \n e ;
+            gerar_codigo_c(node, out, tabela);
+            break;
+
+        default:
+            gerar_codigo_c(node, out, tabela);
+            fprintf(out, ";\n");
+            break;
+    }
+}
+
 
 int tiposCompativeis(Tipo t1, Tipo t2) {
     return t1 == t2;

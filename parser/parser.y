@@ -91,7 +91,7 @@ program:
 ;
 
 stmt_list:
-    stmt                      { $$ = $1;}
+    stmt                      { $$ = ($1 == NULL)? $1 : criarNoSeq($1, NULL) ;}
   | stmt_list stmt            
      {
         if ($2 == NULL) {
@@ -138,7 +138,7 @@ expr:
                             inserir_simbolo(escopo_atual, $1->nome, "variavel", "float");
                             break;
                         case TIPO_STRING:
-                            inserir_simbolo(escopo_atual, $1->nome, "variavel", "string");
+                            inserir_simbolo(escopo_atual, $1->nome, "variavel", "char*");
                             break;                        
                     }
                     printf("Variável '%s' inserida na tabela de símbolos!\n", $1->nome);
@@ -311,7 +311,7 @@ param:
 
 block:
     /* pode ser vazio */
-    | stmt_list {$$ = $1; }
+    /* | stmt_list {$$ = $1; } */
     | INDENT stmt_list DEDENT {$$ = $2; }
     | NEWLINE INDENT stmt_list DEDENT { $$ = $3; }
     | INDENT NEWLINE stmt_list DEDENT { $$ = $3; }

@@ -1,12 +1,14 @@
 #ifndef TABELA_SIMBOLOS_H
 #define TABELA_SIMBOLOS_H
-
 #define TAM_TABELA 211
+
+#include <stdbool.h>
 
 typedef struct Simbolo {
     char* nome;
     char* tipo;
     char* tipo_simbolo;
+    bool foi_traduzido;
     struct Simbolo* proximo;
 } Simbolo;
 

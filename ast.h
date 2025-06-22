@@ -1,6 +1,8 @@
 #ifndef AST_H
 #define AST_H
 
+#include "tabela_simbolos.h"
+
 typedef enum { 
     TIPO_INT, 
     TIPO_FLOAT, 
@@ -51,5 +53,8 @@ NoAST *criarNoOpComposto(char *operador, NoAST *esquerda, NoAST *direita);
 void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo);
 int tiposCompativeis(Tipo t1, Tipo t2);
 NoAST *criarNoFuncPrint(NoAST *params);
+int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela);
+void gerar_programa_c(NoAST* raiz, const char* nome_arquivo, TabelaSimbolos* tabela);
+void gerar_statement(NoAST* node, FILE* out, TabelaSimbolos* tabela);
 
 #endif

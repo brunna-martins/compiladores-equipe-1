@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../tabela_simbolos.h" 
-
+#include "../gerarcodigo.h"
 
 // Declare a variável global escopo_atual como extern
 #include "../parser.tab.h"

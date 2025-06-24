@@ -72,8 +72,8 @@ Simbolo* buscar_simbolo_escopo_atual(TabelaSimbolos* escopo, const char* nome) {
 %type <real> expressao
 %type <no> program stmt_list stmt expr def_stmt block param_list param 
 %type <no> term factor print_stmt argumentos while_statement if_statement 
-%type <no> for_statement declaracao_variavel if_stmt
-
+%type <no> for_statement declaracao_variavel if_stmt return_stmt print_args
+ 
 %left PLUS MINUS
 %left TIMES DIVIDE
 %left UMINUS
@@ -106,12 +106,12 @@ stmt_list:
 
 stmt:
     def_stmt
+    | print_stmt
     | while_statement
     | for_statement
     | if_stmt
     | expr
-    | RETURN {$$ = NULL;}
-    | RETURN expr
+    | return_stmt
     | NEWLINE {$$ = NULL;}    
 ;
 
@@ -149,6 +149,7 @@ expr:
     | expr MINUSEQ term       { $$ = criarNoOpComposto("-=", $1, $3); }
     | expr GREATEQ term       { $$ = criarNoOpComposto(">=", $1, $3); }
     | expr LESSEQ term        { $$ = criarNoOpComposto("=>", $1, $3); }
+    | expr EQTO term          { $$ = criarNoOpComposto("==", $1, $3); }
     | expr MODULO term        { $$ = criarNoOp('%', $1, $3); }
     | term                    { $$ = $1; }
 ;
@@ -156,7 +157,6 @@ expr:
 term:
     term TIMES factor       { $$ = criarNoOp('*', $1, $3); }
     | term DIVIDE factor    { $$ = criarNoOp('/', $1, $3); }
-    | PRINT factor          { $$ = criarNoFuncPrint($2); } 
     | factor                { $$ = $1; }
 ;
 
@@ -175,6 +175,7 @@ factor:
                 $$ = criarNoNumFloat($1.valor.f); 
             }
         }
+    | ID LPAREN param_list RPAREN { $$ = criarNoChamadaFuncao($1, $3); }
     | ID   { $$ = criarNoId($1); }
     | TRUE {
         $$ = criarNoPalavraChave("True");
@@ -191,18 +192,25 @@ factor:
     | STRING_LITERAL     { $$ = criarNoString($1);}
 ; 
 
-print_stmt:
-    PRINT LPAREN expr RPAREN {
-        NoAST *printNode = criarNoPalavraChave("print");
-        printNode->esquerda = $3;
-        $$ = printNode;
+return_stmt:
+    RETURN { $$ = criarNoPalavraChave("return");}
+    | RETURN expr 
+    {   
+        NoAST* no = criarNoPalavraChave("return"); 
+        no->esquerda = $2;
+        // printf("palavra: %d\n", no->esquerda->tipo);
+        $$ = no;
     }
-    /* | PRINT LPAREN param_list RPAREN {
-        NoAST *printNode = criarNoPalavraChave("print");
-        printNode->esquerda = $3;
-        $$ = printNode;
-    } */
+;
 
+print_stmt:
+    PRINT LPAREN print_args RPAREN { $$ = criarNoPrint($3); }
+;
+
+print_args:
+    /* vazio */ { $$ = NULL; }
+    | expr { $$ = criarNoArgList($1); }
+    | print_args COMMA expr { $$ = appendArgList($1, $3); }
 ;
 
 chamada_funcao_stmt:
@@ -275,9 +283,9 @@ for_statement:
 
 if_stmt:
     IF expr COLON block
-        {
-            $$ = criarNoIf($2, $4);
-        }
+    {
+        $$ = criarNoIf($2, $4);
+    }
     | IF expr COLON block ELSE COLON block
         {
             NoAST *if_node = criarNoIf($2, $4);
@@ -307,6 +315,18 @@ param_list:
 
 param:
     ID  { $$ = criarParam($1);}
+    | NUMBER             
+    { 
+        if ($1.tipo == INTEIRO)
+        {
+            $$ = criarNoNumInt($1.valor.i);
+            printf("caracter chamado %d\n\n",$1.valor.i);
+        }
+        else
+        {
+            $$ = criarNoNumFloat($1.valor.f); 
+        }
+    }
 ;
 
 block:

@@ -1,0 +1,405 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "ast.h"
+#include "tabela_simbolos.h"
+#include "gerarcodigo.h"
+
+int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
+    if (!node) return 0;
+    
+    switch (node->tipo) {
+        case TIPO_SEQUENCIA:
+            gerar_statement(node->esquerda, out, tabela);
+            gerar_statement(node->direita, out, tabela);
+            break;
+
+        case TIPO_OP:
+            if (node->operador == '=') 
+            {
+                // Atribuição (statement)
+                Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
+                if(!s->foi_traduzido)
+                {
+                    fprintf(out, "%s ", s->tipo_simbolo);
+                    s->foi_traduzido = 1;
+                }
+
+
+                gerar_codigo_c(node->esquerda, out, tabela);
+                fprintf(out, " = ");
+                gerar_codigo_c(node->direita, out, tabela);
+            } 
+            else
+            {
+                // Expressão
+                gerar_codigo_c(node->esquerda, out, tabela);
+                fprintf(out, " %c ", node->operador);
+                fprintf(out, "(");
+                gerar_codigo_c(node->direita, out, tabela);
+                fprintf(out, ")");
+            }
+            break;
+
+        case TIPO_OPCOMP:
+            if (strcmp(node->operadorComp, "==") == 0) 
+            {
+                // Atribuição (statement)
+                Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
+                if(!s->foi_traduzido)
+                {
+                    fprintf(out, "%s ", s->tipo_simbolo);
+                    s->foi_traduzido = 1;
+                }
+
+
+                gerar_codigo_c(node->esquerda, out, tabela);
+                fprintf(out, " == ");
+                gerar_codigo_c(node->direita, out, tabela);
+            } 
+            else
+            {
+                // Expressão
+                gerar_codigo_c(node->esquerda, out, tabela);
+                fprintf(out, " %s ", node->operadorComp);
+                fprintf(out, "(");
+                gerar_codigo_c(node->direita, out, tabela);
+                fprintf(out, ")");
+            }
+            break;
+
+        case TIPO_ID:
+            fprintf(out, "%s", node->nome);
+            break;
+
+        case TIPO_INT:
+            fprintf(out, "%d", node->valor);
+            break;
+
+        case TIPO_FLOAT:
+            fprintf(out, "%f", node->valor_float);
+            break;
+
+        case TIPO_STRING:
+            fprintf(out, "%s", node->valor_string);
+            break;
+        
+        case TIPO_PARAM:
+            fprintf(out, "%s", node->nome);
+            break;
+        
+        case TIPO_PRINT:
+            gerarPrint(node, out, tabela);
+            break;
+
+        case TIPO_PALAVRA_CHAVE:
+            if (strcmp(node->palavra_chave, "if") == 0) {
+                fprintf(out, "if (");
+                gerar_codigo_c(node->esquerda, out, tabela); // Condição
+                fprintf(out, ") {\n");
+                gerar_codigo_c(node->direita, out, tabela);  // Corpo
+                fprintf(out, "}\n");
+            }
+            else if (strcmp(node->palavra_chave, "return") == 0) {
+                fprintf(out, "return ");
+                gerar_codigo_funcao(node->esquerda, out, tabela);  
+            }
+            break;
+
+        case TIPO_FUNCAO:
+            break;
+
+        case TIPO_CHAMADA_DE_FUNCAO:
+            fprintf(out, "%s(", node->nome);
+            gerar_parametros(node->esquerda, out, tabela);
+            fprintf(out, ");\n");
+            break;
+
+        default:
+            fprintf(out, "// [Não implementado para tipo %d]\n", node->tipo);
+            break;
+    }
+
+    return 1;
+}
+
+void gerar_parametros(NoAST* node, FILE* out, TabelaSimbolos* tabela)
+{
+    if(!node) return;
+
+    switch(node->tipo)
+    {
+        case TIPO_INT:
+            fprintf(out, "%d", node->valor);
+            break;
+        case TIPO_FLOAT:
+            fprintf(out, "%f", node->valor_float);
+            break;
+        case TIPO_STRING:
+            fprintf(out, "%s", node->valor_string);
+            break;
+        case TIPO_ID:
+            fprintf(out, "%s", node->nome);
+            break;       
+    }
+
+    if(node->esquerda)
+        fprintf(out, ",");
+    else if(node->direita)
+        fprintf(out, ",");
+    
+    if(node->esquerda)
+        gerar_parametros(node->esquerda, out, tabela);
+    else
+        gerar_parametros(node->direita, out, tabela);
+}
+
+void gerar_programa_c(NoAST* raiz, const char* nome_arquivo, TabelaSimbolos* tabela) {
+    FILE* out = fopen(nome_arquivo, "w");
+    if (!out) {
+        perror("Erro ao abrir arquivo");
+        return;
+    }
+
+    fprintf(out, "#include <stdio.h>\n\n");
+
+    /*
+        A ideia é percorrer a árvore sintática 2 vezes
+        sendo essa primeira para gerar as funções do
+        código de python que devem ficar fora da main
+    */
+    gerar_funcoes(raiz, out, tabela);
+
+    // E percorrer uma segunda vez gerando a main
+    fprintf(out, "int main() {\n");
+    gerar_codigo_c(raiz, out, tabela);
+    fprintf(out, "return 0;\n}\n");
+
+    fclose(out);
+}
+
+void gerar_statement(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
+    if (!node) return;
+
+    // Evita imprimir chamadas ou declarações de funções no main
+    if (node->tipo == TIPO_FUNCAO)
+        return;
+
+    switch (node->tipo) {
+        case TIPO_SEQUENCIA:
+            gerar_statement(node->esquerda, out, tabela);
+            gerar_statement(node->direita, out, tabela);
+            break;
+
+        case TIPO_OP:
+            gerar_codigo_c(node, out, tabela);
+            fprintf(out, ";\n");
+            break;
+
+        case TIPO_PRINT:
+        case TIPO_PALAVRA_CHAVE:
+            gerar_codigo_c(node, out, tabela);  // já inclui \n
+            break;
+
+        default:
+            gerar_codigo_c(node, out, tabela);
+            break;
+    }
+}
+
+
+void gerar_funcoes(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
+    if (!node) return;
+
+    if (node->tipo == TIPO_SEQUENCIA) {
+        gerar_funcoes(node->esquerda, out, tabela);
+        gerar_funcoes(node->direita, out, tabela);
+    } else if (node->tipo == TIPO_FUNCAO) {
+        gerar_codigo_funcao(node, out, tabela);
+    }
+}
+
+void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela) 
+{
+    if (!node) return;
+    
+    switch (node->tipo) {
+        case TIPO_SEQUENCIA:
+            gerar_statement(node->esquerda, out, tabela);
+            gerar_statement(node->direita, out, tabela);
+            break;
+
+        case TIPO_OP:
+            if (node->operador == '=') 
+            {
+                // Atribuição (statement)
+                Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
+                if(!s->foi_traduzido)
+                {
+                    fprintf(out, "%s ", s->tipo_simbolo);
+                    s->foi_traduzido = 1;
+                }
+
+
+                gerar_codigo_funcao(node->esquerda, out, tabela);
+                fprintf(out, " = ");
+                gerar_codigo_funcao(node->direita, out, tabela);
+            } 
+            else
+            {
+                // Expressão
+                gerar_codigo_funcao(node->esquerda, out, tabela);
+                fprintf(out, " %c ", node->operador);
+                fprintf(out, "(");
+                gerar_codigo_funcao(node->direita, out, tabela);
+                fprintf(out, ")");
+            }
+            break;
+
+        case TIPO_ID:
+            fprintf(out, "%s", node->nome);
+            break;
+
+        case TIPO_INT:
+            fprintf(out, "%d", node->valor);
+            break;
+
+        case TIPO_FLOAT:
+            fprintf(out, "%f", node->valor_float);
+            break;
+
+        case TIPO_STRING:
+            fprintf(out, "%s", node->valor_string);
+            break;
+
+        case TIPO_PRINT:
+            gerarPrint(node, out, tabela); 
+            break;
+
+        case TIPO_PALAVRA_CHAVE:
+            if (strcmp(node->palavra_chave, "if") == 0) {
+                fprintf(out, "if (");
+                gerar_codigo_funcao(node->esquerda, out, tabela); // Condição
+                fprintf(out, ") {\n");
+                gerar_codigo_funcao(node->direita, out, tabela);  // Corpo
+                fprintf(out, "}\n");
+            }
+            else if (strcmp(node->palavra_chave, "return") == 0) {
+                fprintf(out, "return ");
+                gerar_codigo_funcao(node->esquerda, out, tabela);  
+            }
+            break;
+
+        case TIPO_FUNCAO:            
+            fprintf(out, "void %s (", node->nome);
+            gerar_codigo_funcao(node->esquerda, out, tabela); // Parâmetros da função
+            fprintf(out, ") {\n");
+            gerar_codigo_funcao(node->direita, out, tabela); // Corpo da função
+            fprintf(out, "}\n");
+            break;
+
+        case TIPO_PARAM:
+            fprintf(out, "%s", node->nome);
+            if(node->direita)
+                fprintf(out, ",");
+            gerar_codigo_funcao(node->direita, out, tabela);
+            break;
+
+        default:
+            fprintf(out, "// [Não implementado para tipo %d]\n", node->tipo);
+            break;
+    }
+}
+
+// Função auxiliar otimizada
+int determinar_tipo_no(NoAST* node, TabelaSimbolos* tabela) {
+    if (!node) return TIPO_INT;
+    
+    switch (node->tipo) {
+        case TIPO_ID: {
+            Simbolo* s = buscar_simbolo(tabela, node->nome);
+            if (!s) return TIPO_INT;
+            if (strcmp(s->tipo_simbolo, "float") == 0) return TIPO_FLOAT;
+            if (strcmp(s->tipo_simbolo, "char*") == 0) return TIPO_STRING;
+            return TIPO_INT;
+        }
+        case TIPO_INT: return TIPO_INT;
+        case TIPO_FLOAT: return TIPO_FLOAT;
+        case TIPO_STRING: return TIPO_STRING;
+        case TIPO_OP: {
+            int tipo_esq = determinar_tipo_no(node->esquerda, tabela);
+            int tipo_dir = node->direita ? determinar_tipo_no(node->direita, tabela) : TIPO_INT;
+            return (tipo_esq == TIPO_FLOAT || tipo_dir == TIPO_FLOAT) ? TIPO_FLOAT : TIPO_INT;
+        }
+        default: return TIPO_INT;
+    }
+}
+
+
+void gerarPrint(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
+    if (!node || node->tipo != TIPO_PRINT) return;
+    
+    NoAST* arg = node->esquerda; // Primeiro argumento (ARG_LIST)
+    int arg_count = 0;
+    
+    // Primeira passada: gerar string de formato
+    fprintf(out, "printf(\"");
+    NoAST* current = arg;
+    while (current) {
+        if (arg_count > 0) fprintf(out, " ");
+        
+        int tipo = determinar_tipo_no(current->esquerda, tabela);
+        switch (tipo) {
+            case TIPO_INT:    fprintf(out, "%%d"); break;
+            case TIPO_FLOAT:  fprintf(out, "%%f"); break;
+            case TIPO_STRING: fprintf(out, "%%s"); break;
+            default:          fprintf(out, "<?>"); break;
+        }
+        
+        arg_count++;
+        current = current->direita;
+    }
+    fprintf(out, "\\n\"");
+    
+    // Segunda passada: gerar argumentos
+    current = arg;
+    while (current) {
+        NoAST* arg_node = current->esquerda;
+        fprintf(out, "%s", (current == arg) ? ", " : ", ");
+        
+        // Verificar se precisa de cast para float
+        if (arg_node->tipo == TIPO_OP) {
+            int tipo_op = determinar_tipo_no(arg_node, tabela);
+            if (tipo_op == TIPO_FLOAT) {
+                fprintf(out, "(float)(");
+                gerar_codigo_c(arg_node, out, tabela);
+                fprintf(out, ")");
+                current = current->direita;
+                continue;
+            }
+        }
+        
+        gerar_codigo_c(arg_node, out, tabela);
+        current = current->direita;
+    }
+    
+    fprintf(out, ");\n");
+}
+    // switch (node->tipo) {
+    //         case TIPO_OP:
+    //             fprintf(out, "printf(\"");
+    //             fprintf(out, "%%f\\n\",(float)");
+    //             gerar_codigo_c(node->esquerda, out, tabela);
+    //             fprintf(out, "); \n");
+    //             break;
+    //         case TIPO_OPCOMP:     
+    //             fprintf(out, "%%s"); 
+    //             break;
+    //         case TIPO_STRING:
+    //             fprintf(out, "printf(%s);\n", argumentos[i]->valor_string);
+    //             break;
+    //         case TIPO_ID:
+    //             fprintf(out, "printf(\"");
+                
+    //             break;
+    //         default:  break;

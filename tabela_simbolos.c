@@ -111,7 +111,7 @@ void imprimir_tabela(TabelaSimbolos* tabela) {
         for (int i = 0; i < TAM_TABELA; i++) {
             Simbolo* s = atual->tabela[i];
             while (s != NULL) {
-                printf("Nome: %-15s Tipo: %s Tipo de Símbolo: %s\n", s->nome, s->tipo, s->tipo_simbolo);
+                printf("Nome: %-15s Tipo: %-15s Tipo de Símbolo: %s\n", s->nome, s->tipo, s->tipo_simbolo);
                 s = s->proximo;
             }
         }

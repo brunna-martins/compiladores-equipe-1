@@ -1,13 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "ast.h"
 #include "tabela_simbolos.h"
 #include "gerarcodigo.h"
 
 int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
     if (!node) return 0;
-    
+
+    if (node->tipo == TIPO_FUNCAO) {
+        return 0;
+    }
+
     switch (node->tipo) {
         case TIPO_SEQUENCIA:
             gerar_statement(node->esquerda, out, tabela);
@@ -204,6 +209,11 @@ void gerar_statement(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             gerar_codigo_c(node, out, tabela);
             fprintf(out, ";\n");
             break;
+        
+        case TIPO_CHAMADA_DE_FUNCAO:
+            fprintf(out, "\t");
+            gerar_codigo_c(node, out, tabela);
+            break;
 
         case TIPO_PRINT:
         case TIPO_PALAVRA_CHAVE:
@@ -303,21 +313,28 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
             }
             break;
 
-        case TIPO_FUNCAO:            
-            fprintf(out, "void %s (", node->nome);
-            gerar_codigo_funcao(node->esquerda, out, tabela); // Parâmetros da função
+        case TIPO_FUNCAO: 
+            Simbolo* s = buscar_simbolo(tabela, node->nome);
+            const char* tipo_retorno = "void";
+            if (s && s->tipo_retorno_funcao) {
+                if (strcmp(s->tipo_retorno_funcao, "INFERIR_DEPOIS") != 0) {
+                    tipo_retorno = s->tipo_retorno_funcao;
+                }
+            }
+            fprintf(out, "%s %s (", tipo_retorno, node->nome);
+            gerar_parametros_declaracao(node->esquerda, out, tabela);
             fprintf(out, ") {\n");
             gerar_codigo_funcao(node->direita, out, tabela); // Corpo da função
-            fprintf(out, "}\n");
+            fprintf(out, "}\n\n");
             break;
-
+            
         case TIPO_PARAM:
             fprintf(out, "%s", node->nome);
             if(node->direita)
                 fprintf(out, ",");
             gerar_codigo_funcao(node->direita, out, tabela);
             break;
-
+            
         default:
             fprintf(out, "// [Não implementado para tipo %d]\n", node->tipo);
             break;
@@ -397,6 +414,49 @@ void gerarPrint(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
     }
     
     fprintf(out, ");\n");
+}
+
+// Função auxiliar que busca recursivamente por um nó 'return'
+bool corpoTemReturn(NoAST* node) {
+    if (!node) {
+        return false;
+    }
+    if (node->tipo == TIPO_PALAVRA_CHAVE && strcmp(node->palavra_chave, "return") == 0) {
+        return true;
+    }
+    return corpoTemReturn(node->esquerda) || corpoTemReturn(node->direita);
+}
+
+// Função principal da análise: percorre a AST e atualiza a tabela de símbolos
+void analisar_tipos_de_funcao(NoAST* node, TabelaSimbolos* tabela) {
+    if (!node) {
+        return;
+    }
+
+    if (node->tipo == TIPO_FUNCAO) {
+        Simbolo* s = buscar_simbolo(tabela, node->nome);
+        if (s) {
+            // Se o tipo de retorno já foi inferido, não faça nada
+            if (s->tipo_retorno_funcao) return;
+
+            // Se o corpo (node->direita) não tem 'return', o tipo é 'void'
+            if (!corpoTemReturn(node->direita)) {
+                s->tipo_retorno_funcao = strdup("void");
+            } else {
+                // Se tem 'return', é para análise futura
+                s->tipo_retorno_funcao = strdup("INFERIR_DEPOIS");
+            }
+        }
+    }
+
+    analisar_tipos_de_funcao(node->esquerda, tabela);
+    analisar_tipos_de_funcao(node->direita, tabela);
+}
+
+void gerar_parametros_declaracao(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
+    if (!node) {
+        return;
+    }
 }
     // switch (node->tipo) {
     //         case TIPO_OP:

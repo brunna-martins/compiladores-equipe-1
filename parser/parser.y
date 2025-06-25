@@ -152,6 +152,7 @@ expr:
     | expr EQTO term          { $$ = criarNoOpComposto("==", $1, $3); }
     | expr MODULO term        { $$ = criarNoOp('%', $1, $3); }
     | term                    { $$ = $1; }
+    | /* vazio */             { $$ = NULL; }
 ;
 
 term:
@@ -193,14 +194,13 @@ factor:
 ; 
 
 return_stmt:
-    RETURN { $$ = criarNoPalavraChave("return");}
-    | RETURN expr 
+    RETURN expr 
     {   
         NoAST* no = criarNoPalavraChave("return"); 
         no->esquerda = $2;
         // printf("palavra: %d\n", no->esquerda->tipo);
         $$ = no;
-    }
+    }     
 ;
 
 print_stmt:

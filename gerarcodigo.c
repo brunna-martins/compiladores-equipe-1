@@ -101,8 +101,12 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
                 fprintf(out, "}\n");
             }
             else if (strcmp(node->palavra_chave, "return") == 0) {
-                fprintf(out, "return ");
-                gerar_codigo_funcao(node->esquerda, out, tabela);  
+                fprintf(out, "return");
+                if (node->esquerda) { // Só gera valor se existir
+                    fprintf(out, " ");
+                    gerar_codigo_funcao(node->esquerda, out, tabela);
+                }
+                fprintf(out, ";\n"); // Adiciona ponto-e-vírgula
             }
             break;
 
@@ -155,6 +159,11 @@ void gerar_parametros(NoAST* node, FILE* out, TabelaSimbolos* tabela)
 }
 
 void gerar_programa_c(NoAST* raiz, const char* nome_arquivo, TabelaSimbolos* tabela) {
+    if (!raiz) {
+    printf("Aviso: Nó nulo encontrado durante geração de código\n");
+    return;
+}
+    
     FILE* out = fopen(nome_arquivo, "w");
     if (!out) {
         perror("Erro ao abrir arquivo");
@@ -285,8 +294,12 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
                 fprintf(out, "}\n");
             }
             else if (strcmp(node->palavra_chave, "return") == 0) {
-                fprintf(out, "return ");
-                gerar_codigo_funcao(node->esquerda, out, tabela);  
+                fprintf(out, "return");
+                if (node->esquerda) { // Só gera valor se existir
+                    fprintf(out, " ");
+                    gerar_codigo_funcao(node->esquerda, out, tabela);
+                }
+                fprintf(out, ";\n"); // Adiciona ponto-e-vírgula
             }
             break;
 

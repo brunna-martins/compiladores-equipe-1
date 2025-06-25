@@ -175,12 +175,18 @@ NoAST* criarNoElse(NoAST *corpo) {
     return no;
 }
 
-NoAST* criarNoSeq(NoAST *primeiro, NoAST *segundo) {
-    NoAST *no = (NoAST*) malloc(sizeof(NoAST));
+NoAST* criarNoSeq(NoAST* esq, NoAST* dir) {
+    // Verifica se o nó direito já está incorretamente ligado
+    if (dir && dir->tipo == TIPO_PALAVRA_CHAVE && 
+        strcmp(dir->palavra_chave, "return") == 0 && 
+        dir->esquerda && dir->esquerda->tipo == TIPO_OP) {
+        dir->esquerda = NULL;  // Remove a associação errada
+    }
+    
+    NoAST* no = malloc(sizeof(NoAST));
     no->tipo = TIPO_SEQUENCIA;
-    no->esquerda = primeiro;
-    no->direita = segundo;
-    no->meio = NULL;
+    no->esquerda = esq;
+    no->direita = dir;
     return no;
 }
 

@@ -9,6 +9,7 @@ typedef struct Simbolo {
     char* tipo;
     char* tipo_simbolo;
     bool foi_traduzido;
+    char* tipo_retorno_funcao;
     struct Simbolo* proximo;
 } Simbolo;
 

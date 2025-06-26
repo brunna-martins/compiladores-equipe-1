@@ -24,6 +24,7 @@ int main(void) {
         imprimirASTBonita(raiz, "", 1);
         printf("\n-------------------------------------\n\n");
         imprimir_tabela(escopo_atual);
+        verificar_necessidade_concatenar(raiz);
         gerar_programa_c(raiz, "output.c", escopo_atual);
     } 
     else 

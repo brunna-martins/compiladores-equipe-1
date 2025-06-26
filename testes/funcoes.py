@@ -1,15 +1,11 @@
 def soma(a):
-    x = a + 2*(4+3)+5
-    print(x)
+    x = 1 + 2*(4+3)+5
+    print("""babatinha quente""")
     return 1
 
-def subtracao(a, b):
-    a = a - b
-    print(a)
-    return
-
-soma(2)
-subtracao(3, 2)
+# def subtracao(a, b):
+#     a = a - b
+#     return
 
 # def testeif(x):
 #     x=10

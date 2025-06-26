@@ -21,7 +21,6 @@ typedef enum {
     TIPO_SEQUENCIA,
     TIPO_PRINT,
     TIPO_ARG_LIST,
-    TIPO_BOOL,
 } Tipo;
 
 typedef struct noAST {

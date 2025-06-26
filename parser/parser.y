@@ -38,6 +38,12 @@ int deduzir_tipo_expr(NoAST* node) {
     if (node->tipo == TIPO_STRING) return TIPO_STRING;
     if (node->tipo == TIPO_INT) return TIPO_INT;
     if (node->tipo == TIPO_OP) {
+         if (node->operador == '+') {
+            if (deduzir_tipo_expr(node->esquerda) == TIPO_STRING ||
+                deduzir_tipo_expr(node->direita) == TIPO_STRING) {
+                return TIPO_STRING;
+            }
+        }
         if (node->operador == '/') return TIPO_FLOAT;
         // Se qualquer um dos lados for float, a expressão inteira vira float.
         if (deduzir_tipo_expr(node->esquerda) == TIPO_FLOAT) return TIPO_FLOAT;

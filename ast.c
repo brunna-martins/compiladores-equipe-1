@@ -176,14 +176,11 @@ NoAST* criarNoElse(NoAST *corpo) {
 }
 
 NoAST* criarNoSeq(NoAST* esq, NoAST* dir) {
-    // Verifica se o nó direito já está incorretamente ligado
-    if (dir && dir->tipo == TIPO_PALAVRA_CHAVE && 
-        strcmp(dir->palavra_chave, "return") == 0 && 
-        dir->esquerda && dir->esquerda->tipo == TIPO_OP) {
-        dir->esquerda = NULL;  // Remove a associação errada
-    }
-    
     NoAST* no = malloc(sizeof(NoAST));
+    if (!no) {
+        yyerror("Falha de alocação de memória em criarNoSeq");
+        exit(1);
+    }
     no->tipo = TIPO_SEQUENCIA;
     no->esquerda = esq;
     no->direita = dir;

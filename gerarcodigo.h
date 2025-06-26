@@ -12,5 +12,6 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela);
 void gerar_sintaxe_print(NoAST* node, FILE* out, TabelaSimbolos* tabela);
 int determinar_tipo_no(NoAST* node, TabelaSimbolos* tabela);
 void gerarPrint(NoAST* node, FILE* out, TabelaSimbolos* tabela);
+void verificar_necessidade_concatenar(NoAST* node);
 
 #endif

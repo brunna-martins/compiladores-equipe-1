@@ -7,4 +7,5 @@ c_cpp_properties.json
 launch.json
 settings.json
 ast.o
+test_ast
 test_tabela_simbolos

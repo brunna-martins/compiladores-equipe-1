@@ -3,6 +3,16 @@
 #include <string.h>
 #include "ast.h"
 
+NoAST* criarNoFuncCall(char *nome_funcao, NoAST *args) {
+    NoAST* no = malloc(sizeof(NoAST));
+    no->tipo = TIPO_CHAMADA_FUNCAO;
+    strncpy(no->nome, nome_funcao, sizeof(no->nome));
+    no->esquerda = args;  // lista de argumentos
+    no->direita = NULL;
+    no->meio = NULL;
+    return no;
+}
+
 NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir) {
     NoAST *no = malloc(sizeof(NoAST));
     no->operador = op;
@@ -100,8 +110,8 @@ NoAST *criarNoFunDef(char *nome, NoAST *params, NoAST *body) {
     n->delimitador  = 0;
     n->palavra_chave= NULL;
     n->esquerda     = params;         /* lista de params */
-    n->meio         = body;           /* corpo (stmt_list) */
-    n->direita      = NULL;           /* próximo statement no escopo */
+    n->meio         = NULL;           /* corpo (stmt_list) */
+    n->direita      = body;           /* próximo statement no escopo */
     return n;
 }
 
@@ -109,6 +119,7 @@ NoAST *criarNoFuncPrint(NoAST *params)
 {
     NoAST *no = malloc(sizeof(NoAST));
     no->esquerda = params;
+    no->palavra_chave = strdup("print");
     no->direita = NULL;
     no->tipo = TIPO_PRINT;
     return no;

@@ -18,6 +18,7 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela);
 void gerar_parametros(NoAST* node, FILE* out, TabelaSimbolos* tabela);
 void gerar_parametros_declaracao(NoAST* node, FILE* out, TabelaSimbolos* tabela);
 void gerarPrint(NoAST* node, FILE* out, TabelaSimbolos* tabela);
+bool precisa_concatenar_helper = false;
 
 int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
     if (!node) return 0;
@@ -33,43 +34,52 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             break;
 
         case TIPO_OP:
-            if (node->operador == '=') 
-            {
-                // Atribuição (statement)
-                Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
-                    if (s && !s->foi_traduzido){
-                        fprintf(out, "%s ", s->tipo_simbolo);   
-                         s->foi_traduzido = 1;
+            if (node->operador == '=') {
+                if (node->esquerda && node->esquerda->tipo == TIPO_ID) {
+                    Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
+                    if (s && !s->foi_traduzido) {
+                        fprintf(out, "%s ", s->tipo_simbolo);
+                        s->foi_traduzido = 1;
                     }
-
-
-                gerar_codigo_c(node->esquerda, out, tabela);
+                }
+                gerar_codigo_c(node->esquerda, out, tabela); 
                 fprintf(out, " = ");
                 gerar_codigo_c(node->direita, out, tabela);
-            } 
-            else
-            {
+
+            }
+            else if (node->operador == '+') {
+                int tipo_esq = determinar_tipo_no(node->esquerda, tabela);
+                int tipo_dir = determinar_tipo_no(node->direita, tabela);
+
+                // Se qualquer um dos lados for uma string, fazemos concatenação
+                if (tipo_esq == TIPO_STRING || tipo_dir == TIPO_STRING) {
+                    fprintf(out, "concatenar_strings("); 
+                    gerar_codigo_c(node->esquerda, out, tabela);
+                    fprintf(out, ", ");
+                    gerar_codigo_c(node->direita, out, tabela);
+                    fprintf(out, ")");
+                } else { 
+                    int tipo_resultante = determinar_tipo_no(node, tabela);
+                    fprintf(out, "(");
+                    if (tipo_resultante == TIPO_FLOAT && tipo_esq == TIPO_INT) fprintf(out, "(float)");
+                    gerar_codigo_c(node->esquerda, out, tabela); 
+                    fprintf(out, " + ");
+                    if (tipo_resultante == TIPO_FLOAT && tipo_dir == TIPO_INT) fprintf(out, "(float)");
+                    gerar_codigo_c(node->direita, out, tabela);
+                    fprintf(out, ")");
+                }
+            }
+            else {
                 int tipo_resultante = determinar_tipo_no(node, tabela);
                 fprintf(out, "(");
-
-                // Se a operação toda resulta em float, E o filho da esquerda for int, faz o cast.
-                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->esquerda, tabela) == TIPO_INT) {
-                    fprintf(out, "(float)");
-                }
+                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->esquerda, tabela) == TIPO_INT) fprintf(out, "(float)");
                 gerar_codigo_c(node->esquerda, out, tabela);
-
                 fprintf(out, " %c ", node->operador);
-
-                // Se a operação toda resulta em float, E o filho da direita for int, faz o cast.
-                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->direita, tabela) == TIPO_INT) {
-                    fprintf(out, "(float)");
-                }
+                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->direita, tabela) == TIPO_INT) fprintf(out, "(float)");
                 gerar_codigo_c(node->direita, out, tabela);
-
                 fprintf(out, ")");
             }
             break;
-
         case TIPO_OPCOMP:
             if (strcmp(node->operadorComp, "==") == 0) 
             {
@@ -199,7 +209,19 @@ void gerar_programa_c(NoAST* raiz, const char* nome_arquivo, TabelaSimbolos* tab
         return;
     }
 
-    fprintf(out, "#include <stdio.h>\n\n");
+    fprintf(out, "#include <stdio.h>\n");
+    fprintf(out, "#include <string.h>\n");
+    fprintf(out, "#include <stdlib.h>\n\n"); 
+
+    // só exibe função concatenar se for soma de strings
+    if (precisa_concatenar_helper) {
+        fprintf(out, "char* concatenar_strings(const char* s1, const char* s2) {\n");
+        fprintf(out, "\tchar* resultado = (char*) malloc(strlen(s1) + strlen(s2) + 1);\n");
+        fprintf(out, "\tstrcpy(resultado, s1);\n");
+        fprintf(out, "\tstrcat(resultado, s2);\n");
+        fprintf(out, "\treturn resultado;\n");
+        fprintf(out, "}\n\n");
+    }
 
     /*
         A ideia é percorrer a árvore sintática 2 vezes
@@ -273,38 +295,49 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
             break;
 
         case TIPO_OP:
-            if (node->operador == '=') 
-            {
-                // Atribuição (statement)
-                Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
-                if(!s->foi_traduzido)
-                {
-                    fprintf(out, "%s ", s->tipo_simbolo);
-                    s->foi_traduzido = 1;
+            if (node->operador == '=') {
+
+                if (node->esquerda && node->esquerda->tipo == TIPO_ID) {
+                    Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
+                    if (s && !s->foi_traduzido) {
+                        fprintf(out, "%s ", s->tipo_simbolo);
+                        s->foi_traduzido = 1;
+                    }
                 }
+                        gerar_codigo_funcao(node->esquerda, out, tabela);
+                        fprintf(out, " = ");
+                        gerar_codigo_funcao(node->direita, out, tabela);
+            }
+            else if (node->operador == '+') {
+                int tipo_esq = determinar_tipo_no(node->esquerda, tabela);
+                int tipo_dir = determinar_tipo_no(node->direita, tabela);
 
-
-                gerar_codigo_funcao(node->esquerda, out, tabela);
-                fprintf(out, " = ");
-                gerar_codigo_funcao(node->direita, out, tabela);
-            } 
-            else
-            {
+                // Se qualquer um dos lados for uma string, fazemos concatenação
+                if (tipo_esq == TIPO_STRING || tipo_dir == TIPO_STRING) {
+                    fprintf(out, "concatenar_strings("); // aqui a função de concatenar é criada
+                    gerar_codigo_funcao(node->esquerda, out, tabela);
+                    fprintf(out, ", ");
+                    gerar_codigo_funcao(node->direita, out, tabela);
+                    fprintf(out, ")");
+                } else { 
+                    int tipo_resultante = determinar_tipo_no(node, tabela);
+                    fprintf(out, "(");
+                    if (tipo_resultante == TIPO_FLOAT && tipo_esq == TIPO_INT) fprintf(out, "(float)");
+                    gerar_codigo_c(node->esquerda, out, tabela); 
+                    fprintf(out, " + ");
+                    if (tipo_resultante == TIPO_FLOAT && tipo_dir == TIPO_INT) fprintf(out, "(float)");
+                    gerar_codigo_c(node->direita, out, tabela);
+                    fprintf(out, ")");
+                }
+            }
+            else {
                 int tipo_resultante = determinar_tipo_no(node, tabela);
                 fprintf(out, "(");
-
-                // Se a operação toda resulta em float, E o filho da esquerda for int, faz o cast.
-                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->esquerda, tabela) == TIPO_INT) {
-                    fprintf(out, "(float)");
-                }
-                gerar_codigo_funcao(node->esquerda, out, tabela);
+                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->esquerda, tabela) == TIPO_INT) fprintf(out, "(float)");
+                gerar_codigo_c(node->esquerda, out, tabela);
                 fprintf(out, " %c ", node->operador);
-
-                // Se a operação toda resulta em float, E o filho da direita for int, faz o cast.
-                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->direita, tabela) == TIPO_INT) {
-                    fprintf(out, "(float)");
-                }
-                gerar_codigo_funcao(node->direita, out, tabela);
+                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->direita, tabela) == TIPO_INT) fprintf(out, "(float)");
+                gerar_codigo_c(node->direita, out, tabela);
                 fprintf(out, ")");
             }
             break;
@@ -379,7 +412,7 @@ int determinar_tipo_no(NoAST* node, TabelaSimbolos* tabela) {
     switch (node->tipo) {
         case TIPO_ID: {
             Simbolo* s = buscar_simbolo(tabela, node->nome);
-            if (!s) return TIPO_INT; // Assume int se não encontrar
+            if (!s) return TIPO_INT;
             if (strcmp(s->tipo_simbolo, "float") == 0) return TIPO_FLOAT;
             if (strcmp(s->tipo_simbolo, "char*") == 0) return TIPO_STRING;
             return TIPO_INT;
@@ -388,18 +421,31 @@ int determinar_tipo_no(NoAST* node, TabelaSimbolos* tabela) {
         case TIPO_FLOAT: return TIPO_FLOAT;
         case TIPO_STRING: return TIPO_STRING;
         case TIPO_OP: {
+            int tipo_esq = determinar_tipo_no(node->esquerda, tabela);
+            int tipo_dir = determinar_tipo_no(node->direita, tabela);
+
+            if (node->operador == '+') {
+                if (tipo_esq == TIPO_STRING || tipo_dir == TIPO_STRING) {
+                    return TIPO_STRING;
+                }
+            }
+
+            // Se o operador é '/', o resultado é FLOAT.
             if (node->operador == '/') {
                 return TIPO_FLOAT;
             }
 
-            int tipo_esq = determinar_tipo_no(node->esquerda, tabela);
-            int tipo_dir = node->direita ? determinar_tipo_no(node->direita, tabela) : TIPO_INT;
-            return (tipo_esq == TIPO_FLOAT || tipo_dir == TIPO_FLOAT) ? TIPO_FLOAT : TIPO_INT;
+            // Para qualquer outra operação, se um dos lados for FLOAT, o resultado é FLOAT.
+            if (tipo_esq == TIPO_FLOAT || tipo_dir == TIPO_FLOAT) {
+                return TIPO_FLOAT;
+            }
+
+            // Se nenhuma das regras acima se aplica, o resultado da operação é INT.
+            return TIPO_INT;
         }
         default: return TIPO_INT;
     }
 }
-
 
 void gerarPrint(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
     if (!node || node->tipo != TIPO_PRINT) return;
@@ -510,6 +556,24 @@ const char* inferir_tipo_retorno(NoAST* corpo_funcao, TabelaSimbolos* tabela) {
         default:
             return "void"; 
     }
+}
+
+void verificar_necessidade_concatenar(NoAST* node) {
+    if (!node || precisa_concatenar_helper) {
+        return; 
+    }
+
+    if (node->tipo == TIPO_OP && node->operador == '+') {
+        int tipo_esq = determinar_tipo_no(node->esquerda, NULL); 
+        int tipo_dir = determinar_tipo_no(node->direita, NULL);
+        if (tipo_esq == TIPO_STRING || tipo_dir == TIPO_STRING) {
+            precisa_concatenar_helper = true;
+            return;
+        }
+    }
+
+    verificar_necessidade_concatenar(node->esquerda);
+    verificar_necessidade_concatenar(node->direita);
 }
 
     // switch (node->tipo) {

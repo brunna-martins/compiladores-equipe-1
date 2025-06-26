@@ -10,13 +10,16 @@ TEST_UNIT_SRC = test_tabela_simbolos.c
 TEST_UNIT_EXEC = test_tabela_simbolos
 TEST_AST_SRC = test_ast.c
 TEST_AST_EXEC = test_ast
+
+# TODOS os testes em uma pasta só
 TESTS = $(wildcard testes/*.py)
 TARGET = comp
 
-#Inicializando cores
+# Inicializando cores
 GREEN=\033[1;32m
 RED=\033[1;31m
 BLUE=\033[1;34m
+YELLOW=\033[1;33m
 NC=\033[0m
 
 # Arquivos gerados
@@ -57,26 +60,99 @@ $(TEST_AST_EXEC): $(TEST_AST_SRC) $(AST_C) $(AST_H)
 	$(CC) $(CFLAGS) -o $(TEST_AST_EXEC) $(TEST_AST_SRC) $(AST_C)
 	chmod +x $(TEST_AST_EXEC)
 
-# Executa os testes unitários
-test: $(TEST_UNIT_EXEC) $(TEST_AST_EXEC)
-	@echo "=== Executando Testes Unitários ==="
+# Executa TODOS os testes (unitários + integração)
+test: $(TEST_UNIT_EXEC) $(TEST_AST_EXEC) comp
+	@echo "$(GREEN)=== Executando Testes Unitários ===$(NC)"
 	./$(TEST_UNIT_EXEC)
 	./$(TEST_AST_EXEC)
 	@echo "\n$(RED)============================================================$(NC)"
-	@echo "$(RED)================= EXECUTANDO MAIS TESTES ===================$(NC)"
+	@echo "$(RED)================= EXECUTANDO TESTES DE INTEGRAÇÃO =========$(NC)"
 	@echo "$(RED)============================================================$(NC)\n"
-	@for f in $(TESTS); do \
-		echo "$(BLUE)============================================================$(NC)"; \
-		echo "$(BLUE)=== ARQUIVO: $$f $(NC)"; \
-		echo "$(BLUE)============================================================$(NC)\n"; \
-		cat $$f; \
-		echo "\n\n$(GREEN)============================================================$(NC)"; \
-		echo "$(GREEN)=== bitcode $(NC)"; \
-		echo "$(GREEN)============================================================$(NC)\n"; \
-		chmod +x $(TARGET); \
-		./$(TARGET) < $$f; \
-		echo ""; \
-	done
+	@PASSED=0; FAILED=0; TOTAL=0; \
+	for f in $(TESTS); do \
+		if [ -f "$$f" ]; then \
+			TOTAL=$$((TOTAL + 1)); \
+			echo "$(BLUE)============================================================$(NC)"; \
+			echo "$(BLUE)=== TESTE $$TOTAL: $$f $(NC)"; \
+			echo "$(BLUE)============================================================$(NC)"; \
+			echo "$(YELLOW)--- Conteúdo:$(NC)"; \
+			cat $$f; \
+			echo "\n$(GREEN)--- Resultado:$(NC)"; \
+			if ./$(TARGET) < $$f > /dev/null 2>&1; then \
+				echo "$(GREEN)✓ PASSOU$(NC)"; \
+				PASSED=$$((PASSED + 1)); \
+			else \
+				echo "$(RED)✗ FALHOU$(NC)"; \
+				echo "$(RED)--- Detalhes do erro:$(NC)"; \
+				./$(TARGET) < $$f 2>&1 || true; \
+				FAILED=$$((FAILED + 1)); \
+			fi; \
+			echo ""; \
+		fi; \
+	done; \
+	echo "$(BLUE)========================================================$(NC)"; \
+	echo "$(BLUE)                    RESUMO FINAL$(NC)"; \
+	echo "$(BLUE)========================================================$(NC)"; \
+	echo "Total de testes: $$TOTAL"; \
+	echo "$(GREEN)Passaram: $$PASSED$(NC)"; \
+	echo "$(RED)Falharam: $$FAILED$(NC)"; \
+	if [ $$FAILED -eq 0 ]; then \
+		echo "$(GREEN)🎉 TODOS OS TESTES PASSARAM!$(NC)"; \
+	else \
+		echo "$(RED)❌ ALGUNS TESTES FALHARAM$(NC)"; \
+	fi
+
+# Testar arquivo específico
+test-file: comp
+	@if [ -n "$(FILE)" ]; then \
+		if [ -f "$(FILE)" ]; then \
+			echo "$(BLUE)=== Testando: $(FILE) ===$(NC)"; \
+			echo "$(YELLOW)--- Conteúdo:$(NC)"; \
+			cat $(FILE); \
+			echo "\n$(GREEN)--- Resultado:$(NC)"; \
+			./$(TARGET) < $(FILE); \
+		else \
+			echo "$(RED)Erro: Arquivo $(FILE) não encontrado$(NC)"; \
+		fi; \
+	else \
+		echo "$(RED)Uso: make test-file FILE=caminho/para/arquivo.py$(NC)"; \
+	fi
+
+# Criar novo teste (direto na pasta testes/)
+create-test:
+	@if [ -n "$(NAME)" ]; then \
+		mkdir -p testes; \
+		echo "# TESTE: $(NAME)" > testes/$(NAME).py; \
+		echo "# OBJETIVO: [Descreva o objetivo do teste]" >> testes/$(NAME).py; \
+		echo "# RESULTADO_ESPERADO: [Descreva o resultado esperado]" >> testes/$(NAME).py; \
+		echo "" >> testes/$(NAME).py; \
+		echo "# Seu código Python aqui" >> testes/$(NAME).py; \
+		echo "$(GREEN)✓ Teste criado: testes/$(NAME).py$(NC)"; \
+	else \
+		echo "$(RED)Uso: make create-test NAME=nome_teste$(NC)"; \
+		echo "$(YELLOW)Exemplo: make create-test NAME=meu_teste$(NC)"; \
+	fi
+
+# Contar testes
+count-tests:
+	@echo "$(GREEN)=== Contagem de Testes ===$(NC)"
+	@echo "$(BLUE)Total de testes: $$(ls testes/*.py 2>/dev/null | wc -l)$(NC)"
+	@if [ $$(ls testes/*.py 2>/dev/null | wc -l) -gt 0 ]; then \
+		echo "$(YELLOW)Arquivos encontrados:$(NC)"; \
+		ls testes/*.py 2>/dev/null | sed 's/^/  /' || echo "  Nenhum"; \
+	fi
+
+# Ajuda
+help-tests:
+	@echo "$(GREEN)=== Comandos de Teste Disponíveis ===$(NC)"
+	@echo "$(BLUE)make test$(NC)              - Todos os testes (unitários + integração)"
+	@echo "$(BLUE)make test-file$(NC)         - Teste arquivo específico (FILE=...)"
+	@echo "$(BLUE)make create-test$(NC)       - Criar novo teste (NAME=...)"
+	@echo "$(BLUE)make count-tests$(NC)       - Contar e listar testes"
+	@echo ""
+	@echo "$(YELLOW)Exemplos:$(NC)"
+	@echo "$(YELLOW)make test-file FILE=testes/meu_teste.py$(NC)"
+	@echo "$(YELLOW)make create-test NAME=teste_soma$(NC)"
 
 # Limpa os arquivos gerados
 clean:
@@ -85,3 +161,5 @@ clean:
 # Remove arquivos temporários
 distclean: clean
 	rm -f *~
+
+.PHONY: all clean distclean test test-file create-test count-tests help-tests

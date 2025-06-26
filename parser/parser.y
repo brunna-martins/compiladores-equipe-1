@@ -43,6 +43,17 @@ int deduzir_tipo_expr(NoAST* node) {
         if (deduzir_tipo_expr(node->esquerda) == TIPO_FLOAT) return TIPO_FLOAT;
         if (deduzir_tipo_expr(node->direita) == TIPO_FLOAT) return TIPO_FLOAT;
     }
+    if(
+        (node->tipo == TIPO_PALAVRA_CHAVE) && 
+        ( 
+            (strcmp(node->palavra_chave, "True") == 0)||
+            (strcmp(node->palavra_chave, "False") == 0)||
+            (strcmp(node->palavra_chave, "None") == 0)
+        )
+    ) {
+        return TIPO_BOOL;
+    }
+
     return TIPO_INT;
 }
 %}
@@ -84,7 +95,7 @@ int deduzir_tipo_expr(NoAST* node) {
 %type <real> expressao
 %type <no> program stmt_list stmt expr def_stmt block param_list param
 %type <no> term factor print_stmt argumentos while_statement if_statement
-%type <no> for_statement declaracao_variavel if_stmt return_stmt print_args
+%type <no> for_statement declaracao_variavel if_stmt return_stmt arg_list
 %type <no> assignment_stmt 
 
 %left PLUS MINUS
@@ -143,7 +154,10 @@ assignment_stmt:
                 tipo_deduzido = "float";
             } else if (tipo_expr == TIPO_STRING) {
                 tipo_deduzido = "char*";
+            } else if (tipo_expr == TIPO_BOOL) {
+                tipo_deduzido = "bool";
             }
+
             inserir_simbolo(escopo_atual, $1, "variavel", tipo_deduzido);
             printf("Variável '%s' inserida na tabela com tipo '%s'!\n", $1, tipo_deduzido);
         }
@@ -215,13 +229,13 @@ return_stmt:
 ;
 
 print_stmt:
-    PRINT LPAREN print_args RPAREN { $$ = criarNoPrint($3); }
+    PRINT LPAREN arg_list RPAREN { $$ = criarNoPrint($3); }
 ;
 
-print_args:
+arg_list:
     /* vazio */ { $$ = NULL; }
   | expr { $$ = criarNoArgList($1); }
-  | print_args COMMA expr { $$ = appendArgList($1, $3); }
+  | arg_list COMMA expr { $$ = appendArgList($1, $3); }
 ;
 
 def_stmt:
@@ -338,8 +352,7 @@ param:
 
 block:
     INDENT stmt_list DEDENT {$$ = $2; }
-  | NEWLINE INDENT stmt_list DEDENT { $$ = $3; }
-  | INDENT NEWLINE stmt_list DEDENT { $$ = $3; }
+   /* | NEWLINE INDENT stmt_list DEDENT { $$ = $3; } */
 ;
 
 

@@ -37,9 +37,12 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             {
                 // Atribuição (statement)
                 Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
-                    if (s && !s->foi_traduzido){
+                    if(s && strcmp(s->tipo, "param") == 0) {
+                        s->foi_traduzido = 1;
+                    }
+                    else if (s && !s->foi_traduzido){
                         fprintf(out, "%s ", s->tipo_simbolo);   
-                         s->foi_traduzido = 1;
+                        s->foi_traduzido = 1;
                     }
 
 
@@ -73,13 +76,16 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
         case TIPO_OPCOMP:
             if (strcmp(node->operadorComp, "==") == 0) 
             {
-                // Atribuição (statement)
-                Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
-                if(!s->foi_traduzido)
-                {
-                    fprintf(out, "%s ", s->tipo_simbolo);
-                    s->foi_traduzido = 1;
-                }
+                // // Atribuição (statement)
+                // Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
+                // if(s && strcmp(s->tipo, "param") == 0) {
+                //     s->foi_traduzido = 1;
+                // }
+                // if(!s->foi_traduzido)
+                // {
+                //     fprintf(out, "%s ", s->tipo_simbolo);
+                //     s->foi_traduzido = 1;
+                // }
 
 
                 gerar_codigo_c(node->esquerda, out, tabela);
@@ -129,6 +135,11 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
                 gerar_codigo_c(node->direita, out, tabela);  // Corpo
                 fprintf(out, "}\n");
             }
+            else if (strcmp(node->palavra_chave, "else") == 0) {
+                fprintf(out, "else {\n");
+                gerar_codigo_c(node->direita, out, tabela); // Corpo do else está sempre no nó direita
+                fprintf(out, "}\n ");
+            }
             else if (strcmp(node->palavra_chave, "return") == 0) {
                 fprintf(out, "return");
                 if (node->esquerda) { // Só gera valor se existir
@@ -136,6 +147,22 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
                     gerar_codigo_funcao(node->esquerda, out, tabela);
                 }
                 fprintf(out, ";\n"); // Adiciona ponto-e-vírgula
+            }
+            else if (strcmp(node->palavra_chave, "while") == 0) {
+                fprintf(out, "while(");
+                gerar_codigo_c(node->esquerda, out, tabela); // Condição
+                fprintf(out, ") {\n");
+                gerar_codigo_c(node->direita, out, tabela);  // Corpo
+                fprintf(out, "}\n");
+            }
+            else if(strcmp(node->palavra_chave, "True") == 0){
+                fprintf(out, "true");
+            }
+            else if(strcmp(node->palavra_chave, "False") == 0){
+                fprintf(out, "false");
+            }
+            else if(strcmp(node->palavra_chave, "None") == 0){
+                fprintf(out, "NULL");
             }
             break;
 
@@ -199,7 +226,7 @@ void gerar_programa_c(NoAST* raiz, const char* nome_arquivo, TabelaSimbolos* tab
         return;
     }
 
-    fprintf(out, "#include <stdio.h>\n\n");
+    fprintf(out, "#include <stdio.h>\n#include <stdbool.h>\n\n");
 
     /*
         A ideia é percorrer a árvore sintática 2 vezes
@@ -230,6 +257,11 @@ void gerar_statement(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             break;
 
         case TIPO_OP:
+            gerar_codigo_c(node, out, tabela);
+            fprintf(out, ";\n");
+            break;
+        
+        case TIPO_OPCOMP:
             gerar_codigo_c(node, out, tabela);
             fprintf(out, ";\n");
             break;
@@ -275,9 +307,12 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
         case TIPO_OP:
             if (node->operador == '=') 
             {
-                // Atribuição (statement)
+                // Atribuição, a variável vai estar na esquerda do nó
                 Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
-                if(!s->foi_traduzido)
+                if(s && (strcmp(s->tipo, "param") == 0)) {
+                        s->foi_traduzido = 1;
+                }
+                else if(!s->foi_traduzido)
                 {
                     fprintf(out, "%s ", s->tipo_simbolo);
                     s->foi_traduzido = 1;
@@ -286,7 +321,7 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
 
                 gerar_codigo_funcao(node->esquerda, out, tabela);
                 fprintf(out, " = ");
-                gerar_codigo_funcao(node->direita, out, tabela);
+                gerar_codigo_funcao(node->direita, out, tabela); //E o valor vai estar na direita
             } 
             else
             {
@@ -337,13 +372,37 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
                 gerar_codigo_funcao(node->direita, out, tabela);  // Corpo
                 fprintf(out, "}\n");
             }
+            else if (strcmp(node->palavra_chave, "else") == 0) {
+                fprintf(out, "else {");
+                gerar_codigo_funcao(node->esquerda, out, tabela); // Condição
+                fprintf(out, "}\n ");
+            }
             else if (strcmp(node->palavra_chave, "return") == 0) {
                 fprintf(out, "return");
                 if (node->esquerda) { // Só gera valor se existir
                     fprintf(out, " ");
                     gerar_codigo_funcao(node->esquerda, out, tabela);
+                    if(node->direita)
+                        gerar_codigo_funcao(node->direita, out, tabela);
+
                 }
                 fprintf(out, ";\n"); // Adiciona ponto-e-vírgula
+            }
+            else if (strcmp(node->palavra_chave, "while") == 0) {
+                fprintf(out, "while(");
+                gerar_codigo_c(node->esquerda, out, tabela); // Condição
+                fprintf(out, ") {\n");
+                gerar_codigo_c(node->direita, out, tabela);  // Corpo
+                fprintf(out, "}\n");
+            }
+            else if(strcmp(node->palavra_chave, "True") == 0){
+                fprintf(out, "true");
+            }
+            else if(strcmp(node->palavra_chave, "False") == 0){
+                fprintf(out, "false");
+            }
+            else if(strcmp(node->palavra_chave, "None") == 0){
+                fprintf(out, "NULL");
             }
             break;
 
@@ -381,7 +440,8 @@ int determinar_tipo_no(NoAST* node, TabelaSimbolos* tabela) {
             Simbolo* s = buscar_simbolo(tabela, node->nome);
             if (!s) return TIPO_INT; // Assume int se não encontrar
             if (strcmp(s->tipo_simbolo, "float") == 0) return TIPO_FLOAT;
-            if (strcmp(s->tipo_simbolo, "char*") == 0) return TIPO_STRING;
+            else if (strcmp(s->tipo_simbolo, "char*") == 0) return TIPO_STRING;
+            else if (strcmp(s->tipo_simbolo, "bool") == 0) return TIPO_BOOL;
             return TIPO_INT;
         }
         case TIPO_INT: return TIPO_INT;
@@ -511,22 +571,3 @@ const char* inferir_tipo_retorno(NoAST* corpo_funcao, TabelaSimbolos* tabela) {
             return "void"; 
     }
 }
-
-    // switch (node->tipo) {
-    //         case TIPO_OP:
-    //             fprintf(out, "printf(\"");
-    //             fprintf(out, "%%f\\n\",(float)");
-    //             gerar_codigo_c(node->esquerda, out, tabela);
-    //             fprintf(out, "); \n");
-    //             break;
-    //         case TIPO_OPCOMP:     
-    //             fprintf(out, "%%s"); 
-    //             break;
-    //         case TIPO_STRING:
-    //             fprintf(out, "printf(%s);\n", argumentos[i]->valor_string);
-    //             break;
-    //         case TIPO_ID:
-    //             fprintf(out, "printf(\"");
-                
-    //             break;
-    //         default:  break;

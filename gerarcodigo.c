@@ -49,11 +49,23 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             } 
             else
             {
-                // Expressão
-                gerar_codigo_c(node->esquerda, out, tabela);
-                fprintf(out, " %c ", node->operador);
+                int tipo_resultante = determinar_tipo_no(node, tabela);
                 fprintf(out, "(");
+
+                // Se a operação toda resulta em float, E o filho da esquerda for int, faz o cast.
+                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->esquerda, tabela) == TIPO_INT) {
+                    fprintf(out, "(float)");
+                }
+                gerar_codigo_c(node->esquerda, out, tabela);
+
+                fprintf(out, " %c ", node->operador);
+
+                // Se a operação toda resulta em float, E o filho da direita for int, faz o cast.
+                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->direita, tabela) == TIPO_INT) {
+                    fprintf(out, "(float)");
+                }
                 gerar_codigo_c(node->direita, out, tabela);
+
                 fprintf(out, ")");
             }
             break;
@@ -278,10 +290,20 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
             } 
             else
             {
-                // Expressão
+                int tipo_resultante = determinar_tipo_no(node, tabela);
+                fprintf(out, "(");
+
+                // Se a operação toda resulta em float, E o filho da esquerda for int, faz o cast.
+                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->esquerda, tabela) == TIPO_INT) {
+                    fprintf(out, "(float)");
+                }
                 gerar_codigo_funcao(node->esquerda, out, tabela);
                 fprintf(out, " %c ", node->operador);
-                fprintf(out, "(");
+
+                // Se a operação toda resulta em float, E o filho da direita for int, faz o cast.
+                if (tipo_resultante == TIPO_FLOAT && determinar_tipo_no(node->direita, tabela) == TIPO_INT) {
+                    fprintf(out, "(float)");
+                }
                 gerar_codigo_funcao(node->direita, out, tabela);
                 fprintf(out, ")");
             }
@@ -353,11 +375,11 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
 // Função auxiliar otimizada
 int determinar_tipo_no(NoAST* node, TabelaSimbolos* tabela) {
     if (!node) return TIPO_INT;
-    
+
     switch (node->tipo) {
         case TIPO_ID: {
             Simbolo* s = buscar_simbolo(tabela, node->nome);
-            if (!s) return TIPO_INT;
+            if (!s) return TIPO_INT; // Assume int se não encontrar
             if (strcmp(s->tipo_simbolo, "float") == 0) return TIPO_FLOAT;
             if (strcmp(s->tipo_simbolo, "char*") == 0) return TIPO_STRING;
             return TIPO_INT;
@@ -366,6 +388,10 @@ int determinar_tipo_no(NoAST* node, TabelaSimbolos* tabela) {
         case TIPO_FLOAT: return TIPO_FLOAT;
         case TIPO_STRING: return TIPO_STRING;
         case TIPO_OP: {
+            if (node->operador == '/') {
+                return TIPO_FLOAT;
+            }
+
             int tipo_esq = determinar_tipo_no(node->esquerda, tabela);
             int tipo_dir = node->direita ? determinar_tipo_no(node->direita, tabela) : TIPO_INT;
             return (tipo_esq == TIPO_FLOAT || tipo_dir == TIPO_FLOAT) ? TIPO_FLOAT : TIPO_INT;
@@ -404,20 +430,8 @@ void gerarPrint(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
     current = arg;
     while (current) {
         NoAST* arg_node = current->esquerda;
-        fprintf(out, "%s", (current == arg) ? ", " : ", ");
-        
-        // Verificar se precisa de cast para float
-        if (arg_node->tipo == TIPO_OP) {
-            int tipo_op = determinar_tipo_no(arg_node, tabela);
-            if (tipo_op == TIPO_FLOAT) {
-                fprintf(out, "(float)(");
-                gerar_codigo_c(arg_node, out, tabela);
-                fprintf(out, ")");
-                current = current->direita;
-                continue;
-            }
-        }
-        
+        fprintf(out, ", ");
+
         gerar_codigo_c(arg_node, out, tabela);
         current = current->direita;
     }

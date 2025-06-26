@@ -6,6 +6,19 @@
 #include "tabela_simbolos.h"
 #include "gerarcodigo.h"
 
+
+NoAST* encontrar_no_return(NoAST* node);
+const char* inferir_tipo_retorno(NoAST* corpo_funcao, TabelaSimbolos* tabela);
+
+void gerar_programa_c(NoAST* raiz, const char* nome_arquivo, TabelaSimbolos* tabela);
+int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela);
+void gerar_statement(NoAST* node, FILE* out, TabelaSimbolos* tabela);
+void gerar_funcoes(NoAST* node, FILE* out, TabelaSimbolos* tabela);
+void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela);
+void gerar_parametros(NoAST* node, FILE* out, TabelaSimbolos* tabela);
+void gerar_parametros_declaracao(NoAST* node, FILE* out, TabelaSimbolos* tabela);
+void gerarPrint(NoAST* node, FILE* out, TabelaSimbolos* tabela);
+
 int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
     if (!node) return 0;
 
@@ -24,11 +37,10 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             {
                 // Atribuição (statement)
                 Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
-                if(!s->foi_traduzido)
-                {
-                    fprintf(out, "%s ", s->tipo_simbolo);
-                    s->foi_traduzido = 1;
-                }
+                    if (s && !s->foi_traduzido){
+                        fprintf(out, "%s ", s->tipo_simbolo);   
+                         s->foi_traduzido = 1;
+                    }
 
 
                 gerar_codigo_c(node->esquerda, out, tabela);
@@ -314,19 +326,16 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
             break;
 
         case TIPO_FUNCAO: 
-            Simbolo* s = buscar_simbolo(tabela, node->nome);
-            const char* tipo_retorno = "void";
-            if (s && s->tipo_retorno_funcao) {
-                if (strcmp(s->tipo_retorno_funcao, "INFERIR_DEPOIS") != 0) {
-                    tipo_retorno = s->tipo_retorno_funcao;
-                }
-            }
-            fprintf(out, "%s %s (", tipo_retorno, node->nome);
+        {
+            const char* tipo_retorno = inferir_tipo_retorno(node->direita, tabela);
+
+            fprintf(out, "%s %s(", tipo_retorno, node->nome);      
             gerar_parametros_declaracao(node->esquerda, out, tabela);
             fprintf(out, ") {\n");
             gerar_codigo_funcao(node->direita, out, tabela); // Corpo da função
             fprintf(out, "}\n\n");
             break;
+        }
             
         case TIPO_PARAM:
             fprintf(out, "%s", node->nome);
@@ -427,37 +436,68 @@ bool corpoTemReturn(NoAST* node) {
     return corpoTemReturn(node->esquerda) || corpoTemReturn(node->direita);
 }
 
-// Função principal da análise: percorre a AST e atualiza a tabela de símbolos
-void analisar_tipos_de_funcao(NoAST* node, TabelaSimbolos* tabela) {
-    if (!node) {
-        return;
-    }
-
-    if (node->tipo == TIPO_FUNCAO) {
-        Simbolo* s = buscar_simbolo(tabela, node->nome);
-        if (s) {
-            // Se o tipo de retorno já foi inferido, não faça nada
-            if (s->tipo_retorno_funcao) return;
-
-            // Se o corpo (node->direita) não tem 'return', o tipo é 'void'
-            if (!corpoTemReturn(node->direita)) {
-                s->tipo_retorno_funcao = strdup("void");
-            } else {
-                // Se tem 'return', é para análise futura
-                s->tipo_retorno_funcao = strdup("INFERIR_DEPOIS");
-            }
-        }
-    }
-
-    analisar_tipos_de_funcao(node->esquerda, tabela);
-    analisar_tipos_de_funcao(node->direita, tabela);
-}
 
 void gerar_parametros_declaracao(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
-    if (!node) {
-        return;
+    if (!node) return;
+
+    if (node->tipo == TIPO_PARAM) {
+        Simbolo* s = buscar_simbolo(tabela, node->nome);
+        const char* tipo = s && s->tipo_simbolo ? s->tipo_simbolo : "int"; 
+        fprintf(out, "%s %s", tipo, node->nome);
+
+        if (node->direita) {
+            fprintf(out, ", ");
+            gerar_parametros_declaracao(node->direita, out, tabela);
+        }
     }
 }
+
+NoAST* encontrar_no_return(NoAST* node) {
+    if (!node) {
+        return NULL;
+    }
+    // Verifica se o nó atual é a instrução de retorno
+    if (node->tipo == TIPO_PALAVRA_CHAVE && strcmp(node->palavra_chave, "return") == 0) {
+        return node;
+    }
+    
+    // Busca recursivamente na esquerda e direita
+    NoAST* no_encontrado = encontrar_no_return(node->esquerda);
+    if (no_encontrado) {
+        return no_encontrado;
+    }
+    return encontrar_no_return(node->direita);
+}
+
+
+const char* inferir_tipo_retorno(NoAST* corpo_funcao, TabelaSimbolos* tabela) {
+    NoAST* no_return = encontrar_no_return(corpo_funcao);
+
+    // Caso 1: Não há instrução 'return' na função.
+    if (!no_return) {
+        return "void";
+    }
+
+    // Caso 2: Existe 'return', mas sem valor (ex: return;).
+    else if (!no_return->esquerda) {
+        return "void";
+    }
+
+    // Caso 3: Existe 'return' com um valor
+    int tipo_ast = determinar_tipo_no(no_return->esquerda, tabela);
+
+    switch (tipo_ast) {
+        case TIPO_INT:
+            return "int";
+        case TIPO_FLOAT:
+            return "float";
+        case TIPO_STRING:
+            return "char*";
+        default:
+            return "void"; 
+    }
+}
+
     // switch (node->tipo) {
     //         case TIPO_OP:
     //             fprintf(out, "printf(\"");

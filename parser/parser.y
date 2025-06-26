@@ -32,7 +32,19 @@ Simbolo* buscar_simbolo_escopo_atual(TabelaSimbolos* escopo, const char* nome) {
     }
     return NULL;
 }
-
+int deduzir_tipo_expr(NoAST* node) {
+    if (!node) return TIPO_INT;
+    if (node->tipo == TIPO_FLOAT) return TIPO_FLOAT;
+    if (node->tipo == TIPO_STRING) return TIPO_STRING;
+    if (node->tipo == TIPO_INT) return TIPO_INT;
+    if (node->tipo == TIPO_OP) {
+        if (node->operador == '/') return TIPO_FLOAT;
+        // Se qualquer um dos lados for float, a expressão inteira vira float.
+        if (deduzir_tipo_expr(node->esquerda) == TIPO_FLOAT) return TIPO_FLOAT;
+        if (deduzir_tipo_expr(node->direita) == TIPO_FLOAT) return TIPO_FLOAT;
+    }
+    return TIPO_INT;
+}
 %}
 
 %code requires {
@@ -124,13 +136,16 @@ assignment_stmt:
         Simbolo* s = buscar_simbolo_escopo_atual(escopo_atual, $1);
         if (!s) {
             char* tipo_deduzido = "int";
-            switch($3->tipo) {
-                case TIPO_FLOAT: tipo_deduzido = "float"; break;
-                case TIPO_STRING: tipo_deduzido = "char*"; break;
-                case TIPO_OP: break;
+
+            int tipo_expr = deduzir_tipo_expr($3); // Deduz o tipo uma vez
+
+            if (tipo_expr == TIPO_FLOAT) {
+                tipo_deduzido = "float";
+            } else if (tipo_expr == TIPO_STRING) {
+                tipo_deduzido = "char*";
             }
             inserir_simbolo(escopo_atual, $1, "variavel", tipo_deduzido);
-            printf("Variável '%s' inserida na tabela de símbolos com tipo '%s'!\n", $1, tipo_deduzido);
+            printf("Variável '%s' inserida na tabela com tipo '%s'!\n", $1, tipo_deduzido);
         }
     }
 ;

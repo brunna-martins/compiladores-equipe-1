@@ -177,4 +177,4 @@ assignment_stmt:
 
 |**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
 |:---: | :---: | :---: | :---: | :---: |
-| 27/06/2025 | 1.0 | Criação inicial da documentação do analisador sintático (`parser.y`) | [Brunna Louise](https://github.com/brunna-martins) | - |
+| 27/06/2025 | 1.0 | Criação inicial da documentação do analisador sintático (`parser.y`) | [Brunna Louise](https://github.com/brunna-martins) | [Genilson Silva](https://github.com/GenilsonJrs) |

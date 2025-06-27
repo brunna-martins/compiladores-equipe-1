@@ -143,5 +143,5 @@ if (node->operador == '=') {
 |**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
 |:---: | :---: | :---: | :---: | :---: |
 | 02/06/2025 | 1.0 | Adiciona versão inicial do documento de tabela de símbolos. | [Brunna Louise](https://github.com/brunna-martins) | [Mariana Letícia](https://github.com/Marianannn) |
-| 27/06/2025 | 1.1 | Atualiza documentação para refletir estado atual do código. | [Brunna Louise](https://github.com/brunna-martins) | - |
+| 27/06/2025 | 1.1 | Atualiza documentação para refletir estado atual do código. | [Brunna Louise](https://github.com/brunna-martins) | [Genilson Silva](https://github.com/GenilsonJrs) |
 

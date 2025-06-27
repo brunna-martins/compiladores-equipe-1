@@ -215,6 +215,15 @@ NoAST* appendArgList(NoAST* list, NoAST* new_arg) {
     return list;
 }
 
+NoAST* criarNoOpLogico(char* op, NoAST* esquerda, NoAST* direita) {
+    NoAST* no = malloc(sizeof(NoAST));
+    no->tipo = TIPO_LOGICO;
+    strcpy(no->nome, op);
+    no->esquerda = esquerda;
+    no->direita = direita;
+    return no;
+}
+
 void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo, TabelaSimbolos* tabela) {
     if (!no) return;
 
@@ -269,6 +278,9 @@ void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo, TabelaSimbo
             break;
         case TIPO_ARG_LIST:
             printf("ARG_LIST \n");
+            break;
+        case TIPO_LOGICO:
+            printf("Operador Lógico: %s\n", no->nome);
             break;
         default:
             if (no->operador)

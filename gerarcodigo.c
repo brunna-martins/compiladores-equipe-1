@@ -86,15 +86,6 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
         case TIPO_OPCOMP:
             if (strcmp(node->operadorComp, "==") == 0) 
             {
-                // Atribuição (statement)
-                // Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
-                // if(!s->foi_traduzido)
-                // {
-                //     fprintf(out, "%s ", s->tipo_simbolo);
-                //     s->foi_traduzido = 1;
-                // }
-
-
                 gerar_codigo_c(node->esquerda, out, tabela);
                 fprintf(out, " == ");
                 gerar_codigo_c(node->direita, out, tabela);
@@ -142,6 +133,13 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
                 gerar_codigo_c(node->direita, out, tabela);  // Corpo
                 fprintf(out, "}\n");
             }
+            else if (strcmp(node->palavra_chave, "elif") == 0) {
+                fprintf(out, "else if (");
+                gerar_codigo_c(node->esquerda, out, tabela); // Condição
+                fprintf(out, ") {\n");
+                gerar_codigo_c(node->direita, out, tabela);  // Corpo
+                fprintf(out, "}\n");
+            }
             else if (strcmp(node->palavra_chave, "else") == 0) {
                 fprintf(out, "else {\n");
                 gerar_codigo_c(node->direita, out, tabela); // Corpo do else está sempre no nó direita
@@ -172,6 +170,9 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             else if(strcmp(node->palavra_chave, "None") == 0){
                 fprintf(out, "NULL");
             }
+            else if(strcmp(node->palavra_chave, "pass") == 0){
+                fprintf(out, "; // passou\n");
+            }
             break;
 
         case TIPO_FUNCAO:
@@ -182,9 +183,36 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             gerar_parametros(node->esquerda, out, tabela);
             fprintf(out, ");\n");
             break;
-
+        
+        case TIPO_LOGICO:
+            if(strcmp(node->nome, "not") == 0)
+            {
+                fprintf(out, "!"); //not
+                gerar_codigo_c(node->esquerda, out, tabela);
+            }
+            else if(strcmp(node->nome, "and") == 0)
+            {   
+                fprintf(out, "(");
+                gerar_codigo_c(node->esquerda, out, tabela);
+                fprintf(out, ")");
+                fprintf(out, " && "); //and
+                fprintf(out, "(");
+                gerar_codigo_c(node->direita, out, tabela);
+                fprintf(out, ")");
+            }
+            else if(strcmp(node->nome, "or") == 0)
+            {
+                fprintf(out, "(");
+                gerar_codigo_c(node->esquerda, out, tabela);
+                fprintf(out, ")");
+                fprintf(out, " || "); //or
+                fprintf(out, "(");
+                gerar_codigo_c(node->direita, out, tabela);
+                fprintf(out, ")");
+            }
+            break;
         default:
-            fprintf(out, "// [Não implementado para tipo %d]\n", node->tipo);
+            fprintf(out, "// [Não implementado para tipaaao %d]\n", node->tipo);
             break;
     }
 
@@ -412,6 +440,13 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
                 gerar_codigo_funcao(node->direita, out, tabela); // Corpo do else está sempre no nó direita
                 fprintf(out, "}\n ");
             }
+            else if (strcmp(node->palavra_chave, "elif") == 0) {
+                fprintf(out, "else if (");
+                gerar_codigo_c(node->esquerda, out, tabela); // Condição
+                fprintf(out, ") {\n");
+                gerar_codigo_c(node->direita, out, tabela);  // Corpo
+                fprintf(out, "}\n");
+            }
             else if (strcmp(node->palavra_chave, "return") == 0) {
                 fprintf(out, "return ");
                 if (node->esquerda) { // Só gera valor se existir
@@ -436,6 +471,9 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
             }
             else if(strcmp(node->palavra_chave, "None") == 0){
                 fprintf(out, "NULL");
+            }
+            else if(strcmp(node->palavra_chave, "pass") == 0){
+                fprintf(out, ";");
             }
             break;
 

@@ -22,6 +22,7 @@ typedef enum {
     TIPO_PRINT,
     TIPO_ARG_LIST,
     TIPO_BOOL,
+    TIPO_LOGICO,
 } Tipo;
 
 typedef struct noAST {
@@ -68,6 +69,7 @@ void gerar_parametros(NoAST* node, FILE* out, TabelaSimbolos* tabela);
 NoAST* appendArgList(NoAST* list, NoAST* new_arg);
 NoAST* criarNoArgList(NoAST* first_arg);
 NoAST* criarNoPrint(NoAST* args);
+NoAST* criarNoOpLogico(char* op, NoAST* esquerda, NoAST* direita);
 
 
 #endif

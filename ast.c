@@ -3,6 +3,7 @@
 #include <string.h>
 #include "ast.h"
 #include "tabela_simbolos.h"
+#include "gerarcodigo.h"
 
 NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir) {
     NoAST *no = malloc(sizeof(NoAST));
@@ -214,7 +215,7 @@ NoAST* appendArgList(NoAST* list, NoAST* new_arg) {
     return list;
 }
 
-void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
+void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo, TabelaSimbolos* tabela) {
     if (!no) return;
 
     // Imprime prefixo e conector
@@ -225,6 +226,7 @@ void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
     switch (no->tipo) {
         case TIPO_FUNCAO:
             printf("Função: %s\n", no->nome);
+            alterar_tipagem(no->nome, tabela, no);
             break;
         case TIPO_PARAM:
             printf("Parâmetro: %s\n", no->nome);
@@ -286,11 +288,11 @@ void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
     int contador = 0;
 
     if (no->esquerda)
-        imprimirASTBonita(no->esquerda, novoPrefixo, ++contador == totalFilhos);
+        imprimirASTBonita(no->esquerda, novoPrefixo, ++contador == totalFilhos, tabela);
     if (no->meio)
-        imprimirASTBonita(no->meio, novoPrefixo, ++contador == totalFilhos);
+        imprimirASTBonita(no->meio, novoPrefixo, ++contador == totalFilhos, tabela);
     if (no->direita)
-        imprimirASTBonita(no->direita, novoPrefixo, ++contador == totalFilhos);
+        imprimirASTBonita(no->direita, novoPrefixo, ++contador == totalFilhos, tabela);
 }
 
 int tiposCompativeis(Tipo t1, Tipo t2) {

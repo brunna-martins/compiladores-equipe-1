@@ -21,7 +21,7 @@ int main(void) {
     if (status == 0) 
     {
         printf("\n---- AST gerada -------------------\n\n");
-        imprimirASTBonita(raiz, "", 1);
+        imprimirASTBonita(raiz, "", 1, escopo_atual);
         printf("\n-------------------------------------\n\n");
         imprimir_tabela(escopo_atual);
         verificar_necessidade_concatenar(raiz);

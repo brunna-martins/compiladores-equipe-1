@@ -37,8 +37,11 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             if (node->operador == '=') {
                 if (node->esquerda && node->esquerda->tipo == TIPO_ID) {
                     Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
-                    if (s && !s->foi_traduzido) {
-                        fprintf(out, "%s ", s->tipo_simbolo);
+                    if(s && strcmp(s->tipo, "param") == 0) {
+                        s->foi_traduzido = 1;
+                    }
+                    else if (s && !s->foi_traduzido){
+                        fprintf(out, "%s ", s->tipo_simbolo);   
                         s->foi_traduzido = 1;
                     }
                 }
@@ -84,12 +87,12 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             if (strcmp(node->operadorComp, "==") == 0) 
             {
                 // Atribuição (statement)
-                Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
-                if(!s->foi_traduzido)
-                {
-                    fprintf(out, "%s ", s->tipo_simbolo);
-                    s->foi_traduzido = 1;
-                }
+                // Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
+                // if(!s->foi_traduzido)
+                // {
+                //     fprintf(out, "%s ", s->tipo_simbolo);
+                //     s->foi_traduzido = 1;
+                // }
 
 
                 gerar_codigo_c(node->esquerda, out, tabela);
@@ -139,13 +142,35 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
                 gerar_codigo_c(node->direita, out, tabela);  // Corpo
                 fprintf(out, "}\n");
             }
+            else if (strcmp(node->palavra_chave, "else") == 0) {
+                fprintf(out, "else {\n");
+                gerar_codigo_c(node->direita, out, tabela); // Corpo do else está sempre no nó direita
+                fprintf(out, "}\n");
+            }
             else if (strcmp(node->palavra_chave, "return") == 0) {
-                fprintf(out, "return");
-                if (node->esquerda) { // Só gera valor se existir
-                    fprintf(out, " ");
+                fprintf(out, "return ");
+                if (node->esquerda) {
                     gerar_codigo_funcao(node->esquerda, out, tabela);
+                    if(node->direita)
+                        gerar_codigo_funcao(node->direita, out, tabela);
                 }
-                fprintf(out, ";\n"); // Adiciona ponto-e-vírgula
+                fprintf(out, ";\n");
+            }
+            else if (strcmp(node->palavra_chave, "while") == 0) {
+                fprintf(out, "while(");
+                gerar_codigo_c(node->esquerda, out, tabela); // Condição
+                fprintf(out, ") {\n");
+                gerar_codigo_c(node->direita, out, tabela);  // Corpo
+                fprintf(out, "}\n");
+            }
+            else if(strcmp(node->palavra_chave, "True") == 0){
+                fprintf(out, "true");
+            }
+            else if(strcmp(node->palavra_chave, "False") == 0){
+                fprintf(out, "false");
+            }
+            else if(strcmp(node->palavra_chave, "None") == 0){
+                fprintf(out, "NULL");
             }
             break;
 
@@ -211,7 +236,9 @@ void gerar_programa_c(NoAST* raiz, const char* nome_arquivo, TabelaSimbolos* tab
 
     fprintf(out, "#include <stdio.h>\n");
     fprintf(out, "#include <string.h>\n");
-    fprintf(out, "#include <stdlib.h>\n\n"); 
+    fprintf(out, "#include <stdlib.h>\n"); 
+    fprintf(out, "#include <stdbool.h>\n\n"); 
+
 
     // só exibe função concatenar se for soma de strings
     if (precisa_concatenar_helper) {
@@ -255,7 +282,12 @@ void gerar_statement(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             gerar_codigo_c(node, out, tabela);
             fprintf(out, ";\n");
             break;
-        
+
+        case TIPO_OPCOMP:
+            gerar_codigo_c(node, out, tabela);
+            fprintf(out, ";\n");
+            break;
+
         case TIPO_CHAMADA_DE_FUNCAO:
             fprintf(out, "\t");
             gerar_codigo_c(node, out, tabela);
@@ -297,16 +329,21 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
         case TIPO_OP:
             if (node->operador == '=') {
 
+                 // Atribuição, a variável vai estar na esquerda do nó
                 if (node->esquerda && node->esquerda->tipo == TIPO_ID) {
                     Simbolo* s = buscar_simbolo(tabela, node->esquerda->nome);
-                    if (s && !s->foi_traduzido) {
+                    if(s && (strcmp(s->tipo, "param") == 0)) {
+                        s->foi_traduzido = 1;
+                    }
+                    else if (s && !s->foi_traduzido) {
                         fprintf(out, "%s ", s->tipo_simbolo);
                         s->foi_traduzido = 1;
                     }
                 }
-                        gerar_codigo_funcao(node->esquerda, out, tabela);
-                        fprintf(out, " = ");
-                        gerar_codigo_funcao(node->direita, out, tabela);
+
+                gerar_codigo_funcao(node->esquerda, out, tabela);
+                fprintf(out, " = ");
+                gerar_codigo_funcao(node->direita, out, tabela); //E o valor vai estar na direita
             }
             else if (node->operador == '+') {
                 int tipo_esq = determinar_tipo_no(node->esquerda, tabela);
@@ -370,13 +407,35 @@ void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela)
                 gerar_codigo_funcao(node->direita, out, tabela);  // Corpo
                 fprintf(out, "}\n");
             }
+            else if (strcmp(node->palavra_chave, "else") == 0) {
+                fprintf(out, "else {\n");
+                gerar_codigo_funcao(node->direita, out, tabela); // Corpo do else está sempre no nó direita
+                fprintf(out, "}\n ");
+            }
             else if (strcmp(node->palavra_chave, "return") == 0) {
-                fprintf(out, "return");
+                fprintf(out, "return ");
                 if (node->esquerda) { // Só gera valor se existir
-                    fprintf(out, " ");
                     gerar_codigo_funcao(node->esquerda, out, tabela);
+                    if(node->direita)
+                        gerar_codigo_funcao(node->direita, out, tabela);
                 }
                 fprintf(out, ";\n"); // Adiciona ponto-e-vírgula
+            }
+            else if (strcmp(node->palavra_chave, "while") == 0) {
+                fprintf(out, "while(");
+                gerar_codigo_funcao(node->esquerda, out, tabela); // Condição
+                fprintf(out, ") {\n");
+                gerar_codigo_funcao(node->direita, out, tabela);  // Corpo
+                fprintf(out, "}\n");
+            }
+            else if(strcmp(node->palavra_chave, "True") == 0){
+                fprintf(out, "true");
+            }
+            else if(strcmp(node->palavra_chave, "False") == 0){
+                fprintf(out, "false");
+            }
+            else if(strcmp(node->palavra_chave, "None") == 0){
+                fprintf(out, "NULL");
             }
             break;
 
@@ -443,6 +502,23 @@ int determinar_tipo_no(NoAST* node, TabelaSimbolos* tabela) {
             // Se nenhuma das regras acima se aplica, o resultado da operação é INT.
             return TIPO_INT;
         }
+        case TIPO_PALAVRA_CHAVE:{
+            if((strcmp(node->palavra_chave, "True") == 0) || (strcmp(node->palavra_chave, "False") == 0) || (strcmp(node->palavra_chave, "None") == 0))
+                return TIPO_BOOL;
+        }
+        case TIPO_CHAMADA_DE_FUNCAO:{
+            Simbolo* s = buscar_simbolo(tabela, node->nome);
+
+            if((s) && strcmp(s->tipo_simbolo, "bool") == 0)
+                return TIPO_BOOL;
+            else if((s) && strcmp(s->tipo_simbolo, "int") == 0)
+                return TIPO_INT;
+            else if((s) && strcmp(s->tipo_simbolo, "float") == 0)
+                return TIPO_FLOAT;
+            else if((s) && strcmp(s->tipo_simbolo, "char*") == 0)
+                return TIPO_STRING;
+        }
+
         default: return TIPO_INT;
     }
 }
@@ -464,6 +540,7 @@ void gerarPrint(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             case TIPO_INT:    fprintf(out, "%%d"); break;
             case TIPO_FLOAT:  fprintf(out, "%%f"); break;
             case TIPO_STRING: fprintf(out, "%%s"); break;
+            case TIPO_BOOL:   fprintf(out, "%%d"); break;
             default:          fprintf(out, "<?>"); break;
         }
         
@@ -478,7 +555,16 @@ void gerarPrint(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
         NoAST* arg_node = current->esquerda;
         fprintf(out, ", ");
 
-        gerar_codigo_c(arg_node, out, tabela);
+        if(arg_node->tipo == TIPO_CHAMADA_DE_FUNCAO)
+        {
+            fprintf(out, "%s(", arg_node->nome);
+            gerar_parametros(arg_node->esquerda, out, tabela);
+            fprintf(out, ")");
+        }
+        else
+        {
+            gerar_codigo_c(arg_node, out, tabela);
+        }
         current = current->direita;
     }
     
@@ -553,6 +639,8 @@ const char* inferir_tipo_retorno(NoAST* corpo_funcao, TabelaSimbolos* tabela) {
             return "float";
         case TIPO_STRING:
             return "char*";
+        case TIPO_BOOL:
+            return "bool";
         default:
             return "void"; 
     }
@@ -576,21 +664,17 @@ void verificar_necessidade_concatenar(NoAST* node) {
     verificar_necessidade_concatenar(node->direita);
 }
 
-    // switch (node->tipo) {
-    //         case TIPO_OP:
-    //             fprintf(out, "printf(\"");
-    //             fprintf(out, "%%f\\n\",(float)");
-    //             gerar_codigo_c(node->esquerda, out, tabela);
-    //             fprintf(out, "); \n");
-    //             break;
-    //         case TIPO_OPCOMP:     
-    //             fprintf(out, "%%s"); 
-    //             break;
-    //         case TIPO_STRING:
-    //             fprintf(out, "printf(%s);\n", argumentos[i]->valor_string);
-    //             break;
-    //         case TIPO_ID:
-    //             fprintf(out, "printf(\"");
-                
-    //             break;
-    //         default:  break;
+void alterar_tipagem(char* nome_funcao, TabelaSimbolos* tabela, NoAST* no_da_funcao)
+{
+    Simbolo *s = buscar_simbolo(tabela, nome_funcao);
+
+    if((s) && (strcmp(s->tipo, "funcao") == 0))
+    {
+        const char* tipagem_de_retorno = inferir_tipo_retorno(no_da_funcao->direita, tabela);
+        
+        //Atribuir
+        strcpy(s->tipo_simbolo, tipagem_de_retorno);
+    }
+
+    return;
+}

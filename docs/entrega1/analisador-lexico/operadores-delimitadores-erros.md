@@ -2,9 +2,7 @@
 
 ##  Tokens
 
-Neste compilador, foram considerados operadores aritméticos básicos (`+`, `-`, `*`, `/`), operadores relacionais (`==`, `!=`, `<`, `<=`, `>`, `>=`) e delimitadores como `parênteses`, `colchetes` e `chaves`. A escolha desses elementos foi baseada na linguagem escolhida e suas possibilidades.
-
-A Tabela 1 abaixo contém os tokens referentes a operadores aritméticos, operadores relacionais e delimitadores utilizados no compilador, além de suas expressões regulares e descrições.
+Neste compilador, foram considerados operadores aritméticos, relacionais, de atribuição e delimitadores de escopo. A escolha desses elementos foi baseada nas construções comuns da linguagem Python. A Tabela 1 abaixo detalha os tokens gerados para cada um desses elementos.
 
 <br>
 
@@ -128,6 +126,18 @@ A Tabela 1 abaixo contém os tokens referentes a operadores aritméticos, operad
       <td>--</td>
       <td>Token usado para comparar a diferença entre dois valores</td>
     </tr>
+     <tr>
+      <td>PLUSEQ</td>
+      <td><code>&quot;+=&quot;</code></td>
+      <td>--</td>
+      <td>Token para o operador de atribuição de soma.</td>
+    </tr>
+     <tr>
+      <td>MINUSEQ</td>
+      <td><code>&quot;-=&quot;</code></td>
+      <td>--</td>
+      <td> Token para o operador de atribuição de subtração.</td>
+    </tr>
     <tr>
       <td>LESSER</td>
       <td><code>&quot;<&quot;</code></td>
@@ -159,101 +169,109 @@ A Tabela 1 abaixo contém os tokens referentes a operadores aritméticos, operad
 
 </center>
 
-## Decisões técnicas
 
-Durante a implementação dos operadores, delimitadores e do tratamento de erros no analisador léxico, algumas decisões específicas foram tomadas para garantir tanto o funcionamento correto do compilador quanto uma experiência mais clara para quem estivesse depurando o código, como é possível ver presentes em todas as linguagens nos tratamentos de erros.
 
-- Operadores e Delimitadores
+Com certeza\! Analisei a seção "Operadores, Delimitadores e Erros" e comparei com seu `lexer.l` atual.
 
-A escolha por separar cada operador e delimitador em uma linha distinta no arquivo `lexer.l` foi feita com o objetivo de tornar o código mais organizado e direto, evitando ambiguidade entre símbolos parecidos (como `=` e `==`, ou `<` e `<=`). Essa abordagem também facilitou o mapeamento de cada símbolo para seu respectivo token, diretamente reconhecido pelo analisador sintático (`parser.y`).
+A boa notícia é que a maior parte da documentação está correta. As principais atualizações necessárias são:
 
-Além disso, foram incluídos delimitadores como `parênteses`, `colchetes` e `chaves`, bem como operadores matemáticos (`+`, `-`, `*`, `/`, `%`) e operadores relacionais (`==`, `!=`, `<=`, `>=`, `<`, `>`), permitindo que expressões mais completas fossem avaliadas diretamente pelo parser, que retorna o valor da operação como uma forma simples de interpretar e testar a sintaxe do código.
+1.  **Tabela de Tokens Incompleta:** Faltam os operadores de atribuição composta (`+=`, `-=`) que existem no seu código. Além disso, há um pequeno erro de digitação na expressão regular de um dos operadores.
+2.  **Tratamento de Erros Desatualizado:** A sua documentação descreve um sistema de tratamento de erros que retorna um token `ERROR` e usa uma variável global `linha`. Seu código atual é mais simples: ele apenas imprime o "Caractere inválido" e continua, usando a variável `yylineno` (que é automática do Flex).
+3.  **Inconsistência no Código de Exemplo:** O trecho de código na seção "Decisões Técnicas" está diferente do seu arquivo `lexer.l` real (usa `EQUAL` em vez de `ASSIGN`).
 
-```python    
-"("             { return LPAREN; }
-")"             { return RPAREN; }
-"["             { return LBRACKET; }
-"]"             { return RBRACKET; }
-"{"             { return LBRACE; }
-"}"             { return RBRACE; }
-":"             { return COLON; }
-","             { return COMMA; }
-"."             { return DOT; }
-";"             { return SEMICOLON; }
+Preparei a seção inteira com as correções e atualizações. Assim como da última vez, o mais fácil e seguro é **substituir toda a seção**, desde o título `# Operadores, Delimitadores e Erros` até o final do histórico de versões dela.
 
-"=="            { return EQTO; }
-"!="            { return NOTEQTO; }
-"<="            { return LESSEQ; }
-">="            { return GREATEQ; }
-"<"             { return LESSER; }
-">"             { return GREATER; }
+-----
 
-"="             { return EQUAL; }  
-"+"             { return PLUS; }
-"-"             { return MINUS; }
-"*"             { return TIMES; }
-"/"             { return DIVIDE; }
-"%"             { return MODULO; }
+### **Documentação Atualizada**
+
+# Operadores, Delimitadores e Erros
+
+## Tokens
+
+Neste compilador, foram considerados operadores aritméticos, relacionais, de atribuição e delimitadores de escopo. A escolha desses elementos foi baseada nas construções comuns da linguagem Python. A Tabela 1 abaixo detalha os tokens gerados para cada um desses elementos.
+
+\<br\>
+
+\<center\>
+
+| Token | Expressão regular correspondente | Campo yyval | Descrição |
+| :--- | :--- | :--- | :--- |
+| `PLUS` | `"+"` | -- | Token para o operador de soma. |
+| `MINUS` | `"-"` | -- | Token para o operador de subtração. |
+| `TIMES` | `"*"` | -- | Token para o operador de multiplicação. |
+| `DIVIDE` | `"/"` | -- | Token para o operador de divisão. |
+| `MODULO` | `"%"` | -- | Token para o operador de módulo (resto da divisão). |
+| `ASSIGN` | `"="` | -- | Token para o operador de atribuição simples. |
+| `PLUSEQ` | `"+="` | -- | Token para o operador de atribuição de soma. |
+| `MINUSEQ` | `"-="` | -- | Token para o operador de atribuição de subtração. |
+| `EQTO` | `"=="` | -- | Token para o operador relacional de igualdade. |
+| `NOTEQTO` | `"!="` | -- | Token para o operador relacional de diferença. |
+| `LESSER` | `"<"` | -- | Token para o operador relacional "menor que". |
+| `GREATER` | `">"` | -- | Token para o operador relacional "maior que". |
+| `LESSEQ` | `"<="` | -- | Token para o operador relacional "menor ou igual a". |
+| `GREATEQ` | `">="` | -- | Token para o operador relacional "maior ou igual a". |
+| `LPAREN` | `"("` | -- | Delimitador: abre parênteses. |
+| `RPAREN` | `")"` | -- | Delimitador: fecha parênteses. |
+| `LBRACKET`| `"["` | -- | Delimitador: abre colchetes. |
+| `RBRACKET`| `"]"` | -- | Delimitador: fecha colchetes. |
+| `LBRACE` | `"{` | -- | Delimitador: abre chaves. |
+| `RBRACE` | `"}"` | -- | Delimitador: fecha chaves. |
+| `COLON` | `":"` | -- | Delimitador: dois pontos, usado em `if`, `def`, etc. |
+| `COMMA` | `","` | -- | Delimitador: vírgula, usada para separar itens. |
+| `DOT` | `"."` | -- | Delimitador: ponto, usado para acesso a atributos. |
+| `SEMICOLON`| `";"` | -- | Delimitador: ponto e vírgula. |
+
+\<p align="center"\>\<em\>Tabela 1: Tokens de operadores e delimitadores. (Fonte: \<a href="[https://github.com/brunna-martins](https://github.com/brunna-martins)"\>Brunna Louise\</a\>, 2025)\</em\>\</p\>
+
+\</center\>
+
+## Decisões Técnicas
+
+### Ordem das Regras de Operadores
+
+Durante a implementação, foi crucial ordenar as regras para que os operadores compostos (como `==`, `+=`, `<=`) aparecessem **antes** de seus componentes simples (`=`, `+`, `<`). Como o Flex adota a estratégia de "maior casamento" (longest match), essa ordenação garante que `+=` seja reconhecido como um único token `PLUSEQ`, em vez de um `PLUS` seguido por um `ASSIGN`.
+
+```c
+// Correto: operador composto primeiro
+"=="      { return EQTO; }
+"="       { return ASSIGN; }
+
+// Incorreto: "=" seria reconhecido antes de "=="
+// "="       { return ASSIGN; } 
+// "=="      { return EQTO; }
 ```
 
-- Tratamento de Erros
+### Tratamento de Erros Léxicos
 
-Para o tratamento de erros léxicos, optou-se por capturar qualquer caractere não reconhecido com o ponto `.` no final das regras do `lexer.l`. Quando isso ocorre, uma mensagem é impressa informando o caractere inválido e a linha em que ele se encontra, utilizando uma variável global.
+Para o tratamento de erros, foi adotada uma abordagem simples e direta. Uma regra "pega-tudo" (`.`) foi posicionada ao final do arquivo de regras do lexer.
 
-Essa variável é incrementada a cada ocorrência de `\n` lida pelo analisador léxico, permitindo acompanhar corretamente a posição no código-fonte. Essa decisão foi essencial para fornecer feedback útil durante testes manuais diversos, especialmente para identificar erros simples como símbolos inválidos ou digitados incorretamente.
-
-O token `ERROR` também foi retornado nesses casos, permitindo que o parser pudesse reconhecer e tratar essas situações sem interromper a execução.
-
-```python
-LEXER
-
-\n              { linha++; return '\n'; }  
-[ \t\r]+        { /* ignorar */ }
-.               { printf("Caractere inválido: %s na linha %d\n", yytext, linha); return ERROR; }
+```c
+// Regra no final de lexer.l
+.         { printf("Caractere inválido: %s\n", yytext); }
 ```
 
-```python
-PARSER
+Qualquer caractere no código-fonte que não case com nenhuma das regras de tokens definidas anteriormente (palavras-chave, identificadores, números, operadores, etc.) será capturado por esta regra.
 
-void yyerror(const char *s) {
-    fprintf(stderr, "Erro sintático na linha: %d: %s\n", linha, s);
-}
-```
-
-- Testes Realizados
-
-Os testes foram feitos com expressões variadas, combinando operadores aritméticos, relacionais e agrupamentos com delimitadores. Além disso, foram inseridos caracteres inválidos de propósito, como `@`, `!` e `&`, para garantir que o tratamento de erros funcionasse corretamente e as mensagens fossem exibidas com a linha correta.
-
-```python   
-(3 + 4) * [2 - 1]
-{5 % 2} == (3)
-3 + 5 > 2
-(1 + 2) * (3 - 4) / 5
-
-(3 + @)
-3 + * 2
-(4 + 5]
-1 + 2; )
-{ 1 + [ 2 * 3 }
-```
-
-Neste caso, temos as primeiras quatro linhas funcionais testando o analisador, e as posteriores sendo casos que retornarão erro, tipo do erro e a linha em questão.
+A decisão foi **não parar a execução**. Em vez disso, o lexer simplesmente imprime uma mensagem de erro no console, informando qual foi o caractere inválido (`yytext`), e continua a análise do restante do arquivo. Para a numeração da linha, o lexer utiliza a variável `yylineno`, que é mantida e incrementada automaticamente pelo Flex, garantindo precisão na localização do erro sem a necessidade de uma variável global customizada.
 
 ## Desafios Encontrados
 
-Durante a implementação dos operadores, delimitadores e tratamento de erros no analisador léxico, um dos principais desafios foi evitar ambiguidades entre operadores simples e compostos. Como o `Flex` segue uma lógica sequencial, foi necessário organizar regras no `lexer.l` para garantir que os operadores mais longos fossem reconhecidos corretamente antes dos mais curtos, evitando conflitos na análise léxica.
+O principal desafio foi garantir que o tratamento de erros fosse informativo, mas não interrompesse a análise léxica prematuramente. A ideia é permitir que o compilador reporte o máximo de erros léxicos possível em uma única execução, em vez de parar no primeiro.
 
-Houve também a preocupação em garantir que o tratamento de erros não interrompesse o fluxo da análise léxica, deixando que seja rodado por completo para permitir que todos os erros fossem capturados conforme fossem encontrados na execução, seja manual ou com um arquivo de teste.
+Outro ponto de atenção foi a correta definição da precedência dos operadores para evitar ambiguidades, como o caso de `=` vs. `==`.
 
 ## Soluções Adotadas
 
-Para o tratamento de erros, foi implementada uma regra genérica que captura qualquer caractere que não casa com os padrões definidos previamente. Nessa regra, foi inserida uma mensagem descritiva com a indicação do caractere inválido e a linha onde o erro foi identificado. A contagem de linhas foi implementada por meio da detecção de quebras de linha (`\n`) no analisador léxico, e armazenada em uma `variável global linha`, que é incrementada a cada ocorrência de nova linha.
+A solução para a precedência foi a ordenação cuidadosa das regras no arquivo `.l`, conforme mencionado.
 
-Já no `parser.y`, foram definidos tokens específicos para os operadores e delimitadores, assegurando que a análise sintática pudesse utilizá-los corretamente em diferentes expressões aritméticas e lógicas. Para validar o funcionamento da integração léxica e sintática, foram realizados testes manuais utilizando expressões variadas que envolviam diferentes combinações de operadores, parênteses e separadores.
+Para o tratamento de erros, a solução foi a regra `.` no final do arquivo. Ela funciona como um "else" final no reconhecimento de tokens, provendo um feedback imediato sobre caracteres inesperados sem a complexidade de retornar tokens de erro específicos e exigir que o parser os trate, simplificando a lógica geral do compilador nesta fase.
 
 # Histórico de Versões
 |**Data** | **Versão** | **Descrição** | **Autor** | **Revisor** |
 |:---: | :---: | :---: | :---: | :---: |
 | 24/04/2025 | 1.0 | Adiciona tabela de tokens | [Brunna Louise](https://github.com/brunna-martins) | [Mariana Letícia](https://github.com/Marianannn)|
 | 24/04/2025 | 1.1 | Decisões, Desafios e Soluções |[Genilson Junior](https://github.com/GenilsonJrs)| [Mariana Letícia](https://github.com/Marianannn)|
+| 27/06/2025 | 1.2 | Atualização da documentação para refletir o estado atual do código do lexer |[Brunna Louise](https://github.com/brunna-martins)| - |
+
 

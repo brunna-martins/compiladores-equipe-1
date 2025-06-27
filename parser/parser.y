@@ -191,6 +191,9 @@ comp_expr:
   | comp_expr LESSER arith_expr  { $$ = criarNoOp('<', $1, $3); }
   | comp_expr GREATEQ arith_expr { $$ = criarNoOpComposto(">=", $1, $3); }
   | comp_expr LESSEQ arith_expr  { $$ = criarNoOpComposto("<=", $1, $3); }
+  | comp_expr MINUSEQ arith_expr  { $$ = criarNoOpComposto("-=", $1, $3); }
+  | comp_expr PLUSEQ arith_expr  { $$ = criarNoOpComposto("+=", $1, $3); }
+
   | arith_expr                   { $$ = $1; }
 ;
 
@@ -256,29 +259,33 @@ def_stmt:
             inserir_simbolo(escopo_atual, $2, "funcao", "teste");
             printf("Função '%s' inserida na tabela de símbolos!\n", $2);
         }
+
+        alterar_tipagem($$->nome, escopo_atual, $$);
       }
     | DEF ID LPAREN param_list RPAREN COLON block
-{
-    $$ = criarNoFunDef($2, $4, $7);
-
-    Simbolo* s = buscar_simbolo_escopo_atual(escopo_atual, $2);
-    if (!s)
     {
-        inserir_simbolo(escopo_atual, $2, "funcao", "teste");
-        printf("Função '%s' inserida na tabela de símbolos!\n", $2);
-    }
+        $$ = criarNoFunDef($2, $4, $7);
 
-    NoAST* param = $4;
-    while (param) {
-        if (param->tipo == TIPO_PARAM) {
-            if (!buscar_simbolo_escopo_atual(escopo_atual, param->nome)) {
-                inserir_simbolo(escopo_atual, param->nome, "param", "int");
-                printf("Parâmetro '%s' inserido no escopo da função\n", param->nome);
-            }
+        Simbolo* s = buscar_simbolo_escopo_atual(escopo_atual, $2);
+        if (!s)
+        {
+            inserir_simbolo(escopo_atual, $2, "funcao", "teste");
+            printf("Função '%s' inserida na tabela de símbolos!\n", $2);
         }
-        param = param->direita;
+
+        NoAST* param = $4;
+        while (param) {
+            if (param->tipo == TIPO_PARAM) {
+                if (!buscar_simbolo_escopo_atual(escopo_atual, param->nome)) {
+                    inserir_simbolo(escopo_atual, param->nome, "param", "int");
+                    printf("Parâmetro '%s' inserido no escopo da função\n", param->nome);
+                }
+            }
+            param = param->direita;
+        }
+
+        alterar_tipagem($$->nome, escopo_atual, $$);
     }
-}
   ;
 
 while_statement:

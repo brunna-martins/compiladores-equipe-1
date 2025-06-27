@@ -26,6 +26,12 @@ void destruir_tabela(TabelaSimbolos* tabela) {
             atual = atual->proximo;
             free(temp->nome);
             free(temp->tipo);
+            free(temp->tipo_simbolo);
+
+             if (temp->tipo_retorno_funcao) { 
+                free(temp->tipo_retorno_funcao);
+            }
+
             free(temp);
         }
     }
@@ -49,6 +55,10 @@ int inserir_simbolo(TabelaSimbolos* tabela, const char* nome, const char* tipo, 
     novo->nome = strdup(nome);
     novo->tipo = strdup(tipo);
     novo->tipo_simbolo = strdup(tipo_simbolo);
+
+    novo->foi_traduzido = false;
+    novo->tipo_retorno_funcao = NULL;
+
     novo->proximo = tabela->tabela[indice];
     tabela->tabela[indice] = novo;
     return 1;
@@ -95,6 +105,12 @@ int remover_simbolo(TabelaSimbolos* tabela, const char* nome) {
                 anterior->proximo = atual->proximo;
             free(atual->nome);
             free(atual->tipo);
+            free(atual->tipo_simbolo);
+
+            if (atual->tipo_retorno_funcao) {
+                free(atual->tipo_retorno_funcao);
+            }
+            
             free(atual);
             return 1;
         }
@@ -135,7 +151,7 @@ void imprimir_tabela(TabelaSimbolos* tabela) {
         for (int i = 0; i < TAM_TABELA; i++) {
             Simbolo* s = atual->tabela[i];
             while (s != NULL) {
-                printf("Nome: %-15s Tipo: %s Tipo de Símbolo: %s\n", s->nome, s->tipo, s->tipo_simbolo);
+                printf("Nome: %-15s Tipo: %-15s Tipagem do Símbolo: %s\n", s->nome, s->tipo, s->tipo_simbolo);
                 s = s->proximo;
             }
         }

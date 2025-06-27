@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../tabela_simbolos.h" 
-
+#include "../gerarcodigo.h"
 
 // Declare a variável global escopo_atual como extern
 #include "../parser.tab.h"
@@ -21,9 +21,11 @@ int main(void) {
     if (status == 0) 
     {
         printf("\n---- AST gerada -------------------\n\n");
-        imprimirASTBonita(raiz, "", 1);
+        imprimirASTBonita(raiz, "", 1, escopo_atual);
         printf("\n-------------------------------------\n\n");
         imprimir_tabela(escopo_atual);
+        verificar_necessidade_concatenar(raiz);
+        gerar_programa_c(raiz, "output.c", escopo_atual);
     } 
     else 
     {

@@ -1,3 +1,8 @@
+/*
+======================== TESTES PARA TABELA DE SÍMBOLOS ========================
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,11 +45,11 @@ void teste_insercao_simbolos() {
     TabelaSimbolos* tabela = criar_tabela();
     
     if (tabela) {
-        int resultado = inserir_simbolo(tabela, "variavel1", "int");
+        int resultado = inserir_simbolo(tabela, "variavel1", "int", ";");
         teste_assert(resultado == 1, "Inserção de símbolo retorna sucesso");
         
-        inserir_simbolo(tabela, "variavel2", "float");
-        inserir_simbolo(tabela, "funcao1", "function");
+        inserir_simbolo(tabela, "variavel2", "float", ";");
+        inserir_simbolo(tabela, "funcao1", "function", ";");
         
         destruir_tabela(tabela);
     }
@@ -56,8 +61,8 @@ void teste_busca_simbolos() {
     TabelaSimbolos* tabela = criar_tabela();
     
     if (tabela) {
-        inserir_simbolo(tabela, "x", "int");
-        inserir_simbolo(tabela, "y", "float");
+        inserir_simbolo(tabela, "x", "int", ";");
+        inserir_simbolo(tabela, "y", "float", ";");
         
         // Teste busca existente
         Simbolo* simbolo = buscar_simbolo(tabela, "x");
@@ -82,8 +87,8 @@ void teste_remocao_simbolos() {
     TabelaSimbolos* tabela = criar_tabela();
     
     if (tabela) {
-        inserir_simbolo(tabela, "temp1", "int");
-        inserir_simbolo(tabela, "temp2", "float");
+        inserir_simbolo(tabela, "temp1", "int", ";");
+        inserir_simbolo(tabela, "temp2", "float", ";");
         
         int resultado = remover_simbolo(tabela, "temp2");
         teste_assert(resultado == 1, "Remoção de símbolo existente retorna sucesso");
@@ -96,13 +101,75 @@ void teste_remocao_simbolos() {
     }
 }
 
+void teste_tipos(){
+    printf(AZUL "\n=== Testando Tipos ===" RESET "\n");
+
+    TabelaSimbolos* tabela = criar_tabela();
+    if(tabela){
+        inserir_simbolo(tabela, "a", "int", "int");
+        inserir_simbolo(tabela, "b", "int", "int");
+        
+        Simbolo* simbolo_a = buscar_simbolo(tabela, "a");
+        Simbolo* simbolo_b = buscar_simbolo(tabela, "b");
+
+        teste_assert(simbolo_a != NULL, "Simbolo não nulo");
+
+        int tipos_sao_iguais = strcmp("int", simbolo_a->tipo) == 0;
+        
+        teste_assert(tipos_sao_iguais, "tipo correto aferido");
+        destruir_tabela(tabela);
+    }
+}
+
+void teste_soma_int_str() {
+     printf(AZUL "\n=== Testando soma de inteiro com string ===" RESET "\n");
+
+    TabelaSimbolos* tabela = criar_tabela();
+
+    if(tabela){
+        inserir_simbolo(tabela, "g", "int", "");
+        inserir_simbolo(tabela, "h", "string", "");
+    
+        Simbolo* s1 = buscar_simbolo(tabela, "g");
+        Simbolo* s2 = buscar_simbolo(tabela, "h");
+    
+        int tipos_sao_iguais = strcmp(s1->tipo, s2->tipo) == 0;
+    
+        teste_assert(!tipos_sao_iguais, "Erro de tipo ao somar int com string");
+    
+        destruir_tabela(tabela);
+    }
+}
+
+void teste_soma_float_str() {
+     printf(AZUL "\n=== Testando soma de float com string ===" RESET "\n");
+
+    TabelaSimbolos* tabela = criar_tabela();
+    if(tabela){
+        inserir_simbolo(tabela, "g", "float", "");
+        inserir_simbolo(tabela, "h", "string", "");
+    
+        Simbolo* s1 = buscar_simbolo(tabela, "g");
+        Simbolo* s2 = buscar_simbolo(tabela, "h");
+    
+        int tipos_sao_iguais = strcmp(s1->tipo, s2->tipo) == 0;
+    
+        teste_assert(!tipos_sao_iguais, "Erro de tipo ao somar int com string");
+    
+        destruir_tabela(tabela);
+
+    }
+
+}
+
+
 void teste_escopos() {
     printf(AZUL "\n=== Testando Escopos ===" RESET "\n");
     
     TabelaSimbolos* global = criar_tabela();
     
     if (global) {
-        inserir_simbolo(global, "global_var", "int");
+        inserir_simbolo(global, "global_var", "int", ";");
         
         // Criar escopo local
         TabelaSimbolos* local = empilhar_escopo(global);
@@ -111,7 +178,7 @@ void teste_escopos() {
         if (local) {
             teste_assert(local->anterior == global, "Escopo local aponta para global");
             
-            inserir_simbolo(local, "local_var", "float");
+            inserir_simbolo(local, "local_var", "float", ";");
             
             // Teste busca em escopo aninhado
             Simbolo* simbolo = buscar_simbolo(local, "global_var");
@@ -133,6 +200,74 @@ void teste_escopos() {
     }
 }
 
+void teste_x_em_dois_escopos_diferentes() {
+    // Cria a tabela global
+    TabelaSimbolos* tabela_global = criar_tabela();
+
+    // Insere x = 1 no escopo global (tipo int)
+    inserir_simbolo(tabela_global, "x", "int", "variavel");
+
+    // Cria a tabela do escopo da função, ligada à global
+    TabelaSimbolos* escopo_funcao = criar_tabela();
+    escopo_funcao->anterior = tabela_global;
+
+    // Insere x = "oi" no escopo da função (tipo str)
+    inserir_simbolo(escopo_funcao, "x", "str", "variavel");
+
+    // Busca x em cada escopo separadamente
+    Simbolo* x_global = buscar_simbolo(tabela_global, "x");
+    Simbolo* x_local = buscar_simbolo_no_escopo_atual(escopo_funcao, "x");
+
+    // Validações
+    teste_assert(x_global != NULL, "x global foi encontrado");
+    teste_assert(x_local != NULL, "x local foi encontrado");
+
+    teste_assert(strcmp(x_global->tipo, "int") == 0, "x global é do tipo int");
+    teste_assert(strcmp(x_local->tipo, "str") == 0, "x local é do tipo str");
+
+    // Libera memória (opcional, se você quiser fazer certo até o fim)
+    destruir_tabela(escopo_funcao);
+    destruir_tabela(tabela_global);
+}
+
+void teste_variavel_nao_declarada(){
+    printf(AZUL "\n=== Testando variaveis não declaráveis ===" RESET "\n");
+    TabelaSimbolos* tabela = criar_tabela();
+
+    if(tabela){
+        tabela->anterior = NULL;
+    
+        Simbolo* x = buscar_simbolo(tabela, "x");
+    
+        teste_assert(x == NULL, "Uso de variável não declarada corretamente detectada");
+        destruir_tabela(tabela);
+    }
+
+}
+
+
+void teste_redeclaracao_variavel(){
+    printf(AZUL "\n=== Testando Redeclaração de variável ===" RESET "\n");
+    TabelaSimbolos* tabela = criar_tabela();
+
+    if(tabela){
+        inserir_simbolo(tabela, "a", "string", "");
+        Simbolo* simbolo_a = buscar_simbolo(tabela, "a");
+        inserir_simbolo(tabela, "a", "int", "");
+
+        
+        simbolo_a = buscar_simbolo(tabela, "a");
+
+        int tipos_sao_iguais = strcmp(simbolo_a->tipo, "string") == 0;
+
+        teste_assert(tipos_sao_iguais, "atualização de tipo da variavel");
+
+        destruir_tabela(tabela);
+        
+    }
+
+}
+
 void teste_casos_basicos() {
     printf(AZUL "\n=== Testando Casos Básicos ===" RESET "\n");
     
@@ -140,12 +275,12 @@ void teste_casos_basicos() {
     
     if (tabela) {
         // Teste com string vazia
-        inserir_simbolo(tabela, "", "empty");
+        inserir_simbolo(tabela, "", "empty", ";");
         Simbolo* simbolo = buscar_simbolo(tabela, "");
         teste_assert(simbolo != NULL, "Inserção e busca de string vazia funciona");
         
         // Teste com nome comum
-        inserir_simbolo(tabela, "var_test_123", "special");
+        inserir_simbolo(tabela, "var_test_123", "special", ";");
         simbolo = buscar_simbolo(tabela, "var_test_123");
         teste_assert(simbolo != NULL, "Inserção com nome comum funciona");
         
@@ -166,7 +301,13 @@ int main() {
     teste_insercao_simbolos();
     teste_busca_simbolos();
     teste_remocao_simbolos();
+    teste_tipos();
+    teste_soma_int_str();
+    teste_soma_float_str();
+    teste_redeclaracao_variavel();
     teste_escopos();
+    teste_x_em_dois_escopos_diferentes();
+    teste_variavel_nao_declarada();
     teste_casos_basicos();
     
     printf(AZUL "\n=================================================================" RESET "\n");

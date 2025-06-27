@@ -5,6 +5,16 @@
 #include "tabela_simbolos.h"
 #include "gerarcodigo.h"
 
+NoAST* criarNoFuncCall(char *nome_funcao, NoAST *args) {
+    NoAST* no = malloc(sizeof(NoAST));
+    no->tipo = TIPO_CHAMADA_FUNCAO;
+    strncpy(no->nome, nome_funcao, sizeof(no->nome));
+    no->esquerda = args;  // lista de argumentos
+    no->direita = NULL;
+    no->meio = NULL;
+    return no;
+}
+
 NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir) {
     NoAST *no = malloc(sizeof(NoAST));
     no->operador = op;
@@ -123,6 +133,7 @@ NoAST *criarNoFuncPrint(NoAST *params)
 {
     NoAST *no = malloc(sizeof(NoAST));
     no->esquerda = params;
+    no->palavra_chave = strdup("print");
     no->direita = NULL;
     no->tipo = TIPO_PRINT;
     return no;

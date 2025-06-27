@@ -10,5 +10,5 @@ def somar(a, b):
 
 resultado1 = dobrar(5)
 resultado2 = somar(10, 20)
-resultado3 = dobrar(somar(3, 4))
+resultado3 = dobrar(somar(3+1, 4))
 print(dobrar(resultado1))

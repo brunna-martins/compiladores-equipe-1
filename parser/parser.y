@@ -220,7 +220,7 @@ factor:
             $$ = criarNoNumFloat($1.valor.f);
     }
   | ID LPAREN RPAREN         { $$ = criarNoChamadaFuncao($1, NULL); }
-  | ID LPAREN param_list RPAREN { $$ = criarNoChamadaFuncao($1, $3); }
+  | ID LPAREN arg_list RPAREN { $$ = criarNoChamadaFuncao($1, $3); }
   | ID                       { $$ = criarNoId($1); }
   | TRUE                     { $$ = criarNoPalavraChave("True"); }
   | FALSE                    { $$ = criarNoPalavraChave("False"); }

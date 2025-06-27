@@ -7,7 +7,7 @@
 
 NoAST* criarNoFuncCall(char *nome_funcao, NoAST *args) {
     NoAST* no = malloc(sizeof(NoAST));
-    no->tipo = TIPO_CHAMADA_FUNCAO;
+    no->tipo = TIPO_CHAMADA_DE_FUNCAO;
     strncpy(no->nome, nome_funcao, sizeof(no->nome));
     no->esquerda = args;  // lista de argumentos
     no->direita = NULL;

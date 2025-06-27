@@ -1,17 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../tabela_simbolos.h" 
-
+#include "../gerarcodigo.h"
 
 // Declare a variável global escopo_atual como extern
-extern TabelaSimbolos* escopo_atual;
 #include "../parser.tab.h"
 #include "../ast.h"
 
 int yyparse(void);
 
-// Declarada no parser.y
-//extern int yyparse(void);
+// Declaradas no parser.y
+extern TabelaSimbolos* escopo_atual;
 extern NoAST *raiz;
 
 int main(void) {
@@ -24,6 +23,9 @@ int main(void) {
         printf("\n---- AST gerada -------------------\n\n");
         imprimirASTBonita(raiz, "", 1);
         printf("\n-------------------------------------\n\n");
+        imprimir_tabela(escopo_atual);
+        verificar_necessidade_concatenar(raiz);
+        gerar_programa_c(raiz, "output.c", escopo_atual);
     } 
     else 
     {

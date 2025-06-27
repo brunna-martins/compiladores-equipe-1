@@ -2,6 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ast.h"
+#include "tabela_simbolos.h"
+#include "gerarcodigo.h"
+
+NoAST* criarNoFuncCall(char *nome_funcao, NoAST *args) {
+    NoAST* no = malloc(sizeof(NoAST));
+    no->tipo = TIPO_CHAMADA_DE_FUNCAO;
+    strncpy(no->nome, nome_funcao, sizeof(no->nome));
+    no->esquerda = args;  // lista de argumentos
+    no->direita = NULL;
+    no->meio = NULL;
+    return no;
+}
 
 NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir) {
     NoAST *no = malloc(sizeof(NoAST));
@@ -10,6 +22,17 @@ NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir) {
     no->direita = dir;
     no->meio = NULL;
     no->tipo = TIPO_OP;
+    return no;
+}
+
+NoAST *criarNoOpComposto(char *operador, NoAST *esquerda, NoAST *direita)
+{
+    NoAST *no = malloc(sizeof(NoAST));
+    strcpy(no->operadorComp, operador);
+    no->tipo = TIPO_OPCOMP;
+    no->esquerda = esquerda;
+    no->direita = direita;
+    no->meio = NULL;
     return no;
 }
 
@@ -40,11 +63,11 @@ NoAST *criarNoString(char *valor_string) {
     return no;
 }
 
-NoAST *criarNoId(char *nome, Tipo tipo) {
+NoAST *criarNoId(char *nome) {
     NoAST *no = malloc(sizeof(NoAST));
     strcpy(no->nome, nome);
     no->operador = 0;
-    no->tipo = tipo;
+    no->tipo = TIPO_ID;
     no->esquerda = no->direita = no->meio = NULL;
     return no;
 }
@@ -89,9 +112,31 @@ NoAST *criarNoFunDef(char *nome, NoAST *params, NoAST *body) {
     n->delimitador  = 0;
     n->palavra_chave= NULL;
     n->esquerda     = params;         /* lista de params */
-    n->meio         = body;           /* corpo (stmt_list) */
-    n->direita      = NULL;           /* próximo statement no escopo */
+    n->meio         = NULL;           /* corpo (stmt_list) */
+    n->direita      = body;           /* próximo statement no escopo */
     return n;
+}
+
+NoAST *criarNoChamadaFuncao(char *nome, NoAST *params)
+{
+    NoAST* no = malloc(sizeof(NoAST));
+    strncpy(no->nome, nome, 31);
+    no->nome[31] = '\0';
+    no->operador = 0;
+    no->esquerda = params;
+    no->direita = NULL;
+    no->tipo = TIPO_CHAMADA_DE_FUNCAO;
+    return no;
+}
+
+NoAST *criarNoFuncPrint(NoAST *params)
+{
+    NoAST *no = malloc(sizeof(NoAST));
+    no->esquerda = params;
+    no->palavra_chave = strdup("print");
+    no->direita = NULL;
+    no->tipo = TIPO_PRINT;
+    return no;
 }
 
 NoAST *criarParam(char *nome) {
@@ -142,31 +187,49 @@ NoAST* criarNoElse(NoAST *corpo) {
     return no;
 }
 
-NoAST* criarNoSeq(NoAST *primeiro, NoAST *segundo) {
-    NoAST *no = (NoAST*) malloc(sizeof(NoAST));
-    no->tipo = TIPO_OP;
-    no->operador = ';';
-    no->esquerda = primeiro;
-    no->direita = segundo;
-    no->meio = NULL;
+NoAST* criarNoSeq(NoAST* esq, NoAST* dir) {
+    NoAST* no = malloc(sizeof(NoAST));
+    no->tipo = TIPO_SEQUENCIA;
+    no->esquerda = esq;
+    no->direita = dir;
     return no;
 }
 
+NoAST* criarNoPrint(NoAST* args) {
+    NoAST* node = (NoAST*)malloc(sizeof(NoAST));
+    node->tipo = TIPO_PRINT;
+    node->esquerda = args; // Lista de argumentos
+    node->direita = NULL;
+    return node;
+}
 
-// void imprimirAST(NoAST *no) {
-//     if (!no) return;
-//     if (no->operador) {
-//         printf("(");
-//         imprimirAST(no->esquerda);
-//         printf(" %c ", no->operador);
-//         imprimirAST(no->direita);
-//         printf(")");
-//     } else if (strlen(no->nome) > 0) {
-//         printf("%s", no->nome);
-//     } else {
-//         printf("%d", no->valor);
-//     }
-// }
+NoAST* criarNoArgList(NoAST* first_arg) {
+    NoAST* node = (NoAST*)malloc(sizeof(NoAST));
+    node->tipo = TIPO_ARG_LIST;
+    node->esquerda = first_arg; // Primeiro argumento
+    node->direita = NULL; // Próximos argumentos vão na lista
+    return node;
+}
+
+NoAST* appendArgList(NoAST* list, NoAST* new_arg) {
+    if (!list) return criarNoArgList(new_arg);
+    
+    NoAST* last = list;
+    while (last->direita) {
+        last = last->direita;
+    }
+    last->direita = criarNoArgList(new_arg);
+    return list;
+}
+
+NoAST* criarNoOpLogico(char* op, NoAST* esquerda, NoAST* direita) {
+    NoAST* no = malloc(sizeof(NoAST));
+    no->tipo = TIPO_LOGICO;
+    strcpy(no->nome, op);
+    no->esquerda = esquerda;
+    no->direita = direita;
+    return no;
+}
 
 void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
     if (!no) return;
@@ -204,8 +267,26 @@ void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
         case TIPO_OP:
             printf("Operador: %c\n", no->operador);
             break;
+        case TIPO_OPCOMP:
+            printf("Operador: %s\n", no->operadorComp);
+            break;
         case TIPO_ERRO:
             printf("AAAAAA!\n");
+            break;
+        case TIPO_SEQUENCIA:
+            printf("Nó sequência: 🪢\n");
+            break; 
+        case TIPO_PRINT:
+            printf("PRINT\n");
+            break;
+        case TIPO_CHAMADA_DE_FUNCAO:
+            printf("Chamada_função: %s\n", no->nome);
+            break;
+        case TIPO_ARG_LIST:
+            printf("ARG_LIST \n");
+            break;
+        case TIPO_LOGICO:
+            printf("Operador Lógico: %s\n", no->nome);
             break;
         default:
             if (no->operador)

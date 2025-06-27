@@ -26,17 +26,39 @@ void destruir_tabela(TabelaSimbolos* tabela) {
             atual = atual->proximo;
             free(temp->nome);
             free(temp->tipo);
+            free(temp->tipo_simbolo);
+
+             if (temp->tipo_retorno_funcao) { 
+                free(temp->tipo_retorno_funcao);
+            }
+
             free(temp);
         }
     }
     free(tabela);
 }
 
-int inserir_simbolo(TabelaSimbolos* tabela, const char* nome, const char* tipo) {
+int inserir_simbolo(TabelaSimbolos* tabela, const char* nome, const char* tipo, const char* tipo_simbolo) {
     unsigned int indice = hash(nome);
+    Simbolo* simbolo_atual = buscar_simbolo_no_escopo_atual(tabela, nome);
+
+    if (simbolo_atual != NULL) {
+        if (strcmp(simbolo_atual->tipo, tipo) != 0) {
+            printf("Erro: variável '%s' já declarada com tipo '%s'. Tentativa de redeclaração com tipo '%s'.\n",
+                   nome, simbolo_atual->tipo, tipo);
+            return 0;
+        }
+        return 1;
+    }
+
     Simbolo* novo = (Simbolo*)malloc(sizeof(Simbolo));
     novo->nome = strdup(nome);
     novo->tipo = strdup(tipo);
+    novo->tipo_simbolo = strdup(tipo_simbolo);
+
+    novo->foi_traduzido = false;
+    novo->tipo_retorno_funcao = NULL;
+
     novo->proximo = tabela->tabela[indice];
     tabela->tabela[indice] = novo;
     return 1;
@@ -58,6 +80,19 @@ Simbolo* buscar_simbolo(TabelaSimbolos* tabela, const char* nome) {
     return NULL;
 }
 
+Simbolo* buscar_simbolo_no_escopo_atual(TabelaSimbolos* tabela, const char* nome) {
+    unsigned int indice = hash(nome);
+    Simbolo* s = tabela->tabela[indice];
+    while (s != NULL) {
+        if (strcmp(s->nome, nome) == 0) {
+            return s;
+        }
+        s = s->proximo;
+    }
+    return NULL;
+}
+
+
 int remover_simbolo(TabelaSimbolos* tabela, const char* nome) {
     unsigned int indice = hash(nome);
     Simbolo* atual = tabela->tabela[indice];
@@ -70,6 +105,12 @@ int remover_simbolo(TabelaSimbolos* tabela, const char* nome) {
                 anterior->proximo = atual->proximo;
             free(atual->nome);
             free(atual->tipo);
+            free(atual->tipo_simbolo);
+
+            if (atual->tipo_retorno_funcao) {
+                free(atual->tipo_retorno_funcao);
+            }
+            
             free(atual);
             return 1;
         }
@@ -96,4 +137,28 @@ TabelaSimbolos* desempilhar_escopo(TabelaSimbolos* atual) {
     }
     
     return anterior;
+}
+
+void imprimir_tabela(TabelaSimbolos* tabela) {
+    int escopo = 0;
+    TabelaSimbolos* atual = tabela;
+
+    printf("\n=== TABELA DE SÍMBOLOS ===\n");
+
+    while (atual != NULL) {
+        printf("\n--- Escopo %d ---\n", escopo);
+
+        for (int i = 0; i < TAM_TABELA; i++) {
+            Simbolo* s = atual->tabela[i];
+            while (s != NULL) {
+                printf("Nome: %-15s Tipo: %-15s Tipagem do Símbolo: %s\n", s->nome, s->tipo, s->tipo_simbolo);
+                s = s->proximo;
+            }
+        }
+
+        atual = atual->anterior;
+        escopo++;
+    }
+
+    printf("==========================\n");
 }

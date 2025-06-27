@@ -23,6 +23,7 @@ nav:
       - Identifidores e Palavras-chave: entrega1/analisador-lexico/identificadores-palavras-chave.md
       - Literais e Comentários: entrega1/analisador-lexico/literais-comentarios.md
       - Operadores, Delimitadores e erros: entrega1/analisador-lexico/operadores-delimitadores-erros.md
+      - Controle de Identação: entrega1/analisador-lexico/controle-identacao.md
   - Entrega 2:
     - Árvore Sintática: entrega2/arvore-sintatica.md
     - Tabela de Símbolos: entrega2/tabela-simbolos.md    

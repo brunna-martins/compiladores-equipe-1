@@ -1,8 +1,8 @@
 name: Nova História de Usuário
-description: Registre uma nova história de usuário no projeto de compiladores, grupo 1.
+description: Registre uma nova história de usuário no projeto do Café do Sítio.
 title: "[US<Código da US>]: <Título da US no verbo Infinitivo>"
 labels: ["user story"]
-projects: ["brunna-martins/1"]
+projects: ["mdsreq-fga-unb/46"]
 body:
   - type: textarea
     id: text-zone1

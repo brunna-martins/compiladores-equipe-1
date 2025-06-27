@@ -38,18 +38,8 @@ INT_LITERAL [0-9]+
 \"\"\"([^\"\\]|\\.|(\n))*?\"\"\"     {
     char* raw = strdup(yytext);
     int len = strlen(raw);
-    // Remove as 3 aspas finais
     raw[len - 3] = '\0';
-    // Aloca espaço para a nova string: tamanho original - 4 (3 aspas de abertura viram 1, e 3 de fechamento viram 1)
-    yylval.string = (char*)malloc(len - 4);
-    // Começa com uma aspa
-    yylval.string[0] = '"';
-    // Copia o conteúdo (pulando as 3 aspas iniciais)
-    strncpy(yylval.string + 1, raw + 3, len - 6);
-    // Adiciona a aspa final
-    yylval.string[len - 5] = '"';
-    // Terminador de string
-    yylval.string[len - 4] = '\0';
+    yylval.string = strdup(raw + 3);
     free(raw);
     return STRING_LITERAL;
 }
@@ -57,14 +47,8 @@ INT_LITERAL [0-9]+
 \'\'\'([^\'\\]|\\.|(\n))*?\'\'\'     {
     char* raw = strdup(yytext);
     int len = strlen(raw);
-    raw[len - 3] = '\0';  // Remove as 3 aspas finais (''')
-    
-    // Aloca espaço para a nova string: " + conteúdo (len - 6) + " + \0
-    yylval.string = (char*)malloc(len - 4 + 1);  // -6 (3 aspas de início e fim) + 2 (novas aspas) + \0
-    
-    // Monta a string com aspas duplas
-    snprintf(yylval.string, len - 4 + 1, "\"%s\"", raw + 3);  // raw + 3 pula as 3 aspas iniciais
-    
+    raw[len - 3] = '\0';
+    yylval.string = strdup(raw + 3);
     free(raw);
     return STRING_LITERAL;
 }

@@ -1,10 +1,6 @@
 #ifndef AST_H
 #define AST_H
 
-#include "tabela_simbolos.h"
-
-// O enum converte tudo em números no final
-// Começando a contagem a partir do zero
 typedef enum { 
     TIPO_INT, 
     TIPO_FLOAT, 
@@ -13,15 +9,13 @@ typedef enum {
     TIPO_PALAVRA_CHAVE, 
     TIPO_ERRO, 
     TIPO_ID, 
-    TIPO_FUNCAO,
-    TIPO_CHAMADA_DE_FUNCAO, 
+    TIPO_FUNCAO, 
     TIPO_PARAM, 
     TIPO_OP,
     TIPO_OPCOMP,
     TIPO_SEQUENCIA,
     TIPO_PRINT,
-    TIPO_ARG_LIST,
-    TIPO_BOOL,
+    TIPO_CHAMADA_FUNCAO,
 } Tipo;
 
 typedef struct noAST {
@@ -52,23 +46,12 @@ NoAST* criarNoSeq(NoAST *primeiro, NoAST *segundo);
 NoAST *criarNoId(char *nome);
 NoAST *criarNoDelimitador(char delimitador);
 NoAST *criarNoFunDef(char *nome, NoAST *params, NoAST *body);
-NoAST *criarNoChamadaFuncao(char *nome, NoAST *params);
 NoAST *criarParam(char *nome);
 NoAST *appendParam(NoAST *lista, NoAST *novo);
 NoAST *criarNoParenteses(NoAST *abre, NoAST *conteudo, NoAST *fecha);
 NoAST *criarNoOpComposto(char *operador, NoAST *esquerda, NoAST *direita);
-void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo, TabelaSimbolos* tabela);
+void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo);
 int tiposCompativeis(Tipo t1, Tipo t2);
 NoAST *criarNoFuncPrint(NoAST *params);
-int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela);
-void gerar_programa_c(NoAST* raiz, const char* nome_arquivo, TabelaSimbolos* tabela);
-void gerar_statement(NoAST* node, FILE* out, TabelaSimbolos* tabela);
-void gerar_codigo_funcao(NoAST* node, FILE* out, TabelaSimbolos* tabela);
-void gerar_funcoes(NoAST* node, FILE* out, TabelaSimbolos* tabela);
-void gerar_parametros(NoAST* node, FILE* out, TabelaSimbolos* tabela);
-NoAST* appendArgList(NoAST* list, NoAST* new_arg);
-NoAST* criarNoArgList(NoAST* first_arg);
-NoAST* criarNoPrint(NoAST* args);
-
 
 #endif

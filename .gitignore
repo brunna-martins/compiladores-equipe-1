@@ -9,5 +9,3 @@ settings.json
 ast.o
 test_ast
 test_tabela_simbolos
-output.c
-output

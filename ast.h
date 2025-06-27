@@ -39,6 +39,7 @@ typedef struct noAST {
     struct noAST *meio;
 } NoAST;
 
+NoAST *criarNoFuncCall(char *nome_funcao, NoAST *args);
 NoAST *criarNoOp(char op, NoAST *esq, NoAST *dir);
 NoAST *criarNoNumInt(int val);
 NoAST *criarNoNumFloat(float valor_float);

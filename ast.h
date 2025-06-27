@@ -22,6 +22,7 @@ typedef enum {
     TIPO_PRINT,
     TIPO_ARG_LIST,
     TIPO_BOOL,
+    TIPO_LOGICO,
 } Tipo;
 
 typedef struct noAST {
@@ -57,7 +58,7 @@ NoAST *criarParam(char *nome);
 NoAST *appendParam(NoAST *lista, NoAST *novo);
 NoAST *criarNoParenteses(NoAST *abre, NoAST *conteudo, NoAST *fecha);
 NoAST *criarNoOpComposto(char *operador, NoAST *esquerda, NoAST *direita);
-void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo, TabelaSimbolos* tabela);
+void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo);
 int tiposCompativeis(Tipo t1, Tipo t2);
 NoAST *criarNoFuncPrint(NoAST *params);
 int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela);
@@ -69,6 +70,7 @@ void gerar_parametros(NoAST* node, FILE* out, TabelaSimbolos* tabela);
 NoAST* appendArgList(NoAST* list, NoAST* new_arg);
 NoAST* criarNoArgList(NoAST* first_arg);
 NoAST* criarNoPrint(NoAST* args);
+NoAST* criarNoOpLogico(char* op, NoAST* esquerda, NoAST* direita);
 
 
 #endif

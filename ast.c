@@ -7,7 +7,7 @@
 
 NoAST* criarNoFuncCall(char *nome_funcao, NoAST *args) {
     NoAST* no = malloc(sizeof(NoAST));
-    no->tipo = TIPO_CHAMADA_FUNCAO;
+    no->tipo = TIPO_CHAMADA_DE_FUNCAO;
     strncpy(no->nome, nome_funcao, sizeof(no->nome));
     no->esquerda = args;  // lista de argumentos
     no->direita = NULL;
@@ -189,10 +189,6 @@ NoAST* criarNoElse(NoAST *corpo) {
 
 NoAST* criarNoSeq(NoAST* esq, NoAST* dir) {
     NoAST* no = malloc(sizeof(NoAST));
-    if (!no) {
-        yyerror("Falha de alocação de memória em criarNoSeq");
-        exit(1);
-    }
     no->tipo = TIPO_SEQUENCIA;
     no->esquerda = esq;
     no->direita = dir;
@@ -226,7 +222,16 @@ NoAST* appendArgList(NoAST* list, NoAST* new_arg) {
     return list;
 }
 
-void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo, TabelaSimbolos* tabela) {
+NoAST* criarNoOpLogico(char* op, NoAST* esquerda, NoAST* direita) {
+    NoAST* no = malloc(sizeof(NoAST));
+    no->tipo = TIPO_LOGICO;
+    strcpy(no->nome, op);
+    no->esquerda = esquerda;
+    no->direita = direita;
+    return no;
+}
+
+void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
     if (!no) return;
 
     // Imprime prefixo e conector
@@ -237,7 +242,6 @@ void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo, TabelaSimbo
     switch (no->tipo) {
         case TIPO_FUNCAO:
             printf("Função: %s\n", no->nome);
-            alterar_tipagem(no->nome, tabela, no);
             break;
         case TIPO_PARAM:
             printf("Parâmetro: %s\n", no->nome);
@@ -281,6 +285,9 @@ void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo, TabelaSimbo
         case TIPO_ARG_LIST:
             printf("ARG_LIST \n");
             break;
+        case TIPO_LOGICO:
+            printf("Operador Lógico: %s\n", no->nome);
+            break;
         default:
             if (no->operador)
                 printf("Operador: %c\n", no->operador);
@@ -299,11 +306,11 @@ void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo, TabelaSimbo
     int contador = 0;
 
     if (no->esquerda)
-        imprimirASTBonita(no->esquerda, novoPrefixo, ++contador == totalFilhos, tabela);
+        imprimirASTBonita(no->esquerda, novoPrefixo, ++contador == totalFilhos);
     if (no->meio)
-        imprimirASTBonita(no->meio, novoPrefixo, ++contador == totalFilhos, tabela);
+        imprimirASTBonita(no->meio, novoPrefixo, ++contador == totalFilhos);
     if (no->direita)
-        imprimirASTBonita(no->direita, novoPrefixo, ++contador == totalFilhos, tabela);
+        imprimirASTBonita(no->direita, novoPrefixo, ++contador == totalFilhos);
 }
 
 int tiposCompativeis(Tipo t1, Tipo t2) {

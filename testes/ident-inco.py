@@ -11,6 +11,7 @@ def funcao_simples():
 # Função com estrutura if
 def funcao_com_if():
     numero = 5
+    resultado = 0
     if numero > 0:
         resultado = numero * 2
         print(resultado)
@@ -38,6 +39,7 @@ def funcao_com_for():
 # Função com indentação aninhada
 def funcao_aninhada():
     x = 10
+    
     if x > 5:
         y = 20
         if y > 15:

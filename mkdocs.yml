@@ -26,7 +26,8 @@ nav:
       - Controle de Identação: entrega1/analisador-lexico/controle-identacao.md
   - Entrega 2:
     - Árvore Sintática: entrega2/arvore-sintatica.md
-    - Tabela de Símbolos: entrega2/tabela-simbolos.md    
+    - Tabela de Símbolos: entrega2/tabela-simbolos.md
+    - Analisador Sintático: entrega2/analisador-sintatico.md   
 theme:
   name: material
   language: pt-BR

@@ -240,62 +240,63 @@ void imprimirASTBonita(NoAST *no, const char *prefixo, int ehUltimo) {
 
     // Conteúdo do nó
     switch (no->tipo) {
-        case TIPO_FUNCAO:
-            printf("Função: %s\n", no->nome);
-            break;
-        case TIPO_PARAM:
-            printf("Parâmetro: %s\n", no->nome);
-            break;
-        case TIPO_PALAVRA_CHAVE:
-            printf("Palavra-chave: %s\n", no->palavra_chave);
-            break;
-        case TIPO_INT:
-            printf("Inteiro: %d\n", no->valor);
-            break;
-        case TIPO_FLOAT:
-            printf("Float: %.2f\n", no->valor_float);
-            break;
-        case TIPO_STRING:
-            printf("String: %s\n", no->valor_string);
-            break;
-        case TIPO_ID:
-            printf("Identificador: %s\n", no->nome);
-            break;
-        case TIPO_DELIMITADOR:
-            printf("Delimitador: %c\n", no->delimitador);
-            break;
-        case TIPO_OP:
+    case TIPO_FUNCAO:
+        printf("\033[35mFunção: %s\033[0m\n", no->nome);  // roxo
+        break;
+    case TIPO_PARAM:
+        printf("\033[38;5;87mParâmetro: %s\033[0m\n", no->nome);  // azul esverdeado
+        break;
+    case TIPO_PALAVRA_CHAVE:
+        printf("\033[38;5;197mPalavra-chave: %s\033[0m\n", no->palavra_chave);  // vermelho meio rosa
+        break;
+    case TIPO_INT:
+        printf("\033[34mInteiro: %d\033[0m\n", no->valor);  // azul
+        break;
+    case TIPO_FLOAT:
+        printf("\033[38;5;87mFloat: %.2f\033[0m\n", no->valor_float);  // azul esverdeado
+        break;
+    case TIPO_STRING:
+        printf("\033[32mString: %s\033[0m\n", no->valor_string);  // verde
+        break;
+    case TIPO_ID:
+        printf("\033[36mIdentificador: %s\033[0m\n", no->nome);  // ciano
+        break;
+    case TIPO_DELIMITADOR:
+        printf("\033[90mDelimitador: %c\033[0m\n", no->delimitador);  // cinza claro
+        break;
+    case TIPO_OP:
+        printf("\033[33mOperador: %c\033[0m\n", no->operador);  // amarelo
+        break;
+    case TIPO_OPCOMP:
+        printf("\033[33mOperador: %s\033[0m\n", no->operadorComp);  // amarelo
+        break;
+    case TIPO_ERRO:
+        printf("\033[41mAAAAAA!\033[0m\n");  // fundo vermelho
+        break;
+    case TIPO_SEQUENCIA:
+        printf("\033[94mNó sequência: 🪢\033[0m\n");  // azul claro
+        break;
+    case TIPO_PRINT:
+        printf("\033[38;5;208mPRINT\033[0m\n");  // laranja queimado
+        break;
+    case TIPO_CHAMADA_DE_FUNCAO:
+        printf("\033[95mChamada_função: %s\033[0m\n", no->nome);  // magenta claro
+        break;
+    case TIPO_ARG_LIST:
+        printf("\033[96mARG_LIST\033[0m\n");  // ciano claro
+        break;
+    case TIPO_LOGICO:
+        printf("\033[38;5;220mOperador Lógico: %s\033[0m\n", no->nome);  // amarelo claro
+        break;
+    default:
+        if (no->operador)
             printf("Operador: %c\n", no->operador);
-            break;
-        case TIPO_OPCOMP:
-            printf("Operador: %s\n", no->operadorComp);
-            break;
-        case TIPO_ERRO:
-            printf("AAAAAA!\n");
-            break;
-        case TIPO_SEQUENCIA:
-            printf("Nó sequência: 🪢\n");
-            break; 
-        case TIPO_PRINT:
-            printf("PRINT\n");
-            break;
-        case TIPO_CHAMADA_DE_FUNCAO:
-            printf("Chamada_função: %s\n", no->nome);
-            break;
-        case TIPO_ARG_LIST:
-            printf("ARG_LIST \n");
-            break;
-        case TIPO_LOGICO:
-            printf("Operador Lógico: %s\n", no->nome);
-            break;
-        default:
-            if (no->operador)
-                printf("Operador: %c\n", no->operador);
-            else
-                printf("Nó desconhecido\n");
-            break;
-    }
+        else
+            printf("Nó desconhecido\n");
+        break;
+}
 
+        
     // Novo prefixo para filhos
     char novoPrefixo[256];
     snprintf(novoPrefixo, sizeof(novoPrefixo), "%s%s", prefixo, ehUltimo ? "    " : "│   ");

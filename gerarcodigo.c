@@ -122,6 +122,7 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             break;
         
         case TIPO_PRINT:
+            fprintf(out, "");
             gerarPrint(node, out, tabela);
             break;
 
@@ -181,7 +182,7 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
         case TIPO_CHAMADA_DE_FUNCAO:
             fprintf(out, "%s(", node->nome);
             gerar_parametros(node->esquerda, out, tabela);
-            fprintf(out, ");\n");
+            fprintf(out, ")");
             break;
         
         case TIPO_LOGICO:
@@ -219,36 +220,47 @@ int gerar_codigo_c(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
     return 1;
 }
 
-void gerar_parametros(NoAST* node, FILE* out, TabelaSimbolos* tabela)
-{
-    if(!node) return;
+void gerar_parametros(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
+    if (!node) return;
 
-    switch(node->tipo)
-    {
-        case TIPO_INT:
-            fprintf(out, "%d", node->valor);
-            break;
-        case TIPO_FLOAT:
-            fprintf(out, "%f", node->valor_float);
-            break;
-        case TIPO_STRING:
-            fprintf(out, "%s", node->valor_string);
-            break;
-        case TIPO_ID:
-            fprintf(out, "%s", node->nome);
-            break;       
-    }
-
-    if(node->esquerda)
-        fprintf(out, ",");
-    else if(node->direita)
-        fprintf(out, ",");
-    
-    if(node->esquerda)
+    // Caso seja uma lista encadeada de parâmetros (nó do tipo ARG_LIST)
+    if (node->tipo == TIPO_ARG_LIST) {
         gerar_parametros(node->esquerda, out, tabela);
-    else
-        gerar_parametros(node->direita, out, tabela);
+        if (node->direita) {
+            fprintf(out, ", ");
+            gerar_parametros(node->direita, out, tabela);
+        }
+    }
+    // Caso seja um valor direto (ID, INT, FLOAT, etc.)
+    else {
+        switch (node->tipo) {
+            case TIPO_INT:
+                fprintf(out, "%d", node->valor);
+                break;
+            case TIPO_FLOAT:
+                fprintf(out, "%f", node->valor_float);
+                break;
+            case TIPO_STRING:
+                fprintf(out, "\"%s\"", node->valor_string); // strings com aspas
+                break;
+            case TIPO_ID:
+                fprintf(out, "%s", node->nome);
+                break;
+            case TIPO_CHAMADA_DE_FUNCAO:
+                fprintf(out, "%s(", node->nome);
+                gerar_parametros(node->esquerda, out, tabela);
+                fprintf(out, ")");
+                break;
+            case TIPO_OP:
+                gerar_codigo_c(node, out, tabela);
+                break;
+            default:
+                fprintf(out, "/* valor não tratado %d*/", node->tipo);
+                break;
+        }
+    }
 }
+
 
 void gerar_programa_c(NoAST* raiz, const char* nome_arquivo, TabelaSimbolos* tabela) {
     if (!raiz) {
@@ -307,11 +319,13 @@ void gerar_statement(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
             break;
 
         case TIPO_OP:
+            fprintf(out, "\t");
             gerar_codigo_c(node, out, tabela);
             fprintf(out, ";\n");
             break;
 
         case TIPO_OPCOMP:
+            fprintf(out, "\t");
             gerar_codigo_c(node, out, tabela);
             fprintf(out, ";\n");
             break;
@@ -319,10 +333,12 @@ void gerar_statement(NoAST* node, FILE* out, TabelaSimbolos* tabela) {
         case TIPO_CHAMADA_DE_FUNCAO:
             fprintf(out, "\t");
             gerar_codigo_c(node, out, tabela);
+            fprintf(out, ";\n");
             break;
 
         case TIPO_PRINT:
         case TIPO_PALAVRA_CHAVE:
+            fprintf(out, "\t");
             gerar_codigo_c(node, out, tabela);  // já inclui \n
             break;
 
